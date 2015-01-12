@@ -1,0 +1,65 @@
+{% extends "portal/compose_base.html" %}
+{% comment %}
+  Upload Sequences
+{% endcomment %}
+
+{% block compose_content %}
+{% load staticfiles %}
+
+
+<form id="user_form" method="post" action="."
+    enctype="multipart/form-data">
+{% csrf_token %}
+
+<h2>Step 1: Setup the Job</h2>
+
+<div style="float:left; width:49%">
+	<div class="rounded_div_medium" style="background-color:#dedede;">
+	    <h3>Input Protein Sequences</h3>
+	    {{ seqfile_form.as_p }}	
+	</div>
+	<!--
+	<div class="rounded_div_medium" style="background-color:#dedede;">    
+	    {{ seqfile_form.seq_path.errors }}
+	</div>
+	-->
+	<div class="rounded_div_medium" style="background-color:#dedede;">
+		    <h3>Job Name</h3>
+		<p>Choose a name:{{ js_form.name }}
+		<p>
+		Describe this project (optional):
+		{{ js_form.project_description }}</p>
+		<p>
+	</div>
+</div>
+
+<div style="margin-left:50%; width:50%">
+
+	<div class="rounded_div_medium" style="background-color:#dedede;">
+		<h3>Sequence Alignment</h3>
+		<p>Use the following alignment algorithms:</p> 
+		{{ js_form.alignment_algorithms }}
+		<p>
+		<h3>Phylogenetics</h3>
+		<p>Try the following RAxML phylogenetic models:</p> 
+		{{ js_form.raxml_models }}
+		<p>
+	</div>
+
+	<div class="rounded_div_medium" style="background-color:#dedede;">
+		<h3>Sequence Uncertainty</h3>
+		<p>How many Bayesian-sampled alternate ancestral sequences do you want?</p>
+		{{ js_form.n_bayes_samples }}
+		<p>
+	</div>
+	<div align="center">
+	<button class="button" type="submit" name="submit" align="center">Save and Continue</button>
+	</div>
+
+    <!--<input type="submit" name="submit" value="Save and Continue" />-->
+	    
+</div>
+
+
+</form>
+{% endblock %}

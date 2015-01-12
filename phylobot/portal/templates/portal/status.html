@@ -1,0 +1,254 @@
+{% extends "portal/portal_base.html" %}
+
+{% block content %}
+{% load staticfiles %}
+
+{% if job.status.short == "running" or job.status.short == "queued" %}
+<h2 class="green">Your job is in the queue!</h2>
+<p>Bookmark this page, and come back to check the status.</p>
+{% endif %}
+
+<div style="width: 100%; overflow: hidden;">
+<div style="width:40%; float:left;">
+	<div class="rounded_div_medium" style="background:#dedede;">
+		<table width="100%">
+		<tr>
+		<!--<td><p class="smalltext">&#x25B2;&#x25BC;</p></td>-->
+		<td><h2>Job Settings</h2></td>
+		<td align="right">
+				<div class="rounded_div_small" style="width:40px; margin-right:15px;" id="div_button" align="center">
+		  		<form method="post" action="." enctype="multipart/form-data">
+		  		{% csrf_token %}
+		  		<input type="hidden" name="action" value="edit" />
+		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
+		  		<input type="image" src="{% static "portal/compose.png"%}" width=30 height=30 />
+		  		<a>Edit</a>
+		  		</form>
+		  		</div></td>
+		</tr>
+		</table>
+		<div id="jobsettings">
+		
+		<ul>
+		<li>Job Name: {{ job.settings.name }}</li>
+		<li>Input File: {{ job.settings.rawseqfile }}</li>
+		<li>N sequences: {{ nseqs }}</li>
+		<li>Job Description:
+		{% if job.settings.project_description %}
+			 {{ job.settings.project_description }}
+		{% else %}
+			None given
+		{% endif %}
+		</li>
+		</ul>
+		    
+		    
+		<h3>Alignment Algorithms:</h3>
+		<ul>
+		{% for aa in list_of_aa %}
+			<li>{{ aa }}</li> 
+		{% endfor %}
+		</ul>    
+		
+		<h3>RAxML Models:</h3>
+		<ul>
+		{% for rm in list_of_rm %}
+			<li>{{ rm }}</li> 
+		{% endfor %}
+		</ul>
+		
+		<h3>Outgroup:</h3>
+		<p>
+		{% for t in job.settings.outgroup.taxa.all %}
+		{{ t }}, 
+		{% endfor %}
+		</p>
+		
+		<h3>Ancestors</h3>
+		{% if job.settings.ancestors %}
+			<ul>
+			{% for anc in job.settings.ancestors.all %}
+				<li>{{anc}}</li>
+			{% endfor %}
+			</ul>
+		{% else %}
+			<p>No ancestors were defined for this project.</p>
+		{% endif %}
+	
+		<h3>Functional Loci Analysis</h3>
+		{% if job.settings.anc_comparisons %}
+			<ul>
+			{% for ac in job.settings.anc_comparisons.all %}
+				<li>{{ac.oldanc}} &#65515; {{ac.newanc}}</li>
+			{% endfor %}
+			</ul>
+		{% else %}
+		<p>No branches were setup for functional loci analysis.</p>	
+		{% endif %}
+		
+		</div>
+	</div>
+
+</div>
+
+<div style="width:59%; margin-left: 41%;">
+	<div class="rounded_div_medium" style="background:#dedede;">
+		<table>
+			<tr>
+			<!--<td><p class="smalltext">&#x25B2;&#x25BC;</p></td>-->
+			<td><h2>Control Panel</h2>
+			</td>
+			</tr>
+		</table>	  	
+	  	
+	  	<table width="100%">
+		  	<tr>
+		  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
+		  		<form method="post" action="." enctype="multipart/form-data">
+		  		{% csrf_token %}
+		  		<input type="hidden" name="action" value="start" />
+		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
+		  		<input type="image" src="{% static "portal/play.png"%}" width=30 height=30>Start
+		  		</form>
+		  		</div>
+		  	</td>
+		  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
+		  		<form method="post" action="." enctype="multipart/form-data">
+		  		{% csrf_token %}
+		  		<input type="hidden" name="action" value="stop" />
+		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
+		  		<input type="image" src="{% static "portal/stop.png"%}" width=30 height=30>Stop
+		  		</form>
+		  		</div>
+		  	</td>
+		  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
+		  		<form method="post" action="." enctype="multipart/form-data">
+		  		{% csrf_token %}
+		  		<input type="hidden" name="action" value="stop" />
+		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
+		  		<input type="image" src="{% static "portal/flash.png"%}" width=30 height=30>Reset
+		  		</form>
+		  		</div>
+		  	</td>
+		  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
+		  		<form method="post" action="." enctype="multipart/form-data">
+		  		{% csrf_token %}
+		  		<input type="hidden" name="action" value="remove" />
+		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
+		  		<input type="image" src="{% static "portal/trash.png"%}" width=30 height=30>Trash
+		  		</form>
+		  		</div>
+		  	</td>
+		  	</tr>
+	  	</table>
+	</div>
+	
+	<div class="rounded_div_medium" style="background:#dedede;">
+		<table>
+			<tr>
+			<!--<td><p class="smalltext">&#x25B2;&#x25BC;</p></td>-->
+			<td><h2>Status: 
+			
+			{% if job.status.short == "error"%}
+			<font style="color:red;">
+			{{ job.status.short }}
+			</font>
+			{% elif job.status.short == "running"%}
+			<font style="color:green;">
+			{{ job.status.short }}
+			</font>
+			{% else %}
+			<font style="color:black;">
+			{{ job.status.short }}
+			</font>
+			{% endif %}
+
+			
+			</h2>
+			</td>
+			</tr>
+		</table>
+		
+		<!--
+		<p style="color:
+		{% if job.status.short == "error"%}
+		red;
+		{% elif job.status.short == "stopped" %}
+		black;
+		{% else %}
+		green;
+		{% endif %}
+		">{{job.status.long}}<br>
+		{% if job.note %}
+		{{job.note}}
+		{% endif %}
+		</p>
+		-->
+		
+		<div width="100%" style="height:6px;background-color:lightgrey; margin-right:40px">
+		<div style="height:7px; width:{{job.p_done}}%;background-color:
+		{% if job.status.short == "error"%}
+		red;
+		{% elif job.status.short == "stopped" %}
+		black;
+		{% else %}
+		#66CC66;
+		{% endif %}
+		height:5px;float:left;">
+		</div>
+		<font style="color:
+		{% if job.status.short == "error"%}
+		red;
+		{% elif job.status.short == "stopped" %}
+		black;
+		{% else %}
+		green;
+		{% endif %}
+		">
+		{{job.p_done}}% complete
+		</font>
+		</div>
+		<p>
+		{{j.status.short}}<font class="smalltext">(last updated {{job.last_modified}})
+		</p>
+	</div>
+
+	<div class="rounded_div_medium" style="background:#dedede;">
+		<table>
+			<tr>
+			<!--<td><p class="smalltext">&#x25B2;&#x25BC;</p></td>-->
+			<td><h2>Checkpoints</h2>
+			</td>
+			</tr>
+		</table>		
+		<table>
+			{% for cp in checkpoints %}
+			<tr>
+				<td align="center">				
+				{% if job.checkpoint >= cp.0 %}
+					<img src="{% static "portal/check_green.png"%}" width=20>
+					{% elif job.status.short == "error" and job.checkpoint == cp.0 %}
+					<img src="{% static "portal/x_red.png"%}" width=25>
+					{% else %}			
+					&nbsp;
+				{% endif %}
+				</td>
+				<td>
+				{% if job.checkpoint >= cp.0 %}
+					<font class="green">{{cp.1}}</font>
+					{% elif job.status.short == "error" and job.checkpoint == cp.0 %}
+					<font class="red">{{cp.1}}</font>
+					{% else %}
+					<font class="grey">{{cp.1}}</font>				
+				{% endif %}
+
+				</td>
+			</tr>
+			
+			{% endfor %}
+		</table>
+	</div>
+</div>
+</div>
+	
+{% endblock %}

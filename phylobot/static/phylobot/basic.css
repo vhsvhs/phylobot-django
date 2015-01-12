@@ -1,0 +1,239 @@
+.button {
+   border-top: 1px solid #a6d8ff;
+   background: #439dd1;
+   background: -webkit-gradient(linear, left top, left bottom, from(#05bcff), to(#439dd1));
+   background: -webkit-linear-gradient(top, #05bcff, #0066ff);
+   background: -moz-linear-gradient(top, #05bcff, #0066ff);
+   background: -ms-linear-gradient(top, #05bcff, #0066ff);
+   background: -o-linear-gradient(top, #05bcff, #0066ff);
+   padding: 12.5px 25px;
+   -webkit-border-radius: 40px;
+   -moz-border-radius: 40px;
+   border-radius: 40px;
+   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   #box-shadow: rgba(0,0,0,1) 0 1px 0;
+   #text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: #ffffff;
+   font-size: 16px;
+   font-family: Helvetica, Arial, Sans-Serif;
+   text-decoration: none;
+   vertical-align: middle;
+   border:none;
+   }
+.button:hover {
+   border-top-color: #00eb00;
+   background: #00eb00;
+   color: #ffffff;
+   }
+.button:active {
+   border-top-color: #1b435e;
+   background: #1b435e;
+   }
+
+.button_off {
+   border-top: 1px solid #a6d8ff;
+   background: #439dd1;
+   background: -webkit-gradient(linear, left top, left bottom, from(#CCCCCC), to(#CCCCCC));
+   background: -webkit-linear-gradient(top, #CCCCCC, #CCCCCC);
+   background: -moz-linear-gradient(top, #CCCCCC, #CCCCCC);
+   background: -ms-linear-gradient(top, #CCCCCC, #CCCCCC);
+   background: -o-linear-gradient(top, #CCCCCC, #CCCCCC);
+   padding: 12.5px 25px;
+   -webkit-border-radius: 40px;
+   -moz-border-radius: 40px;
+   border-radius: 40px;
+   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   #box-shadow: rgba(0,0,0,1) 0 1px 0;
+   #text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: #ffffff;
+   font-size: 16px;
+   font-family: Helvetica, Arial, Sans-Serif;
+   text-decoration: none;
+   vertical-align: middle;
+   border:none;
+   }
+.button_off:hover {
+   border-top-color: #FF0000;
+   background: #FF0000;
+   color: #ffffff;
+   }
+.button_off:active {
+   border-top-color: #1b435e;
+   background: #1b435e;
+   }
+
+.full_width{
+	width: 100%;
+}
+
+hr {
+	height: 3px;
+	background-color: lightgrey;
+	border: none;
+}
+
+.white{
+	color: #FFFFFF;
+}
+
+.grey{
+	color: grey;
+}
+
+.lightgrey{
+	color: lightgrey;
+}
+
+.green{
+	color: #009900;
+}
+
+.red{
+	color: #FF0000;
+}	
+
+.lightgreen{
+	color: #66CC66;
+}
+
+.smalltext{
+	font-size: 9pt;
+}
+
+.columnleft{
+  	float: left;
+}
+
+.columnright{
+  	float: right;
+}
+
+p, input, td{
+	font-size: 11pt;
+	line-height: 140%;
+}
+
+h1{
+	font-size: 20pt;
+}
+
+h2{
+	font-size: 16pt;
+}
+ 
+#frontbutton{
+	line-height:100%;
+}
+
+a:link {
+	text-decoration: none;
+	color: #0066ff;
+	cursor: pointer;
+}
+a:visited {
+	color: #0066ff;
+	text-decoration: none;
+	cursor: pointer;
+}
+a:mouseover {
+	color: #ff9900;
+	text-decoration: underline;
+	cursor: pointer;
+}
+a:hover {
+	color: #ff9900;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+th{
+	font-size: 11pt;
+	font-decoration: none;
+}
+
+.button_text {
+	text-decoration:None;
+}
+
+.rounded_div_button {
+#	background-color: #add6ff;
+	background-color: white;
+	#padding: 10px;
+	margin-top: 10px;
+	margin-right: 10px;
+	margin-left: 10px;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    -khtml-border-radius: 50px;
+    border-radius: 50px;   
+}
+
+.rounded_div_button:hover, #div_button:hover {
+	background-color:lightgreen;
+}
+
+
+#div_button_big{
+	height:100px;
+}
+
+#div_button_small{
+	height:60px;
+}
+
+#div_button_danger:hover {
+	background-color: pink;
+}
+
+.rounded_div_small {
+	#padding: 2px;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -khtml-border-radius: 7px;
+    border-radius: 7px;
+}
+
+.rounded_div_medium {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	margin-top: 7px;
+	#margin-right: 7px;
+	#margin-left: 7px;
+    -moz-border-radius: 12px;
+    -webkit-border-radius: 12px;
+    -khtml-border-radius: 12px;
+    border-radius: 12px;
+}
+
+.div_green{
+	background-color: #66CC66;
+}
+
+#floater	{float:left; height:50%; margin-bottom:-120px;}
+#content	{clear:both; height:240px; position:relative;}
+
+
+.popupholder{        
+    width:100%;
+    display:block;
+}
+.popupcontent{
+    background:#fff;
+    padding: 28px 26px 33px 25px;
+}
+.popup{
+    border-radius: 7px;
+    background:#6b6a63;
+    margin:30px auto 0;
+    padding:6px;  
+    // here it comes
+    position:absolute;
+    width:800px;
+    top: 50%;
+    left: 50%;
+    #margin-left: -400px; // 1/2 width
+    #margin-top: -40px; // 1/2 height
+}

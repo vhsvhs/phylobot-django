@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% comment %}
+  Main page to authenticate users.
+{% endcomment %}
+
+{% block head %}
+  <title>PhyloBot | Create an Account</title>
+{% endblock %}
+
+{% block body %}
+
+  <header>
+    {% load staticfiles %}
+  	<table width="100%">
+	  	<tr>
+	  	<td>
+	  	<img src="{% static 'phylobot/phylobot_bot.png' %}" width="120px">
+	    </td>
+	    <td>
+	    <h1>Create a New Account</h1>
+	    </td>
+	    </tr>
+    </table>
+  </header>
+
+{% if registered %}
+PhyloBot says: <strong>thank you for registering!</strong>
+<a href="/">Return to the homepage.</a><br />
+{% else %}
+<form id="user_form" method="post" action="."
+        enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <!-- Display each form. The as_p method wraps each element in a paragraph
+         (<p>) element. This ensures each element appears on a new line,
+         making everything look neater. -->
+    {{ user_form.as_p }}
+    {{ profile_form.as_p }}
+
+    <!-- Provide a button to click to submit the form. -->
+    <input type="submit" name="submit" value="Register" />
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "portal/portal_base.html" %}
+
+{% block title %}
+  Compose Job
+{% endblock %}
+
+{% block content %}
+<div class="rounded_div_medium" style="background-color:#ffffcc; width=30%" align="center">
+<table>
+<tr>
+
+<td>
+	<h2 style="margin-right:60px;"><a href="/portal/cancelcompose">Cancel</a></h2>
+</td>
+
+<td>
+	<h2>
+	<a href="/portal/compose1"><button type="submit" name="submit" class="button">Step 1</button></a>
+	
+	&rarr; 
+	
+	{% if forward_unlock %}
+	<a href="/portal/compose2"><button type="submit" name="submit" class="button">Step 2</button></a>
+	{% else %}
+	<button class="button_off">Step 2</button>
+	{% endif %}
+	
+	&rarr; 
+	
+	{% if forward_unlock %}
+	<a href="/portal/status/"><button type="submit" name="submit" class="button">Launch</button></a>
+	{% else %}
+	<button class="button_off">Launch</button>
+	{% endif %}
+	</h2>
+</td>
+
+</tr>
+</table>
+</div>
+
+{% block compose_content %}{% endblock %}
+
+{% endblock %}

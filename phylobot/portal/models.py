@@ -1,0 +1,252 @@
+from django.db import models
+from django.contrib.auth.models import User
+import datetime
+from django.conf import settings
+import os, random, string
+from random_primary import *
+
+from fields import *
+
+class SoftwarePaths(models.Model):
+    """This model holds executable paths to various software tools, including RAxML, PhyML, clustal, etc."""
+    softwarename = models.CharField(max_length=50)
+    path = models.TextField()
+    
+    def __unicode__(self):
+        return unicode(self.path)
+
+class SeqType(models.Model):
+    id = models.IntegerField(primary_key=True)
+    type = models.CharField(max_length=30)
+    short = models.CharField(max_length=5)
+
+    def __unicode__(self):
+        return unicode(self.short)
+
+class Taxon(models.Model):
+    name = models.CharField(max_length=100)
+    seqtype = models.ForeignKey(SeqType)
+    sequence = models.TextField()
+    
+    def __unicode__(self):
+        return unicode(self.name)
+
+class AlignmentAlgorithm(models.Model):
+    name = models.CharField(max_length=30)
+    executable = models.TextField()
+    def __unicode__(self):
+        return unicode(self.name)
+
+class RaxmlModel(models.Model):
+    name = models.CharField(max_length=30)
+    def __unicode__(self):
+        return unicode(self.name)
+
+class TaxaGroup(models.Model):
+    taxa = models.ManyToManyField(Taxon)
+    taxa.help_text = ''
+    name = models.CharField(max_length=30)
+    owner = models.ForeignKey(User)
+    
+    def __unicode__(self):
+        return unicode(self.name)
+    
+    def listall(self):
+        r = ""
+        for t in self.taxa.all():
+            r += t.__str__() + ","
+        r = r[0:-1]
+        return r
+
+class Ancestor(models.Model):
+    ancname = models.CharField(max_length=30)
+    seedtaxa = models.ForeignKey(Taxon)
+    ingroup = models.ForeignKey(TaxaGroup, related_name='ingroup')
+    outgroup = models.ForeignKey(TaxaGroup)
+      
+    def __unicode__(self):
+        return unicode(self.ancname)
+
+class AncComp(models.Model):
+    oldanc = models.ForeignKey(Ancestor, related_name='oldanc')
+    newanc = models.ForeignKey(Ancestor, related_name='newanc')
+    
+    def __unicode__(self):
+        return unicode(self.oldanc.ancname + " to " + self.newanc.ancname)
+
+class SeqFileFormat(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=30)
+
+class SeqFile(models.Model):
+    seq_path = models.FileField(upload_to='raw_seqs')
+    format = models.ForeignKey(SeqFileFormat,null=True)
+    owner = models.ForeignKey(User)
+    timestamp_uploaded = models.DateTimeField(auto_now=True)
+    contents = models.ManyToManyField(Taxon,null=True)
+    contents.help_text = ''
+    
+    def __unicode__(self):
+        return unicode(self.seq_path)    
+
+class JobSetting(models.Model):
+    """Defines the settings for an ASR pipeline job."""
+    outgroup = models.ForeignKey(TaxaGroup, related_name="outgroup",null=True)
+    name = models.CharField(max_length=100,null=True)
+    project_description = models.TextField(null=True)
+    rawseqfile = models.ForeignKey(SeqFile,null=True)
+    alignment_algorithms = models.ManyToManyField(AlignmentAlgorithm,null=True)
+    alignment_algorithms.help_text = ''
+    raxml_run = models.TextField(null=True)
+    raxml_models = models.ManyToManyField(RaxmlModel,null=True)
+    raxml_models.help_text = ''
+    phyml_run = models.TextField(null=True)
+    mpirun_run = models.TextField(null=True)
+    lazarus_run = models.TextField(null=True)
+    markov_model_folder = models.FilePathField(null=True)
+    anccomp_run = models.TextField(null=True)
+    pdbtools_dir = models.FilePathField(null=True)
+    pymol_run = models.TextField(null=True)
+    use_mpi = models.BooleanField(default=False)
+    start_motif = models.CharField(max_length=20,null=True)
+    end_motif = models.CharField(max_length=20,null=True)
+    n_bayes_samples = models.IntegerField(default=100,null=True)
+    phyre_output = models.FileField(upload_to='phyre_output',null=True)
+    taxa_groups = models.ManyToManyField(TaxaGroup,null=True)
+    ancestors = models.ManyToManyField(Ancestor,null=True)
+    anc_comparisons = models.ManyToManyField(AncComp,null=True)
+    anc_comparisons.help_text = ''
+    
+    def is_valid(self):
+        """Error checks the values. Returns True if all is OK."""
+        return True
+
+class JobStatus(models.Model):
+    id = models.IntegerField(primary_key=True)
+    short = models.CharField(max_length=20)
+    long = models.TextField()
+
+    def __unicode__(self):
+        return unicode(self.short)
+
+ID_FIELD_LENGTH = 16
+    
+def byte_to_base32_chr(byte):
+    return alphabet[byte & 31]
+
+def random_id(length):
+    # Can easily be converted to use secure random when available
+    # see http://www.secureprogramming.com/?action=view&feature=recipes&recipeid=20
+    random_bytes = [random.randint(0, 0xFF) for i in range(length)]
+    return ''.join(map(byte_to_base32_chr, random_bytes))
+    
+    
+class Job(RandomPrimaryIdModel):
+    """ A job can be any executable task. It can be an invocation of software, like Muscle,
+    or it can be a call to a shell script, like source X.
+    """
+    #id = models.CharField(primary_key=True, max_length=ID_FIELD_LENGTH)
+    owner = models.ForeignKey(User)
+    status = models.ForeignKey(JobStatus)
+    settings = models.ForeignKey(JobSetting,null=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    
+    exe = models.TextField(null=True) # this is the shell command used to invoke the job.
+    path = models.TextField(null=True) # this is the directory path in which output from this job is written
+    
+    # a pickled string representing a subprocess.Popen object of the running job
+    pickled_popen = models.TextField(null=True)
+    note = models.TextField(null=True) # notes about the job, in addition to its status, can be written here.
+    checkpoint = models.FloatField(null=True)
+    p_done = models.FloatField(null=True)
+        
+    def __unicode__(self):
+        if self.settings != None:
+            if self.settings.name != None:
+                return unicode(self.settings.name)
+        return unicode(self.owner)
+
+    def validate(self):
+        """Checks that everything is okay with the job. If it's ready to launch,
+        then this method returns True. If there are errors, this method returns False.
+        If the job is okay, then the output folder for the job will be created."""
+        allokay = True
+        #
+        # to-do: write this method!
+        #
+        if allokay:
+            self.path = settings.MEDIA_ROOT + "/" + self.id.__str__()
+            if False == os.path.exists( self.path ):
+                os.system("mkdir + " + self.path)
+            os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.rawseqfile.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.fasta")            
+        return True
+
+    def generate_configfile(self):
+        """This script generates the config file, necessary for the ASR pipeline."""
+        cout = "GENE_ID = " + self.settings.name + "\n"
+        cout += "PROJECT_TITLE = " + self.settings.name + "\n" 
+        cout += "SEQUENCES = " + self.settings.name.__str__() + ".erg.fasta\n" 
+        cout += "MSAPROBS = " + SoftwarePaths.objects.get(softwarename="msaprobs").__str__() + "\n"
+        cout += "MUSCLE = " + SoftwarePaths.objects.get(softwarename="muscle").__str__() + "\n"
+        cout += "RAXML = " + SoftwarePaths.objects.get(softwarename="raxml").__str__() + "\n" 
+        cout += "PHYML = " + SoftwarePaths.objects.get(softwarename="phyml").__str__() + "\n"
+        cout += "LAZARUS = " + SoftwarePaths.objects.get(softwarename="lazarus").__str__() + "\n"
+        cout += "ANCCOMP = " + SoftwarePaths.objects.get(softwarename="anccomp").__str__() + "\n"
+        cout += "MARKOV_MODEL_FOLDER = " + SoftwarePaths.objects.get(softwarename="markov_models").__str__() + "\n"
+        cout += "USE_MPI = False\n"
+        cout += "RUN = sh\n"
+        cout += "ALIGNMENT_ALGORITHMS ="
+        for aa in self.settings.alignment_algorithms.all():
+            cout += " " + aa.name.__str__()
+        cout += "\n"
+        cout += "MODELS_RAXML ="
+        for mr in self.settings.raxml_models.all():
+            cout += " " + mr.name.__str__()
+        cout += "\n"
+        cout += "START_MOTIF = " + self.settings.start_motif + "\n"
+        cout += "END_MOTIF = " + self.settings.end_motif + "\n"
+        cout += "N_BAYES_SAMPLES = " + self.settings.n_bayes_samples.__str__() + "\n"
+        cout += "OUTGROUP = [" + (TaxaGroup.objects.get(id=self.settings.outgroup.id)).listall() + "]\n"
+        cout += "ANCESTORS ="
+        for a in self.settings.ancestors.all():
+            cout += " " + a.ancname.__str__()
+        cout += "\n"
+        for a in self.settings.ancestors.all():
+            cout += "INGROUP "
+            cout += a.ancname.__str__() + " "
+            cout += "[" + a.ingroup.listall() + "]\n"
+            cout += "ASRSEED "
+            cout += a.ancname.__str__() + " "
+            cout += a.seedtaxa.__str__() + "\n"
+        for c in self.settings.anc_comparisons.all():
+            cout += "COMPARE " + c.oldanc.ancname.__str__() + " " + c.newanc.ancname.__str__() + "\n"
+        
+        configpath = self.path + "/" + self.id.__str__() + ".config"
+        fout = open(configpath, "w")
+        fout.write(cout)
+        fout.close()
+        return configpath
+
+    def generate_exe(self):
+        """Generates a shell-executable command that will invoke the job.
+        NOTE: this method assumes that validate() was called, and returned True."""
+        configpath = self.generate_configfile()
+        self.exe = SoftwarePaths.objects.get(softwarename="asrpipeline").__str__() + " --configpath " + self.id.__str__() + ".config"
+        if self.checkpoint:
+            self.exe += " --jump " + self.checkpoint.__str__()
+        self.save()
+
+class JobQueue(models.Model):
+    id = models.IntegerField(primary_key=True)
+    jobs = models.ManyToManyField(Job, through='QueueOp')
+    jobs.help_text = ''
+
+class QueueOp(models.Model):
+    """Queue operations."""
+    job = models.ForeignKey(Job)
+    queue = models.ForeignKey(JobQueue)
+    timestamp = models.DateTimeField(default=datetime.date.today, auto_now=True)
+    opcode = models.IntegerField()
+    note = models.CharField(max_length=100)
+
+    

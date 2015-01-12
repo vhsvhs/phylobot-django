@@ -1,0 +1,11 @@
+from django.db import models
+
+# Create your models here.
+
+class Job(models.Model):
+    ownerid = models.IntegerField()
+    status = models.IntegerField()
+
+    def __unicode__(self):
+        return self.ownerid
+

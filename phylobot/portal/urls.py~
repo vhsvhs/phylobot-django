@@ -1,0 +1,9 @@
+from django.conf.urls import patterns, url
+
+from portal import views
+
+urlpatterns = patterns('',
+	url(r'^frontpage/', views.frontpage, name='frontpage'),
+	url(r'^auth/', views.auth, name='auth'),
+	url(r'^$', views.index, name='index'),
+)

@@ -1,0 +1,28 @@
+"""
+From the Django tutorials:
+Each view is responsible for doing one of two things: returning 
+an HttpResponse object containing the content for the requested 
+page, or raising an exception such as Http404. The rest is up to you."
+"""
+
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import RequestContext, loader
+from django.contrib.auth.decorators import login_required
+
+# Create your views here.
+def index(request):
+    #return HttpResponse("Hello, world. You're at the portal index.")
+    template = loader.get_template('portal/index.html')
+    context = RequestContext(request, {})
+    return HttpResponse(template.render(context))
+
+@login_required
+def frontpage(request):
+    #if not request.user.is_authenticated():
+    #    return HttpResponseRedirect('/accounts/login/?next=%s' % request.path)
+    return HttpResponse("Hello, world. You're at the portal frontpage for user.")
+
+def auth(request):
+    #return HttpResponse("Hello, world. You're at the portal signon page.")
+    return HttpResponse("Auth.")

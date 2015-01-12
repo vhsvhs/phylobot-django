@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block head %}
+	<title>PhyloBot</title>
+    {% block css %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static "phylobot/phylobot.css" %}">
+    {% endblock %}
+{% endblock %}
+
+{% block body %}
+  <header>
+    {% load staticfiles %}
+    <div align="center">
+  	<a href="../"><img src="{% static 'phylobot/phylobot_bot.png' %}" width="300px" style="padding-top:30px"></a>
+	</div>
+  </header>
+  
+  {% block content %}{% endblock %}
+  
+   <footer>
+  	<div class="bottom_div" align="center">
+  	<hr>
+  	<table width="100%">
+  	<tr>
+  	<td>
+  	<h3 style="padding-left:20px;"><a href="/about">About</a> | <a href="/contact">Contact</a> | <a href="https://github.com/vhsvhs/phylobot">Source</a> </h3>
+  	</td>
+  	<td align="right"><p class="smalltext" style="padding-right:20px;">&copy; 2014 Victor Hanson-Smith</p>
+  	</td>
+  	</tr>
+	</table>
+  	</div>
+  </footer>
+  
+{% endblock %}

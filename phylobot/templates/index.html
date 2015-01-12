@@ -1,0 +1,59 @@
+{% extends "phylobot_base.html" %}
+
+{% block content %}
+{% load staticfiles %}
+  <section align="center">   
+      <table align="center">
+  	  <tr>
+  	  <td colspan="2" align="left">
+  	  <h1 align="center">Hello. I am PhyloBot.</h1>
+  	  <p>I am a friendly robot that can automate your phylogenetic analysis. Give me your protein sequences, and I will 
+  	  build alignments, trees, ancestors, and scan for signatures of functional evolution.</p>
+  	  </td>
+  	  </tr>
+  
+      <tr>
+      <td align="center" width="50%">
+	      <a href="/portal/" class="button_text">
+	      <div class="" id="div_button_big" align="left">
+		      <image src="{% static "portal/home.png"%}" width=55 height=55 style="float:left; padding-right:10px; margin:0;">
+		      <h2 id="frontbutton"><strong>Sign In</strong></h2>
+		      <p>Existing Users</p>
+	      </div>
+	      </a>
+	  </td>
+	  <td align="center" width="50%">
+	  	  <a href="/register/" class="button_text">
+	      <div class="" id="div_button_big" align="left">
+			  <image src="{% static "portal/user-add.png"%}" width=63 height=63 style="float:left; padding-right:10px; margin:0;">
+			  <h2 id="frontbutton"><strong>Register</strong></h2>
+			  <p>New Users</p>
+			  </p>
+		  </div>
+		  </a>
+	  </td>
+	  </tr>
+	  <tr>
+	  <td>
+	  	  <a href="/register/" class="button_text">
+	      <div class="" id="div_button_big" align="left">
+			  <image src="{% static "portal/question.png"%}" width=60 height=60 style="float:left; padding-right:10px; margin:0;">
+			  <h2 id="frontbutton"><strong>Learn More</strong></h2>
+			  <p>How does it work?</p>
+			  </p>
+		  </div>
+	  </td>
+	  <td>
+	  	  <a href="/examples/" class="button_text">
+	      <div class="" id="div_button_big" align="left">
+			  <image src="{% static "portal/right.png"%}" width=55 height=55 style="float:left; padding-right:10px; margin:0;">
+			  <h2 id="frontbutton"><strong>See Examples</strong></h2>
+			  <p></p>
+		  </div>
+	  </td>
+	  </tr>
+	  </table>
+	  
+	  
+  </section>
+{% endblock %}

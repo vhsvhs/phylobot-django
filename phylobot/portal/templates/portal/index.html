@@ -1,0 +1,165 @@
+{% extends "portal/portal_base.html" %}
+{% comment %}
+  Main page of the portal.
+{% endcomment %}
+
+{% block title %}
+  Portal
+{% endblock %}
+
+{% block content %}
+  {% load staticfiles %}
+  
+
+<a href="composenew"><button class="button" type="submit" name="submit" style="margin-top:50px">+ Create a New Job</button></a>
+ 
+  <div class="rounded_div_medium" style="background-color:#eeeddd" >
+  	<h3>My Jobs</h3>
+  	
+	{% if jobs %}
+		<p><a href="."><a href="."><img src="{% static "portal/refresh_0066ff.png"%}" width=20 height=20 valign="top"> Refresh</a></p>
+		<table width="100%">
+	  	{% for j in jobs %}
+	  	<tr>
+	  	<td><h3>{{j.settings.name}}</h3></td>
+		<td width="400px" style="padding-right:40px">
+			<font style="color:
+			{% if j.status.short == "error" %}
+			red;
+			{% elif j.status.short == "stopped" %}
+			black;
+			{% else %}
+			green;
+			{% endif %}
+			">
+			{{j.status.short}}
+			{% if j.status.short == "error" %}
+			- check status
+			{% endif %}
+			<!--<font class="smalltext">(since {{j.last_modified}})-->
+			</font>
+		<div width="100%" style="height:6px;background-color:lightgrey;">
+			<div style="height:7px; width:{{job.p_done}}%;background-color:
+				{% if job.status.short == "error"%}
+				red;
+				{% else %}
+				#66CC66;
+				{% endif %}
+				height:5px;float:left;">
+			</div>
+			<font style="color:
+			{% if job.status.short == "error"%}
+			red;
+			{% elif j.status.short == "stopped" %}
+			black;
+			{% else %}
+			green;
+			{% endif %}
+			">
+			{{job.p_done}}% complete
+			</font>
+			</div>
+			
+
+		</td>
+	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
+	  		<form method="post" action="." enctype="multipart/form-data">
+	  		{% csrf_token %}
+	  		<input type="hidden" name="action" value="status" />
+	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
+	  		<input type="image" src="{% static "portal/question.png"%}" width=30 height=30>Status
+	  		</form>
+	  		</div>
+	  	</td>
+	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
+	  		<form method="post" action="." enctype="multipart/form-data">
+	  		{% csrf_token %}
+	  		<input type="hidden" name="action" value="edit" />
+	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
+	  		<input type="image" src="{% static "portal/compose.png"%}" width=30 height=30>Edit
+	  		</form>
+	  		</div>
+	  	</td>
+	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
+	  		<form method="post" action="." enctype="multipart/form-data">
+	  		{% csrf_token %}
+	  		<input type="hidden" name="action" value="start" />
+	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
+	  		<input type="image" src="{% static "portal/play.png"%}" width=30 height=30>Start
+	  		</form>
+	  		</div>
+	  	</td>
+	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
+	  		<form method="post" action="." enctype="multipart/form-data">
+	  		{% csrf_token %}
+	  		<input type="hidden" name="action" value="stop" />
+	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
+	  		<input type="image" src="{% static "portal/stop.png"%}" width=30 height=30>Stop
+	  		</form>
+	  		</div>
+	  	</td>
+	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
+	  		<form method="post" action="." enctype="multipart/form-data">
+	  		{% csrf_token %}
+	  		<input type="hidden" name="action" value="stop" />
+	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
+	  		<input type="image" src="{% static "portal/flash.png"%}" width=30 height=30>Reset
+	  		</form>
+	  		</div>
+	  	</td>
+	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
+	  		<form method="post" action="." enctype="multipart/form-data">
+	  		{% csrf_token %}
+	  		<input type="hidden" name="action" value="remove" />
+	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
+	  		<input type="image" src="{% static "portal/trash.png"%}" width=30 height=30>Trash
+	  		</form>
+	  		</div>
+	  	</td>
+	  	</tr>
+	  	{% endfor %}
+	  	</table>
+	  {% else %}
+	  	<p>You have not created any jobs.</p>
+	  {% endif %}
+  </div>
+  
+  <div class="rounded_div_medium" style="background-color:#ffffcc;">
+  	<h3>The Job Queue</h3>
+	<p>Shown here are details about the global job queue, including jobs from other users.</p>
+
+  	{% if qjobs %}
+  		<p><a href="."><img src="{% static "portal/refresh_0066ff.png"%}" width=20 height=20 valign="top"> Refresh</a></p>
+  		<p>Current Workload: {{ q_status }}</p>
+  		<table width="100%">
+		<th align="left">Owner</th>
+		<th align="left">Job Name</th>
+		<th align="left">Status</th>
+		<th align="left">ETA?</th>
+  		{% for j in qjobs %}
+  		<tr>
+  			<td>{{j.owner}}</td>
+  			<td>{{j.settings.name}}</td>
+			<td>{{j.status.short}}</td>
+  			<td>???</td>
+  		</tr>
+  		{% endfor %}
+  		</table>  		
+  	{% else %}
+  		<p>The job queue is empty.</p>
+  	{% endif %}
+  </div>
+  
+  <div class="rounded_div_medium" style="background-color:#a9e2ff;">
+  	<h3>My Libraries</h3>
+  	<p>Listed here are web reports for your jobs that are complete.</p>
+  	{% if libraries %}
+  		{% for j in libraries %}
+  			<p><a href="/library/{{j.settings.name}}">{{j.settings.name}}</a> <font class="smalltext">(last modified {{j.last_modified}})</class></p>
+  		{% endfor %}
+  	{% else %}
+  		<p>You don't have any finished libraries. Create a job and launch it. When the job is complete, its library will appear here.</p>
+  	{% endif %}
+  </div>
+  
+{% endblock %}

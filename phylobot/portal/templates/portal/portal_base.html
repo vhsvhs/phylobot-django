@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% comment %}
+  This is the main template for all portal pages.
+{% endcomment %}
+
+{% block head %}
+  	<title>PhyloBot | {% block title %}{% endblock %}</title>
+	{% block css %}
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static "portal/portal.css" %}">
+	{% endblock %}
+{% endblock %}
+
+{% block body %}
+  <header>
+    {% load staticfiles %}
+  	<table width="100%">
+	  	<tr>
+	  	<td>
+	  		<img src="{% static 'phylobot/phylobot_bot.png' %}" width="100px">
+	    </td>
+	    <td align="left">
+	    	<h1>PhyloBot Web Portal</h1>
+	    </td>
+	    <td align="right">
+	    	<p>User: {{ user }}</p>
+	    	<p><a href="/portal">Home</a> | <a href="/logout/">Logout</a></p>
+	    </td>
+	    </tr>
+    </table>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  	<div class="bottom_div" align="center">
+  	<table width="100%">
+  	<tr>
+  	<td>
+  	<h3 style="padding-left:20px;"><a href="/about">About</a> | <a href="/contact">Contact</a> | <a href="https://github.com/vhsvhs/phylobot">Source</a> </h3>
+  	</td>
+  	<td align="right"><p class="smalltext" style="padding-right:20px;">&copy; 2014 Victor Hanson-Smith</p>
+  	</td>
+  	</tr>
+	</table>
+  	</div>
+
+{% endblock %}
