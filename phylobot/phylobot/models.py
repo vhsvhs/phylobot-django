@@ -9,6 +9,7 @@ class UserProfile(models.Model):
 
     # The additional attributes we wish to include.
     website = models.URLField(blank=True)
+    labwebsite = models.URLField(blank=True)
     picture = models.ImageField(upload_to='profile_images', blank=True)
 
     # Override the __unicode__() method to return out something meaningful!
@@ -21,9 +22,14 @@ class AncestralLibrary(models.Model):
         All PhyloBot jobs, upon completion, will get an entry in this table."""
     id = models.IntegerField(primary_key=True)
     shortname = models.CharField(max_length=30)
-    owners = models.ManyToManyField(User)
-    dbpath = models.FileField(upload_to='raw_seqs')
+    contact_authors_profile = models.ManyToManyField(UserProfile) # these users will be listed on the frontpage of the public library view
+    dbpath = models.FileField(upload_to='anclibs')
     last_modified = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
         return unicode(self.shortname)  
+
+class AncestralLibraryPermissions(models.Model):
+    libid = models.ForeignKey(AncestralLibrary)
+    user = models.ForeignKey(User)
+    permission = models.IntegerField() # 0 = no access, 1 = edit access, 2 = re-run and admin access

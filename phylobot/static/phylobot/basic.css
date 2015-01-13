@@ -1,3 +1,7 @@
+body{
+    font-family: sans-serif;
+}
+
 .button {
    border-top: 1px solid #a6d8ff;
    background: #439dd1;
