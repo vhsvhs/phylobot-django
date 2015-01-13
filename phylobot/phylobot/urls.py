@@ -21,7 +21,7 @@ urlpatterns = patterns('',
 	
 	(r'^portal/', include('portal.urls')),
 
-	(r'^(.*)/$', view_library),
+	(r'^(.*)/.*$', view_library),	
 	(r'^(.*)$', view_library),
-	
+
 )

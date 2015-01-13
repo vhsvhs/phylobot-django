@@ -15,9 +15,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 def view_library(request, libid):
+    
+    print "19:", request.path_info
+    print "20", libid
+    
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
-    
     if libid == None:
         print ". no libid was provided."
     
@@ -27,17 +30,33 @@ def view_library(request, libid):
         print "27:", libid, anclib.id
         if anclib.id.__str__() == libid or anclib.shortname == libid:
             foundit = True
-            return view_library_frontpage(request, anclib.id)
-    
+            libid = anclib.id.__str__()
     if foundit == False:
         logger.error("I cannot find any ancestral libraries with names or IDs that match " + libid.__str__())
-        print "\n. I cannot find any ancestral libraries that match your query."
+        return HttpResponseRedirect('/')
+    
+    """Retrieve the AncestralLibrary object?"""
+    alib = AncestralLibrary.objects.get( id=int(libid) )
+    
+    """Can we open a connection to this project's SQL database?"""
+    con = get_library_sql_connection(libid)
+    if con == None:
+        logger.error("I cannot open a SQL connection to the database for ancestral library ID " + libid.__str__() )
+    
+    if request.path_info.endswith("alignments"):
+        pass
+    elif request.path_info.endswith("trees"):
+        pass
+    elif request.path_info.endswith("mutations"):
+        pass
+    elif request.path_info.endswith("floci"):
+        pass
+    else:
+        return view_library_frontpage(request, alib, con)
     
     
     # a hack, for now, to just return the user to the main front page.
-    return HttpResponseRedirect('/')
-
-
+    
 def get_library_sql_connection(alid):
     """Returns a SQL connection to the database for the AncestralLibrary with id = alid
         If something wrong happens, then this method returns None"""
@@ -55,18 +74,13 @@ def get_library_sql_connection(alid):
     con = sqlite.connect( dbpath )  
     return con
 
-def view_library_frontpage(request, alid):    
-    
-    alib = AncestralLibrary.objects.get( id=int(alid) )
 
-    con = get_library_sql_connection(alid)
-    if con == None:
-        return HttpResponseRedirect('/')
+def view_library_frontpage(request, alib, con):    
     cur = con.cursor()
     
     """Fill the context with stuff that's needed for the HTML template."""
     context = {}
-    context["alid"] = alid
+    context["alid"] = alib.id
     
     sql = "select value from Settings where keyword='project_title'"
     cur.execute(sql)
