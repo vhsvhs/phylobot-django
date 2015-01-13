@@ -45,6 +45,8 @@ def view_library(request, libid):
     
     if request.path_info.endswith("alignments"):
         pass
+    elif request.path_info.endswith(anclib.shortname + ".fasta"):
+        return view_sequences(request, alib, con, format="fasta")
     elif request.path_info.endswith("trees"):
         pass
     elif request.path_info.endswith("mutations"):
@@ -81,6 +83,7 @@ def view_library_frontpage(request, alib, con):
     """Fill the context with stuff that's needed for the HTML template."""
     context = {}
     context["alid"] = alib.id
+    context["shortname"] = alib.shortname
     
     sql = "select value from Settings where keyword='project_title'"
     cur.execute(sql)
@@ -88,5 +91,48 @@ def view_library_frontpage(request, alib, con):
     
     x = alib.contact_authors_profile.all()
     context["contact_authors"] = x
+
+    sql = "select value from Settings where keyword='family_description'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x == None:
+        context["description"] = ""
+    else:
+        context["description"] = x[0]
     
     return render(request, 'libview/libview_frontpage.html', context)
+
+def view_sequences(request, alib, con, format="fasta", datatype=1):
+    cur = con.cursor()
+    
+    taxon_seq = {}
+    
+    sql = "select taxonid, sequence from OriginalSequences where datatype=" + datatype.__str__()
+    cur.execute(sql)
+    x = cur.fetchall()
+    for ii in x:
+        taxonid = ii[0]
+        sequence = ii[1]
+        sql = "select fullname from Taxa where id=" + taxonid.__str__()
+        cur.execute(sql)
+        fullname = cur.fetchone()[0]
+        
+        taxon_seq[ fullname ] = sequence
+    
+    context = {}
+    context["taxon_seq"] = taxon_seq
+    
+    
+    
+    print "124:", context["taxon_seq"]
+    
+#    fastapath = settings.MEDIA_ROOT + "/sequences/" + alib.shortname.__str__() + "." + format
+#    fout = open(fastapath, "w")
+#    for t in taxa_seq:
+#        fout.write(">" + t.__str__() + "\n")
+#        fout.write(taxa_seq[t] + "\n")
+#    fout.close()
+    
+    return render(request, 'libview/libview_fasta.fasta', context)
+    
+
