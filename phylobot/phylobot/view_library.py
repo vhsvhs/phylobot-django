@@ -44,7 +44,7 @@ def view_library(request, libid):
         logger.error("I cannot open a SQL connection to the database for ancestral library ID " + libid.__str__() )
     
     if request.path_info.endswith("alignments"):
-        pass
+        return view_alignments(request, alib, con)
     elif request.path_info.endswith(anclib.shortname + ".fasta"):
         return view_sequences(request, alib, con, format="fasta")
     elif request.path_info.endswith("trees"):
@@ -76,10 +76,9 @@ def get_library_sql_connection(alid):
     con = sqlite.connect( dbpath )  
     return con
 
-
-def view_library_frontpage(request, alib, con):    
+def get_base_contect(request, alib, con):
     cur = con.cursor()
-    
+
     """Fill the context with stuff that's needed for the HTML template."""
     context = {}
     context["alid"] = alib.id
@@ -90,7 +89,14 @@ def view_library_frontpage(request, alib, con):
     context["library_name"] = cur.fetchone()[0]
     
     x = alib.contact_authors_profile.all()
-    context["contact_authors"] = x
+    context["contact_authors"] = x  
+    
+    return context  
+
+def view_library_frontpage(request, alib, con):    
+    cur = con.cursor()
+    
+    context = get_base_contect(request, alib, con)
 
     sql = "select value from Settings where keyword='family_description'"
     cur.execute(sql)
@@ -119,20 +125,12 @@ def view_sequences(request, alib, con, format="fasta", datatype=1):
         
         taxon_seq[ fullname ] = sequence
     
-    context = {}
+    context = get_base_contect(request, alib, con)
     context["taxon_seq"] = taxon_seq
-    
-    
-    
-    print "124:", context["taxon_seq"]
-    
-#    fastapath = settings.MEDIA_ROOT + "/sequences/" + alib.shortname.__str__() + "." + format
-#    fout = open(fastapath, "w")
-#    for t in taxa_seq:
-#        fout.write(">" + t.__str__() + "\n")
-#        fout.write(taxa_seq[t] + "\n")
-#    fout.close()
-    
     return render(request, 'libview/libview_fasta.fasta', context)
-    
+
+def view_alignments(request, alib, con):
+    cur = con.cursor()
+    context = get_base_contect(request, alib, con)
+    return render(request, 'libview/libview_alignments.html', context)
 
