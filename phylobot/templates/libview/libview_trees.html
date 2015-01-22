@@ -1,0 +1,40 @@
+{% extends "libview/libview_base.html" %}
+  	  
+{% block body %}
+
+<table width=100%>
+<tr><th align='left'>Alignment</th>
+	<th align='center'>Markov Model</th>
+	<th align='center'>log(Likelihood)</th>
+	<th align='center'>Relative<br>Probability</th>
+	<th align='center'>Alpha</th>
+	<th align='center'>&sum; Branch<br>Lengths</th>
+	<th align='center'>Download</th>
+	<th align='center'>Statistical<br>Support</th>
+	
+	<th align='center'>Ancestors</th>
+</tr>
+
+{% for tuple in tree_tuples %}
+<tr>
+	<td>{{tuple.0}}</td>
+	<td class='smalltext'>{{tuple.1}}</td>
+	<td align='center'>{{tuple.2|floatformat:2}}</td>
+	<td align='center'>{{tuple.3|floatformat:1}}</td>
+	<td align='center'>{{tuple.4|floatformat:3}}</td>
+	<td align='center'>{{tuple.5|floatformat:2}}</td>
+	<td align='center'><a href='/{{alid}}/{{shortname}}.{{tuple.0}}.{{tuple.1}}.newick'>newick</a></td>
+	<td align='center'>
+	{% for m in support_methods %}
+		<a href='/{{alid}}/{{shortname}}.{{tuple.0}}.{{tuple.1}}.{{m}}.newick'>{{m}}</a>
+		{% if m != lastmethod %}
+		|
+		{% endif %}
+	{% endfor %}
+	</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}

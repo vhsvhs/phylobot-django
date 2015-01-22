@@ -1,0 +1,6 @@
+{% for key, value in taxon_seq.items %}
+>{{key}}<br>
+
+{{value}}<br>
+
+{% endfor %}

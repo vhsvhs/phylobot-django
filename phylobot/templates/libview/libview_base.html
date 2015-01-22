@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>{{ library_name }} Ancestral Library (PhyloBot)</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static "phylobot/libview.css" %}">    
+    
+    {% block head %}
+    {% endblock %}
+  
+  </head>
+  
+  <body>
+  
+	{% block header %}
+	
+	<p class='smalltext' align='right'>
+	{% for author in contact_authors %}
+		<a href=' {{ author.labwebsite }} '>
+		{{author.firstname}} {{author.lastname}}
+		</a>
+	{% endfor %}
+	</p>
+	<h1>{{library_name}} Ancestral Library</h1>
+	
+	<hr>
+	
+	{% endblock %}
+
+  	{% block navbar %}
+  	<p>
+	  	<a href='/{{alid}}/'>Overview</a> | 
+	  	<a href='/{{alid}}/alignments'>Alignments</a> | 
+	  	<a href='/{{alid}}/trees'>Trees & Ancestors</a> | 
+	  	<a href='/{{alid}}/mutations'>Mutations</a> | 
+	  	<a href='/{{alid}}/floci'>Functional Loci</a>
+  	</p>  	
+  	<hr>
+  	{% endblock %}
+  
+    {% block body %}
+    {% endblock %}
+  
+  	{% block footer %}
+  	<hr>
+  	<p class='smalltext' align='right'>Generated at {% now "jS F Y H:i" %}<br>
+	Questions/Comments? <a href="mailto:help@phylobot.com">help@phylobot.com</a></p>
+  	
+  	{% endblock %}
+  
+  </body>
+</html>

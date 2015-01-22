@@ -1,0 +1,5 @@
+{{ntaxa}}   {{nsites}}<br>
+{% for key, value in taxon_seq.items %}
+{{key}}   {{value}}<br>
+
+{% endfor %}

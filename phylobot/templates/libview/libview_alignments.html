@@ -1,0 +1,29 @@
+{% extends "libview/libview_base.html" %}
+  	  
+{% block body %}
+
+<table width=100%>
+<tr><th align='left'>Alignment Method</th>
+	<th align='center'>N taxa</th>
+	<th align='center'>N sites</th>
+	<th aling='center'>ZORRO profile</td>
+	<th align='center'>Download</th>
+</tr>
+
+{% for tuple in msaid_tuples %}
+<tr><td align='left'>{{tuple.0}} <font class="smalltext"><a href="{{tuple.3}}">[ref]</a></font></td>
+	<td align='center'>{{tuple.1}}</td>
+	<td align='center'>{{tuple.2}}</td>
+	<td align='center'>&nbsp;</td>
+	<td align='center'>
+		<a href='/{{alid}}/{{shortname}}.{{tuple.0}}.fasta'>fasta</a> |
+		<a href='/{{alid}}/{{shortname}}.{{tuple.0}}.phylip'>phylip</a>
+	</td>
+	
+</tr>
+{% endfor %}
+
+
+</table>
+
+{% endblock %}
