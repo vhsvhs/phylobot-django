@@ -21,6 +21,8 @@ urlpatterns = patterns('',
 	
 	(r'^portal/', include('portal.urls')),
 
+	#Note: the method named 'view_library' performs further URL dispatching.
+	#	In the future, that code should be moved to this urls.py file."""
 	(r'^(.*)/.*$', view_library),	
 	(r'^(.*)$', view_library),
 

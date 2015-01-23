@@ -8,9 +8,9 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext, Context, loader
 
 from phylobot.models import *
+from phylobot.phyloxml_helper import *
 
 import sqlite3 as sqlite
-
 from dendropy import Tree
 
 import logging
@@ -83,6 +83,8 @@ def view_library(request, libid):
         
     elif request.path_info.endswith("trees"):
         return view_library_trees(request, alib, con)
+    elif request.path_info.endswith("ancestors"):
+        return view_library_ancestortree(request, alib, con)
     elif request.path_info.endswith("mutations"):
         pass
     elif request.path_info.endswith("floci"):
@@ -272,7 +274,7 @@ def view_tree(request, alib, con, format="newick"):
         if supportmethodid == None:
             return view_library_frontpage(request, alib, con)
         supportmethodid = supportmethodid[0]
-        print "275:", supportmethodname, supportmethodid
+        #print "275:", supportmethodname, supportmethodid
         
         sql = "select id from UnsupportedMlPhylogenies where almethod=" + msamodelid.__str__() + " and phylomodelid=" + phylomodelid.__str__()
         cur.execute(sql)
@@ -401,3 +403,94 @@ def view_library_trees(request, alib, con):
     context["lastmethod"] = support_methods[ support_methods.__len__()-1 ]
     
     return render(request, 'libview/libview_trees.html', context)
+
+def view_library_ancestortree(request, alib, con):
+    cur = con.cursor()
+    context = get_base_context(request, alib, con) 
+    msaname = None
+    msaid = None
+    phylomodelname = None
+    phylomodelid = None
+    
+    tokens = request.path_info.split(".")
+    if tokens.__len__() > 2:
+        msaname = tokens[ tokens.__len__()-3]
+        sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+        cur.execute(sql)
+        msaid = cur.fetchone()
+        if msaid == None:
+            return view_library_frontpage(request, alib, con)
+        msaid = msaid[0]
+        
+        phylomodelname = tokens[ tokens.__len__()-2 ]        
+        sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+        cur.execute(sql)
+        phylomodelid = cur.fetchone()
+        if phylomodelid == None:
+            return view_library_frontpage(request, alib, con)
+        phylomodelid = phylomodelid[0]
+    
+    if msaid == None:
+        sql = "select name, id from AlignmentMethods"
+        cur.execute(sql)
+        x = cur.fetchone()
+        msaname = x[0]
+        msaid = x[1]
+    if phylomodelid == None:
+        sql = "select name, modelid from PhyloModels"
+        cur.execute(sql)
+        x = cur.fetchone()
+        phylomodelname = x[0]
+        phylomodelid = x[1]
+        
+        
+    context["msaname"] = msaname
+    context["phylomodelname"] = phylomodelname
+    
+    cladogramstring = ""
+    sql = "select newick from AncestralCladogram where unsupportedmltreeid in"
+    sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
+    cur.execute(sql)
+    newick = cur.fetchone()[0]
+    
+    """This following block will fetch the XML string for use with the javascript-based
+        phylogeny viewer.
+        The code here is fundamentally a mess -- I can't figure out the API to get an XML
+        string directly from the Phylo class. In the meantime, the messy way is to write
+        an XML phylogeny to the /tmp folder, and then read the contents of the file to
+        get the XML string."""
+    tree = Phylo.read(StringIO(newick), "newick")
+    xmltree = tree.as_phyloxml()
+    Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
+    fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
+    xmltreelines = fin.readlines()
+    fin.close()    
+    urlprefix = alib.id.__str__() + "/" + msaname + "." + phylomodelname
+    xmltreestring = ""
+    for l in xmltreelines:
+        xmltreestring += annotate_phyloxml(l, urlprefix) + " " 
+    xmltreestring = re.sub("\n", " ", xmltreestring)
+    context["xmltreestring"] = xmltreestring  
+    
+    sql = "select count(*) from Taxa"
+    cur.execute(sql)
+    counttaxa = cur.fetchone()[0]
+    context["plotheight"] = counttaxa*16
+    
+    sql = "select name from AlignmentMethods"
+    cur.execute(sql)
+    x = cur.fetchall()
+    msanames = []
+    for ii in x:
+        msanames.append( ii[0] )
+    context["msanames"] = msanames
+    
+    sql = "select name from PhyloModels"
+    cur.execute(sql)
+    x = cur.fetchall()
+    modelnames = []
+    for ii in x:
+        modelnames.append( ii[0] )
+    context["modelnames"] = modelnames
+    
+    return render(request, 'libview/libview_anctrees.html', context)
