@@ -412,6 +412,9 @@ def view_library_ancestortree(request, alib, con):
     phylomodelname = None
     phylomodelid = None
     
+    """There are multiple states that can input to this function..."""
+        
+    """INPUT 1: using a URL like mafft.PROTCATLG.ancestors"""
     tokens = request.path_info.split(".")
     if tokens.__len__() > 2:
         msaname = tokens[ tokens.__len__()-3]
@@ -442,16 +445,33 @@ def view_library_ancestortree(request, alib, con):
         x = cur.fetchone()
         phylomodelname = x[0]
         phylomodelid = x[1]
+
+    """INPUT 2: by giving POST information"""
+    if request.method == "POST":
+        if "msaname" in request.POST:
+            msaname = request.POST.get("msaname")
+            sql = "select name, id from AlignmentMethods where name='" + msaname + "'"
+            cur.execute(sql)
+            x = cur.fetchone()
+            msaid = x[1]
+            print "457:", msaname, msaid
+        if "modelname" in request.POST:
+            phylomodelname = request.POST.get("modelname")
+            sql = "select name, modelid from PhyloModels where name='" + phylomodelname + "'"
+            cur.execute(sql)
+            x = cur.fetchone()
+            phylomodelid = x[1]
+            print "463:", phylomodelname, phylomodelid
         
-        
-    context["msaname"] = msaname
-    context["phylomodelname"] = phylomodelname
+    context["default_msaname"] = msaname
+    context["default_modelname"] = phylomodelname
     
     cladogramstring = ""
     sql = "select newick from AncestralCladogram where unsupportedmltreeid in"
     sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
     cur.execute(sql)
     newick = cur.fetchone()[0]
+    print "471:", msaid, phylomodelid,  newick
     
     """This following block will fetch the XML string for use with the javascript-based
         phylogeny viewer.
