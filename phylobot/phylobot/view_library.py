@@ -17,11 +17,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 def view_library(request, libid):
-        
+    
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
     if libid == None:
         print ". no libid was provided."
+
+    libid = libid.split("/")[0]
     
     """Does libid exist in our known libraries?"""
     foundit = False
@@ -47,6 +49,7 @@ def view_library(request, libid):
         URL Dispatch:
     
     """
+    print "50:", request.path_info
     if request.path_info.endswith("alignments"):
         return view_alignments(request, alib, con)
     
@@ -85,6 +88,11 @@ def view_library(request, libid):
         return view_library_trees(request, alib, con)
     elif request.path_info.endswith("ancestors"):
         return view_library_ancestortree(request, alib, con)
+    elif request.path_info.__contains__("node"):
+        tokens = request.path_info.split("/")
+        print "90:", tokens
+        if tokens[ tokens.__len__()-1 ].startswith("node"):
+            return view_ancestor(request, alib, con)
     elif request.path_info.endswith("mutations"):
         pass
     elif request.path_info.endswith("floci"):
@@ -485,7 +493,7 @@ def view_library_ancestortree(request, alib, con):
     fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
     xmltreelines = fin.readlines()
     fin.close()    
-    urlprefix = alib.id.__str__() + "/" + msaname + "." + phylomodelname
+    urlprefix = msaname + "." + phylomodelname
     xmltreestring = ""
     for l in xmltreelines:
         xmltreestring += annotate_phyloxml(l, urlprefix) + " " 
@@ -514,3 +522,46 @@ def view_library_ancestortree(request, alib, con):
     context["modelnames"] = modelnames
     
     return render(request, 'libview/libview_anctrees.html', context)
+
+def view_ancestor(request, alib, con):
+    cur = con.cursor()
+    tokens = request.path_info.split("/")
+    setuptoken = tokens[ tokens.__len__()-2 ]
+    ttok = setuptoken.split(".")
+    if ttok.__len__() != 2:
+        return view_library_frontpage(request, alib, con)
+    msaname = ttok[0]
+
+    sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+    cur.execute(sql)
+    msaid = cur.fetchone()
+    if msaid == None:
+        return view_library_frontpage(request, alib, con)
+    msaid = msaid[0]
+  
+    phylomodelname = ttok[1]      
+    sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+    cur.execute(sql)
+    phylomodelid = cur.fetchone()
+    if phylomodelid == None:
+        return view_library_frontpage(request, alib, con)
+    phylomodelid = phylomodelid[0]
+
+    nodetoken = tokens[ tokens.__len__()-1 ]
+    nodenumber = re.sub("node", "", nodetoken)
+    sql = "select id from Ancestors where almethod=" + msaid.__str__()
+    sql += " and phylomodel=" + phylomodelid.__str__()
+    sql += " and name='Node" + nodenumber.__str__() + "'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x == None:
+        return view_library_frontpage(request, alib, con)
+    ancid = x[0]
+    
+    print "557:", ancid, msaname, phylomodelname
+    
+    context = get_base_context(request, alib, con)
+    return render(request, 'libview/libview_ancestor.html', context)
+        
+        
+        
