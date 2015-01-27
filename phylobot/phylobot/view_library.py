@@ -12,6 +12,7 @@ from phylobot.phyloxml_helper import *
 
 import sqlite3 as sqlite
 from dendropy import Tree
+import math, random
 
 import logging
 logger = logging.getLogger(__name__)
@@ -37,7 +38,6 @@ def view_library(request, libid):
     
     """Retrieve the AncestralLibrary object?"""
     alib = AncestralLibrary.objects.get( id=int(libid) )
-    print "36:", alib
     
     """Can we open a connection to this project's SQL database?"""
     con = get_library_sql_connection(libid)
@@ -49,7 +49,6 @@ def view_library(request, libid):
         URL Dispatch:
     
     """
-    print "50:", request.path_info
     if request.path_info.endswith("alignments"):
         return view_alignments(request, alib, con)
     
@@ -88,15 +87,27 @@ def view_library(request, libid):
         return view_library_trees(request, alib, con)
     elif request.path_info.endswith("ancestors"):
         return view_library_ancestortree(request, alib, con)
+    
+    elif request.path_info.endswith("ml"):
+        return view_ancestor_ml(request, alib, con)
+    elif request.path_info.endswith("support"):
+        return view_ancestor_support(request, alib, con)
+    
+    elif request.path_info.endswith("supportbysite"):
+        return view_ancestor_supportbysite(request, alib, con)
+    
+    elif request.path_info.endswith("supportbysite.xls"):
+        return view_ancestor_supportbysitexls(request, alib, con)
+    
     elif request.path_info.__contains__("node"):
-        tokens = request.path_info.split("/")
-        print "90:", tokens
-        if tokens[ tokens.__len__()-1 ].startswith("node"):
-            return view_ancestor(request, alib, con)
-    elif request.path_info.endswith("mutations"):
-        pass
+        return view_ancestor_ml(request, alib, con)
+    
+    elif request.path_info.__contains__("mutations"):
+        return view_mutations(request, alib, con)
+    
     elif request.path_info.endswith("floci"):
         pass
+    
     else:
         return view_library_frontpage(request, alib, con)
     
@@ -117,7 +128,6 @@ def get_library_sql_connection(alid):
     if False == os.path.exists(dbpath):
         logger.error("I cannot find the AncestralLibrary SQL database at " + dbpath)
         return None
-    print "\n. 104: connecting to DB:", dbpath
     con = sqlite.connect( dbpath )  
     return con
 
@@ -174,7 +184,6 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
         sql = "select taxonid, sequence from OriginalSequences where datatype=" + datatype.__str__()
     else:
         sql = "select id from AlignmentMethods where name='" + alignment_method + "'"
-        print "154:", sql
         cur.execute(sql)
         x = cur.fetchone()
         if x == None:
@@ -186,7 +195,6 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
         else:
             alignment_methodid = x[0]
             sql = "select taxonid, alsequence from AlignedSequences where datatype=" + datatype.__str__() + " and almethod=" + alignment_methodid.__str__()
-            print sql
 
     """execute the SQL, either with org. seqs. or aligned seqs."""         
     cur.execute(sql)
@@ -292,7 +300,6 @@ def view_tree(request, alib, con, format="newick"):
         treeid = treeid[0]
         
         sql = "select newick from SupportedMlPhylogenies where unsupportedmltreeid=" + treeid.__str__() + " and supportmethodid=" + supportmethodid.__str__() 
-        print "277:", sql
         cur.execute(sql)
         newick = cur.fetchone()
         if newick == None:
@@ -323,7 +330,6 @@ def view_alignments(request, alib, con):
     for msaid in msaid_names:
         sql = "select count(*) from AlignedSequences where almethod=" + msaid.__str__()
         cur.execute(sql)
-        print sql
         count = cur.fetchone()
         #print "205:", count
         count = count[0]
@@ -332,7 +338,6 @@ def view_alignments(request, alib, con):
         sql = "select length(alsequence) from AlignedSequences where almethod=" + msaid.__str__()
         cur.execute(sql)
         length = cur.fetchone()
-        print "209:", length
         length = length[0]
         msaid_nsites[msaid] = length 
         
@@ -462,14 +467,12 @@ def view_library_ancestortree(request, alib, con):
             cur.execute(sql)
             x = cur.fetchone()
             msaid = x[1]
-            print "457:", msaname, msaid
         if "modelname" in request.POST:
             phylomodelname = request.POST.get("modelname")
             sql = "select name, modelid from PhyloModels where name='" + phylomodelname + "'"
             cur.execute(sql)
             x = cur.fetchone()
             phylomodelid = x[1]
-            print "463:", phylomodelname, phylomodelid
         
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
@@ -479,7 +482,7 @@ def view_library_ancestortree(request, alib, con):
     sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
     cur.execute(sql)
     newick = cur.fetchone()[0]
-    print "471:", msaid, phylomodelid,  newick
+    #print "471:", msaid, phylomodelid,  newick
     
     """This following block will fetch the XML string for use with the javascript-based
         phylogeny viewer.
@@ -523,7 +526,141 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
-def view_ancestor(request, alib, con):
+def get_ml_sequence(con, ancid):
+    cur = con.cursor()
+    sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    cur.execute(sql)
+    x = cur.fetchall()
+    
+    site_state = {}
+    site_mlpp = {}
+    
+    for ii in x:
+        site = ii[0]
+        state = ii[1]
+        if state == "-":
+            continue
+        pp = ii[2]
+        if site not in site_state:
+            site_state[site] = state
+            site_mlpp[site] = pp
+        if pp > site_mlpp[site]:
+            site_state[site] = state
+            site_mlpp[site] = pp
+    
+    sites = site_state.keys()
+    sites.sort()
+    mlseq = ""
+    for s in sites:
+        mlseq += site_state[s]
+    return mlseq
+
+def get_site_state_pp(con, ancid, skip_indels = True):
+    cur = con.cursor()
+    sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    cur.execute(sql)
+    x = cur.fetchall()
+    
+    site_state_pp = {}
+    
+    for ii in x:
+        site = ii[0]
+        state = ii[1]
+        if skip_indels and state == "-":
+            continue
+        pp = ii[2]
+        if site not in site_state_pp:
+            site_state_pp[site] = {}
+        site_state_pp[site][state] = pp
+    return site_state_pp
+
+def get_anc_stats(con, ancid, n_randoms=5, stride = 0.1, bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]):
+    site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
+
+    """Build a list of alternative Bayesian-sampled ancestral sequences."""
+    alt_sequences = []
+    for ii in range(0, n_randoms):
+        mlseq = ""
+        mlpps = []
+        sites = site_state_pp.keys()
+        sites.sort()
+        for site in sites:
+            states = site_state_pp[site].keys()
+            random.shuffle(states)
+            count = 0.0
+            target = random.random()
+            for state in states:
+                pp = site_state_pp[site][state] 
+                if pp == 1.0:
+                    mlseq += state
+                    mlpps.append(pp)
+                    break
+                elif count >= target:
+                    mlseq += state
+                    mlpps.append(pp)
+                    break
+                else:
+                    count += pp
+        alt_sequences.append( mlseq )
+        
+    """Build a list of PPs for the ML sequence only."""
+    mlpps = []
+    for site in site_state_pp:
+        mlpp = 0.0
+        mlstate = None
+        for state in site_state_pp[site]:
+            pp = site_state_pp[site][state]
+            if pp > mlpp:
+                mlpp = pp
+                mlstate = state
+        mlpps.append( mlpp )
+        
+    """Bin the ML PPs."""
+    bin_count = {}    
+    for b in bins:
+        bin_count[b] = 0.0
+    for pp in mlpps:
+        for b in bins:
+            if pp >= b and pp < b+stride:
+                bin_count[b] += 1
+                break
+    
+    nsites = mlpps.__len__()
+    bin_freqs = {}
+    for b in bins:
+        bin_freqs[b] = bin_count[b] / float(nsites)
+    
+    bin_freq_tuples = []
+    for b in bins:
+        if b == 1.0:
+            bin_freq_tuples.append( (b, b, bin_freqs[b]) )
+        else:
+            bin_freq_tuples.append( (b, b+stride, bin_freqs[b]) )
+        
+    mean_pp = get_mean(mlpps)
+    sd_pp = get_sd(mlpps)
+    
+    return (alt_sequences, bin_freq_tuples, mean_pp, sd_pp)
+
+def get_mean(values):
+    """Returns the mean, or None if there are 0 values."""
+    if values.__len__() == 0:
+        return None
+    sum = 0.0
+    for v in values:
+        sum += float(v)
+    return sum / float(values.__len__())
+
+def get_sd(values):
+    mean = get_mean(values)
+    if mean == None:
+        return None
+    sumofsquares = 0.0
+    for v in values:
+        sumofsquares += (v - mean)**2
+    return math.sqrt( sumofsquares / float(values.__len__()) )
+
+def view_ancestor_ml(request, alib, con):
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
@@ -547,7 +684,7 @@ def view_ancestor(request, alib, con):
         return view_library_frontpage(request, alib, con)
     phylomodelid = phylomodelid[0]
 
-    nodetoken = tokens[ tokens.__len__()-1 ]
+    nodetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
     nodenumber = re.sub("node", "", nodetoken)
     sql = "select id from Ancestors where almethod=" + msaid.__str__()
     sql += " and phylomodel=" + phylomodelid.__str__()
@@ -557,11 +694,198 @@ def view_ancestor(request, alib, con):
     if x == None:
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
+
+    seq = get_ml_sequence(con, ancid)
+#     ml_sequence = ""
+#     for index, char in enumerate(seq):
+#         ml_sequence += char
+#         if index%70 == 0 and index>1:
+#             ml_sequence += "<br>"
+    stride = 0.1
+    bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
+
+    #print "557:", ancid, msaname, phylomodelname
+    context = get_base_context(request, alib, con)
+    context["node_number"] = nodenumber
+    context["msaname"] = msaname
+    context["modelname"] = phylomodelname
+    context["ml_sequence"] = seq
+    context["alt_sequences"] = alt_seqs
+    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
+    return render(request, 'libview/libview_ancestor_ml.html', context)
+        
+def view_ancestor_support(request, alib, con):
+    cur = con.cursor()
+    tokens = request.path_info.split("/")
+    setuptoken = tokens[ tokens.__len__()-2 ]
+    ttok = setuptoken.split(".")
+    if ttok.__len__() != 2:
+        return view_library_frontpage(request, alib, con)
+    msaname = ttok[0]
+
+    sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+    cur.execute(sql)
+    msaid = cur.fetchone()
+    if msaid == None:
+        return view_library_frontpage(request, alib, con)
+    msaid = msaid[0]
+  
+    phylomodelname = ttok[1]      
+    sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+    cur.execute(sql)
+    phylomodelid = cur.fetchone()
+    if phylomodelid == None:
+        return view_library_frontpage(request, alib, con)
+    phylomodelid = phylomodelid[0]
+
+    nodetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
+    nodenumber = re.sub("node", "", nodetoken)
+    sql = "select id from Ancestors where almethod=" + msaid.__str__()
+    sql += " and phylomodel=" + phylomodelid.__str__()
+    sql += " and name='Node" + nodenumber.__str__() + "'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x == None:
+        return view_library_frontpage(request, alib, con)
+    ancid = x[0]
+
+    seq = get_ml_sequence(con, ancid)
+#     ml_sequence = ""
+#     for index, char in enumerate(seq):
+#         ml_sequence += char
+#         if index%70 == 0 and index>1:
+#             ml_sequence += "<br>"
+    stride = 0.1
+    bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
+
+    #print "557:", ancid, msaname, phylomodelname
+    context = get_base_context(request, alib, con)
+    context["node_number"] = nodenumber
+    context["msaname"] = msaname
+    context["modelname"] = phylomodelname
+    context["bin_freq_tuples"] = bin_freq_tuples
+    context["stride"] = stride
+    context["mean_pp"] = mean_pp
+    context["sd_pp"] = sd_pp
+    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
+    return render(request, 'libview/libview_ancestor_support.html', context)      
+
+def view_ancestor_supportbysite(request, alib, con, xls=False):
+    cur = con.cursor()
+    tokens = request.path_info.split("/")
+    setuptoken = tokens[ tokens.__len__()-2 ]
+    ttok = setuptoken.split(".")
+    if ttok.__len__() != 2:
+        return view_library_frontpage(request, alib, con)
+    msaname = ttok[0]
+
+    sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+    cur.execute(sql)
+    msaid = cur.fetchone()
+    if msaid == None:
+        return view_library_frontpage(request, alib, con)
+    msaid = msaid[0]
+  
+    phylomodelname = ttok[1]      
+    sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+    cur.execute(sql)
+    phylomodelid = cur.fetchone()
+    if phylomodelid == None:
+        return view_library_frontpage(request, alib, con)
+    phylomodelid = phylomodelid[0]
+
+    nodetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
+    nodenumber = re.sub("node", "", nodetoken)
+    sql = "select id from Ancestors where almethod=" + msaid.__str__()
+    sql += " and phylomodel=" + phylomodelid.__str__()
+    sql += " and name='Node" + nodenumber.__str__() + "'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x == None:
+        return view_library_frontpage(request, alib, con)
+    ancid = x[0]
+
+    site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
+        
+    # site_tuples is a list-ified version of site_state_pp, such that
+    # the Django template library can deal with it.
+    site_tuples = {}
+    for site in site_state_pp:
+        pp_states = {}
+        for state in site_state_pp[site]:
+            pp = site_state_pp[site][state]
+            if pp not in pp_states:
+                pp_states[pp] = []
+            pp_states[pp].append(state)
+        pps = pp_states.keys()
+        pps.sort(reverse=True)
+        site_tuples[site] = []
+        for pp in pps:
+            for state in pp_states[pp]:
+                tuple = (state, pp)
+                site_tuples[site].append( tuple )
+    sites = site_tuples.keys()
+    sites.sort()
     
-    print "557:", ancid, msaname, phylomodelname
+    #print "557:", ancid, msaname, phylomodelname
+    context = get_base_context(request, alib, con)
+    context["node_number"] = nodenumber
+    context["msaname"] = msaname
+    context["modelname"] = phylomodelname
+    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
+    context["site_tuples"] = site_tuples
+    context["sites"] = sites
+    if xls == True:
+        return render(request, 'libview/libview_ancestor_supportbysite.xls', context, content_type='text')
+    return render(request, 'libview/libview_ancestor_supportbysite.html', context)   
+
+def view_ancestor_supportbysitexls(request, alib, con):
+    return view_ancestor_supportbysite(request, alib, con, xls=True)
+
+
+def view_mutations(request, alib, con):
+    cur = con.cursor()
+    
+    """Parse the URL for potential alignment/model specifications."""
+    tokens = request.path_info.split("/")
+    setuptoken = tokens[ tokens.__len__()-2 ]
+    ttok = setuptoken.split(".")
+    if ttok.__len__() != 2:
+        """Get the default msaname"""
+        sql = "select id, name from AlignmentMethods"
+        cur.execute(sql)
+        x = cur.fetchone()
+        msaid = x[0]
+        msaname = x[1]
+        
+        """Get the default model"""
+        sql = "select modelid, name from PhyloModels"
+        cur.execute(sql)
+        x = cur.fetchone()
+        phylomodelid = x[0]
+        phylomodelname = x[1]
+    else:
+        msaname = ttok[0]
+        sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+        cur.execute(sql)
+        msaid = cur.fetchone()
+        if msaid == None:
+            return view_library_frontpage(request, alib, con)
+        msaid = msaid[0]
+  
+        phylomodelname = ttok[1]      
+        sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+        cur.execute(sql)
+        phylomodelid = cur.fetchone()
+        if phylomodelid == None:
+            return view_library_frontpage(request, alib, con)
+        phylomodelid = phylomodelid[0]
     
     context = get_base_context(request, alib, con)
-    return render(request, 'libview/libview_ancestor.html', context)
-        
-        
-        
+    context["msaname"] = msaname
+    context["modelname"] = phylomodelname
+    
+    return render(request, 'libview/libview_mutations_base.html', context)
+    

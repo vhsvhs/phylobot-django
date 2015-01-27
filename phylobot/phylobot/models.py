@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class ViewingSpecs(models.Model):
+    libid = models.IntegerField()
+    keyword = models.CharField(max_length=35)
+    value = models.FloatField()
+
 class UserProfile(models.Model):
     # This line is required. Links UserProfile to a User model instance.
     user = models.OneToOneField(User)
@@ -11,6 +16,8 @@ class UserProfile(models.Model):
     website = models.URLField(blank=True)
     labwebsite = models.URLField(blank=True)
     picture = models.ImageField(upload_to='profile_images', blank=True)
+    
+    viewingspecs = ViewingSpecs()
 
     # Override the __unicode__() method to return out something meaningful!
     def __unicode__(self):
@@ -33,3 +40,4 @@ class AncestralLibraryPermissions(models.Model):
     libid = models.ForeignKey(AncestralLibrary)
     user = models.ForeignKey(User)
     permission = models.IntegerField() # 0 = no access, 1 = edit access, 2 = re-run and admin access
+    
