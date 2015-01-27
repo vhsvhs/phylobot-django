@@ -33,6 +33,8 @@ MEDIA_ROOT = os.path.join(STATIC_PATH, "media")
 # URL of the login page.
 LOGIN_URL = '/login/'
 
+AUTH_PROFILE_MODULE = 'phylobot.UserProfile'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 

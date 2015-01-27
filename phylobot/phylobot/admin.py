@@ -7,4 +7,4 @@ print "\n\n\n phylobot admin\n\n\n"
 admin.site.register(UserProfile)
 admin.site.register(AncestralLibrary)
 admin.site.register(AWSConfiguration)
-
+admin.site.register(ViewingPrefs)

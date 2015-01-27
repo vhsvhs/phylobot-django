@@ -1,10 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class ViewingSpecs(models.Model):
-    libid = models.IntegerField()
-    keyword = models.CharField(max_length=35)
-    value = models.FloatField()
 
 class UserProfile(models.Model):
     # This line is required. Links UserProfile to a User model instance.
@@ -16,13 +12,20 @@ class UserProfile(models.Model):
     website = models.URLField(blank=True)
     labwebsite = models.URLField(blank=True)
     picture = models.ImageField(upload_to='profile_images', blank=True)
-    
-    viewingspecs = ViewingSpecs()
 
     # Override the __unicode__() method to return out something meaningful!
     def __unicode__(self):
         return self.user.username   
-    
+
+class ViewingPrefs(models.Model):
+    """The class ViewingPrefs stores specifications about, for example,
+        the last-viewed model, the last-viewed alignment, etc.
+        This allows the web interface to directly load the last-viewed
+        setting rather than requiring the user to re-setup their view space."""
+    libid = models.IntegerField() # the ancestral library ID
+    keyword = models.CharField(max_length=35)
+    value = models.CharField(max_length=100)
+    user = models.ForeignKey(User)    
 
 class AncestralLibrary(models.Model):
     """This class stores paths to sqlite3 DBs that were computed by the asrpipeline.

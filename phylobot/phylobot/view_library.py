@@ -14,6 +14,8 @@ import sqlite3 as sqlite
 from dendropy import Tree
 import math, random
 
+from views_tools import *
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -85,6 +87,7 @@ def view_library(request, libid):
         
     elif request.path_info.endswith("trees"):
         return view_library_trees(request, alib, con)
+    
     elif request.path_info.endswith("ancestors"):
         return view_library_ancestortree(request, alib, con)
     
@@ -425,41 +428,10 @@ def view_library_ancestortree(request, alib, con):
     phylomodelname = None
     phylomodelid = None
     
-    """There are multiple states that can input to this function..."""
+    """We need to determine the alignment method and phylo. model.
+        There are several places this information may be found...."""
         
-    """INPUT 1: using a URL like mafft.PROTCATLG.ancestors"""
-    tokens = request.path_info.split(".")
-    if tokens.__len__() > 2:
-        msaname = tokens[ tokens.__len__()-3]
-        sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
-        cur.execute(sql)
-        msaid = cur.fetchone()
-        if msaid == None:
-            return view_library_frontpage(request, alib, con)
-        msaid = msaid[0]
-        
-        phylomodelname = tokens[ tokens.__len__()-2 ]        
-        sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
-        cur.execute(sql)
-        phylomodelid = cur.fetchone()
-        if phylomodelid == None:
-            return view_library_frontpage(request, alib, con)
-        phylomodelid = phylomodelid[0]
-    
-    if msaid == None:
-        sql = "select name, id from AlignmentMethods"
-        cur.execute(sql)
-        x = cur.fetchone()
-        msaname = x[0]
-        msaid = x[1]
-    if phylomodelid == None:
-        sql = "select name, modelid from PhyloModels"
-        cur.execute(sql)
-        x = cur.fetchone()
-        phylomodelname = x[0]
-        phylomodelid = x[1]
-
-    """INPUT 2: by giving POST information"""
+    """INPUT 1: parse the POST information from the web form"""
     if request.method == "POST":
         if "msaname" in request.POST:
             msaname = request.POST.get("msaname")
@@ -473,7 +445,47 @@ def view_library_ancestortree(request, alib, con):
             cur.execute(sql)
             x = cur.fetchone()
             phylomodelid = x[1]
-        
+    
+    """INPUT 2: parse a URL like .../mafft.PROTCATLG/ancestors"""
+    if msaid == None and phylomodelid == None:
+        x = get_msa_and_model(request, con)
+        if x != None:
+            (msaid, msaname, phylomodelid, phylomodelname) = x
+
+    """INPUT 3: maybe the user has some saved viewing preferences?"""
+    if msaid == None and phylomodelid == None:
+        msaid = get_viewing_pref(request, alib, con, "lastviewed_msaid")
+        phylomodelid = get_viewing_pref(request, alib, con, "lastviewed_modelid")
+        if msaid != None:
+            sql = "select name from AlignmentMethods where id=" + msaid.__str__()
+            cur.execute(sql)
+            msaname = cur.fetchone()[0]
+        if phylomodelid != None:
+            sql = "select name from PhyloModels where modelid=" + phylomodelid.__str__()
+            cur.execute(sql)
+            phylomodelname = cur.fetchone()[0]
+
+    print "459:", msaid, phylomodelid
+
+    """"INPUT 4: no alignment and model were specified, so just pick some random values to initialize the page."""
+    if msaid == None:
+        sql = "select name, id from AlignmentMethods"
+        cur.execute(sql)
+        x = cur.fetchone()
+        msaid = x[1]
+        msaname = x[0]
+    if phylomodelid == None:
+        sql = "select name, modelid from PhyloModels"
+        cur.execute(sql)
+        x = cur.fetchone()
+        phylomodelid = x[1]
+        phylomodelname = x[0]
+
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
+            
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
     
@@ -846,46 +858,15 @@ def view_ancestor_supportbysitexls(request, alib, con):
 
 
 def view_mutations(request, alib, con):
+    cur = con.cursor()    
+    context = get_base_context(request, alib, con)
+    return render(request, 'libview/libview_mutations_base.html', context)
+
+def view_mutations_bybranch(request, alib, con):
     cur = con.cursor()
     
-    """Parse the URL for potential alignment/model specifications."""
-    tokens = request.path_info.split("/")
-    setuptoken = tokens[ tokens.__len__()-2 ]
-    ttok = setuptoken.split(".")
-    if ttok.__len__() != 2:
-        """Get the default msaname"""
-        sql = "select id, name from AlignmentMethods"
-        cur.execute(sql)
-        x = cur.fetchone()
-        msaid = x[0]
-        msaname = x[1]
-        
-        """Get the default model"""
-        sql = "select modelid, name from PhyloModels"
-        cur.execute(sql)
-        x = cur.fetchone()
-        phylomodelid = x[0]
-        phylomodelname = x[1]
-    else:
-        msaname = ttok[0]
-        sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
-        cur.execute(sql)
-        msaid = cur.fetchone()
-        if msaid == None:
-            return view_library_frontpage(request, alib, con)
-        msaid = msaid[0]
-  
-        phylomodelname = ttok[1]      
-        sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
-        cur.execute(sql)
-        phylomodelid = cur.fetchone()
-        if phylomodelid == None:
-            return view_library_frontpage(request, alib, con)
-        phylomodelid = phylomodelid[0]
+    sql = "select "
+    
     
     context = get_base_context(request, alib, con)
-    context["msaname"] = msaname
-    context["modelname"] = phylomodelname
-    
-    return render(request, 'libview/libview_mutations_base.html', context)
-    
+    return render(request, 'libview/libview_mutations_branch.html', context)
