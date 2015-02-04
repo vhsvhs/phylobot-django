@@ -1,4 +1,7 @@
 import os
+
+from dendropy import Tree
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import logout
@@ -105,9 +108,9 @@ def view_library(request, libid):
     elif request.path_info.__contains__("node"):
         return view_ancestor_ml(request, alib, con)
     
-    elif request.path_info.__contains__("mutations"):
-        return view_mutations(request, alib, con)
-    
+    elif request.path_info.__contains__("mutations"):    
+        return view_mutations_bybranch(request, alib, con)
+        
     elif request.path_info.endswith("floci"):
         pass
     
@@ -421,71 +424,16 @@ def view_library_trees(request, alib, con):
     return render(request, 'libview/libview_trees.html', context)
 
 def view_library_ancestortree(request, alib, con):
-    cur = con.cursor()
-    context = get_base_context(request, alib, con) 
-    msaname = None
-    msaid = None
-    phylomodelname = None
-    phylomodelid = None
+    cur = con.cursor() 
     
-    """We need to determine the alignment method and phylo. model.
-        There are several places this information may be found...."""
-        
-    """INPUT 1: parse the POST information from the web form"""
-    if request.method == "POST":
-        if "msaname" in request.POST:
-            msaname = request.POST.get("msaname")
-            sql = "select name, id from AlignmentMethods where name='" + msaname + "'"
-            cur.execute(sql)
-            x = cur.fetchone()
-            msaid = x[1]
-        if "modelname" in request.POST:
-            phylomodelname = request.POST.get("modelname")
-            sql = "select name, modelid from PhyloModels where name='" + phylomodelname + "'"
-            cur.execute(sql)
-            x = cur.fetchone()
-            phylomodelid = x[1]
-    
-    """INPUT 2: parse a URL like .../mafft.PROTCATLG/ancestors"""
-    if msaid == None and phylomodelid == None:
-        x = get_msa_and_model(request, con)
-        if x != None:
-            (msaid, msaname, phylomodelid, phylomodelname) = x
-
-    """INPUT 3: maybe the user has some saved viewing preferences?"""
-    if msaid == None and phylomodelid == None:
-        msaid = get_viewing_pref(request, alib, con, "lastviewed_msaid")
-        phylomodelid = get_viewing_pref(request, alib, con, "lastviewed_modelid")
-        if msaid != None:
-            sql = "select name from AlignmentMethods where id=" + msaid.__str__()
-            cur.execute(sql)
-            msaname = cur.fetchone()[0]
-        if phylomodelid != None:
-            sql = "select name from PhyloModels where modelid=" + phylomodelid.__str__()
-            cur.execute(sql)
-            phylomodelname = cur.fetchone()[0]
-
-    print "459:", msaid, phylomodelid
-
-    """"INPUT 4: no alignment and model were specified, so just pick some random values to initialize the page."""
-    if msaid == None:
-        sql = "select name, id from AlignmentMethods"
-        cur.execute(sql)
-        x = cur.fetchone()
-        msaid = x[1]
-        msaname = x[0]
-    if phylomodelid == None:
-        sql = "select name, modelid from PhyloModels"
-        cur.execute(sql)
-        x = cur.fetchone()
-        phylomodelid = x[1]
-        phylomodelname = x[0]
+    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
     save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
-            
+           
+    context = get_base_context(request, alib, con)  
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
     
@@ -494,10 +442,27 @@ def view_library_ancestortree(request, alib, con):
     sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
     cur.execute(sql)
     newick = cur.fetchone()[0]
-    #print "471:", msaid, phylomodelid,  newick
     
-    """This following block will fetch the XML string for use with the javascript-based
-        phylogeny viewer.
+    print "446:", newick
+    
+    """Root the tree"""
+    dendrotree = Tree()
+    dendrotree.read_from_string(newick, "newick")
+    sql = "select shortname from Taxa where id in (select taxonid from GroupsTaxa where groupid in (select id from TaxaGroups where name='outgroup'))"
+    cur.execute(sql)
+    rrr = cur.fetchall()
+    outgroup_labels = []
+    for iii in rrr:
+        outgroup_labels.append( iii[0].__str__() )
+    print "457:", outgroup_labels
+    mrca = dendrotree.mrca(taxon_labels=outgroup_labels)
+    dendrotree.reroot_at_edge(mrca.edge, update_splits=True)
+    newick = dendrotree.as_string("newick")
+    
+    print "460:", newick
+
+    """This following block is a mess. . . but it solves a problem with the Dendropy library.
+        This block will fetch the XML string for use with the javascript-based phylogeny viewer.
         The code here is fundamentally a mess -- I can't figure out the API to get an XML
         string directly from the Phylo class. In the meantime, the messy way is to write
         an XML phylogeny to the /tmp folder, and then read the contents of the file to
@@ -528,13 +493,7 @@ def view_library_ancestortree(request, alib, con):
         msanames.append( ii[0] )
     context["msanames"] = msanames
     
-    sql = "select name from PhyloModels"
-    cur.execute(sql)
-    x = cur.fetchall()
-    modelnames = []
-    for ii in x:
-        modelnames.append( ii[0] )
-    context["modelnames"] = modelnames
+    context["modelnames"] = get_modelnames(con)
     
     return render(request, 'libview/libview_anctrees.html', context)
 
@@ -593,7 +552,6 @@ def get_anc_stats(con, ancid, n_randoms=5, stride = 0.1, bins = [0.0, 0.1, 0.2, 
     alt_sequences = []
     for ii in range(0, n_randoms):
         mlseq = ""
-        mlpps = []
         sites = site_state_pp.keys()
         sites.sort()
         for site in sites:
@@ -605,11 +563,9 @@ def get_anc_stats(con, ancid, n_randoms=5, stride = 0.1, bins = [0.0, 0.1, 0.2, 
                 pp = site_state_pp[site][state] 
                 if pp == 1.0:
                     mlseq += state
-                    mlpps.append(pp)
                     break
                 elif count >= target:
                     mlseq += state
-                    mlpps.append(pp)
                     break
                 else:
                     count += pp
@@ -772,8 +728,46 @@ def view_ancestor_support(request, alib, con):
     bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
 
-    #print "557:", ancid, msaname, phylomodelname
+
     context = get_base_context(request, alib, con)
+
+    site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
+    sites = site_state_pp.keys()
+    sites.sort()
+    context["site_support_tuples"] = []
+    count_sites = 0
+    for site in sites:
+        count_sites += 1
+        pp_states = {}
+        for state in site_state_pp[site]:
+            pp = site_state_pp[site][state]
+            if pp in pp_states:
+                pp_states[pp].append( state)
+            else:
+                pp_states[pp] = [state]
+        pps = pp_states.keys()
+        pps.sort(reverse=True)
+        states_ordered = []
+        pps_ordered = []
+        for pp in pps:
+            for state in pp_states[pp]:
+                states_ordered.append( state )
+                pps_ordered.append( pp )
+        #print "754:", site, pps_ordered
+        mlpp = pps_ordered[0]
+        if pps_ordered.__len__() > 1:
+            pp2 = pps_ordered[1]
+        else:
+            pp2 = 0.0
+        if pps_ordered.__len__() > 2:
+            pp3 = pps_ordered[2]
+        else:
+            pp3 = 0.0
+        context["site_support_tuples"].append(   (count_sites, mlpp, pp2, pp3)  )
+    context["last_site"] = sites[ sites.__len__()-1 ]
+
+    #print "557:", ancid, msaname, phylomodelname
+
     context["node_number"] = nodenumber
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
@@ -823,8 +817,12 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
         
     # site_tuples is a list-ified version of site_state_pp, such that
     # the Django template library can deal with it.
-    site_tuples = {}
+    site_rows = []
+    
+    #site_tuples = {}
+    count_sites = 0
     for site in site_state_pp:
+        count_sites += 1
         pp_states = {}
         for state in site_state_pp[site]:
             pp = site_state_pp[site][state]
@@ -833,40 +831,103 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
             pp_states[pp].append(state)
         pps = pp_states.keys()
         pps.sort(reverse=True)
-        site_tuples[site] = []
+        
+        tuples = []
         for pp in pps:
             for state in pp_states[pp]:
                 tuple = (state, pp)
-                site_tuples[site].append( tuple )
-    sites = site_tuples.keys()
-    sites.sort()
+                tuples.append( tuple )
+        site_rows.append( [site,count_sites,tuples] )
     
-    #print "557:", ancid, msaname, phylomodelname
+    print "842:", site_rows
+            
     context = get_base_context(request, alib, con)
     context["node_number"] = nodenumber
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
     #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
-    context["site_tuples"] = site_tuples
-    context["sites"] = sites
+    context["site_rows"] = site_rows
     if xls == True:
         return render(request, 'libview/libview_ancestor_supportbysite.xls', context, content_type='text')
     return render(request, 'libview/libview_ancestor_supportbysite.html', context)   
+
 
 def view_ancestor_supportbysitexls(request, alib, con):
     return view_ancestor_supportbysite(request, alib, con, xls=True)
 
 
-def view_mutations(request, alib, con):
-    cur = con.cursor()    
-    context = get_base_context(request, alib, con)
-    return render(request, 'libview/libview_mutations_base.html', context)
-
 def view_mutations_bybranch(request, alib, con):
     cur = con.cursor()
+    context = get_base_context(request, alib, con)  
+
+    """Which alignment and model is/was selected?"""
+    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
+
+    """Which ancestors are selected (used to define the branch)"""
+    fields = ["ancname1", "ancname2"]
+    ancname1 = ""
+    ancid1 = None
+    ancname2 = ""
+    ancid2 = None
+    for index, field in enumerate(fields):
+        if field in request.POST:
+            cur = con.cursor()
+            ancname = request.POST.get(field)
+            sql = "select name, id from Ancestors where name='" + ancname + "'"
+            cur.execute(sql)
+            x = cur.fetchone()
+            if x != None:
+                ancid = x[1]
+                if index == 0:
+                    ancname1 = ancname
+                    ancid1 = ancid
+                elif index == 1:
+                    ancname2 = ancname
+                    ancid2 = ancid
     
-    sql = "select "
+    """Deal with missing data in the HTML form by just grabbing the first ancestor from the database"""
+    if ancid1 == None:
+        sql = "select name, id from Ancestors"
+        cur.execute(sql)
+        x = cur.fetchone()
+        ancid1 = x[1]
+        ancname1 = x[0]
+    if ancid2 == None:
+        sql = "select name, id from Ancestors"
+        cur.execute(sql)
+        x = cur.fetchone()
+        ancid2 = x[1]
+        ancname2 = x[0]
+
+    """
+    Get mutation information between anc1 and anc2
+    """
+    anc1_site_state_pp = get_site_state_pp(con, ancid1, skip_indels = False)
+    anc2_site_state_pp = get_site_state_pp(con, ancid2, skip_indels = False)
     
+    sites = anc1_site_state_pp.keys()
+    sites.sort()
+
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
+
+    sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
+    cur.execute(sql)
+    x = cur.fetchall()
+    context["ancnames"] = []
+    for ii in x:
+        context["ancnames"].append( ii[0] )
     
-    context = get_base_context(request, alib, con)
+    context["msanames"] = get_alignmentnames(con)
+    context["modelnames"] = get_modelnames(con)
+    
+    context["default_msaname"] = msaname
+    context["default_modelname"] = phylomodelname
+    
+    context["default_ancname1"] = context["ancnames"][0]
+    context["default_ancname2"] = context["ancnames"][1]
+
     return render(request, 'libview/libview_mutations_branch.html', context)
+

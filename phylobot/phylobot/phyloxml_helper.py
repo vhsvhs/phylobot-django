@@ -42,5 +42,6 @@ def annotate_phyloxml(xmlstring, urlprefix):
             xmlstring += "<desc>Ancestor #" + name + "</desc>"
             url = urlprefix + "/node" + name
             xmlstring += "<uri>" + url + "</uri>"
+            xmlstring += "<a>fake link</a>"
             xmlstring += "</annotation>"
     return xmlstring

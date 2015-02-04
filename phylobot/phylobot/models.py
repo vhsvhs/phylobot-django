@@ -26,6 +26,8 @@ class ViewingPrefs(models.Model):
     keyword = models.CharField(max_length=35)
     value = models.CharField(max_length=100)
     user = models.ForeignKey(User)    
+    
+    
 
 class AncestralLibrary(models.Model):
     """This class stores paths to sqlite3 DBs that were computed by the asrpipeline.
