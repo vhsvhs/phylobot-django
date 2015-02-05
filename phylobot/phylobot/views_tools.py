@@ -174,5 +174,18 @@ def get_msamodel(request, alib, con):
     
     return (msaid, msaname, phylomodelid, phylomodelname)       
 
+def get_seed_sequence(con, msaname):
+    cur = con.cursor()
+    sql = "select id from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
+    cur.execute(sql)
+    seedtaxonid = cur.fetchone()[0]
     
+    sql = "select id from AlignmentMethods where name='" + msaname + "'"
+    cur.execute(sql)
+    msaid = cur.fetchone()[0]
+    
+    sql = "select alsequence from AlignedSequences where almethod=" + msaid.__str__() + " and taxonid=" + seedtaxonid.__str__() 
+    cur.execute(sql)
+    seedsequence = cur.fetchone()[0]
+    return seedsequence 
     

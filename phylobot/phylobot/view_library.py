@@ -545,6 +545,21 @@ def get_site_state_pp(con, ancid, skip_indels = True):
         site_state_pp[site][state] = pp
     return site_state_pp
 
+def get_ml_state_pp(state_pp):
+    """state_pp is a hashtable, key = state, value = pp of that state
+        This method returns the tuple: (ml state, ml pp)"""
+    mlstate = None
+    mlpp = None
+    for state in state_pp:
+        pp = state_pp[state]
+        if mlstate == None:
+            mlstate = state
+            mlpp = pp
+        elif mlpp < pp:
+            mlstate = state
+            mlpp = pp
+    return (mlstate, mlpp)
+
 def get_anc_stats(con, ancid, n_randoms=5, stride = 0.1, bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]):
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
 
@@ -839,7 +854,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
                 tuples.append( tuple )
         site_rows.append( [site,count_sites,tuples] )
     
-    print "842:", site_rows
             
     context = get_base_context(request, alib, con)
     context["node_number"] = nodenumber
@@ -873,7 +887,7 @@ def view_mutations_bybranch(request, alib, con):
         if field in request.POST:
             cur = con.cursor()
             ancname = request.POST.get(field)
-            sql = "select name, id from Ancestors where name='" + ancname + "'"
+            sql = "select name, id from Ancestors where name='" + ancname + "' and almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
             cur.execute(sql)
             x = cur.fetchone()
             if x != None:
@@ -887,26 +901,76 @@ def view_mutations_bybranch(request, alib, con):
     
     """Deal with missing data in the HTML form by just grabbing the first ancestor from the database"""
     if ancid1 == None:
-        sql = "select name, id from Ancestors"
+        sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
         cur.execute(sql)
         x = cur.fetchone()
         ancid1 = x[1]
         ancname1 = x[0]
     if ancid2 == None:
-        sql = "select name, id from Ancestors"
+        sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
         cur.execute(sql)
         x = cur.fetchone()
         ancid2 = x[1]
         ancname2 = x[0]
 
+    print "917", msaid, msaname, phylomodelid, phylomodelname, ancid1, ancname2, ancid2, ancname2
+
     """
     Get mutation information between anc1 and anc2
     """
-    anc1_site_state_pp = get_site_state_pp(con, ancid1, skip_indels = False)
+    anc1_site_state_pp = get_site_state_pp(con, ancid1, skip_indels = False) # False is important here, so that the sequence will match the seed sequence in length.
     anc2_site_state_pp = get_site_state_pp(con, ancid2, skip_indels = False)
+    seedsequence = get_seed_sequence(con, msaname)
     
+    sql = "select value from Settings where keyword='seedtaxa'"
+    cur.execute(sql)
+    seedtaxonname = cur.fetchone()[0]
+    context["seedtaxonname"] = seedtaxonname
+    
+    #print "929", seedsequence, seedsequence.__len__()
+        
     sites = anc1_site_state_pp.keys()
     sites.sort()
+    
+    #print "931", sites.__len__()
+    
+    mutation_rows = []
+    
+    for site in sites:
+        (anc1state, anc1pp) = get_ml_state_pp( anc1_site_state_pp[site] )
+        (anc2state, anc2pp) = get_ml_state_pp( anc2_site_state_pp[site] )
+        if site <= seedsequence.__len__():
+            seed_state = seedsequence[site-1]
+        else:
+            seed_state = "-"
+    
+        if anc1state == "-" and anc2state == "-":
+            continue
+        
+#         sql = "select * from AncestralStates where ancid=" + ancid1.__str__() + " and site=" + site.__str__()
+#         cur.execute(sql)
+#         print "953: Site:", site
+#         print "954:", cur.fetchall()
+#         sql = "select * from AncestralStates where ancid=" + ancid2.__str__() + " and site=" + site.__str__()
+#         cur.execute(sql)
+#         print "957:", cur.fetchall()
+        
+        mutation_flag = ""
+        """Get the state in the seed sequence."""    
+        if anc1state == anc2state:
+            """No mutation"""
+            pass
+        elif anc1state == "-" and anc2state != "-":
+            mutation_flag = "insertion"
+        elif anc2state == "-" and anc1state != "-":
+            mutation_flag = "deletion"
+        elif anc1state != anc2state and anc1pp > 0.6 and anc2pp > 0.6:
+            mutation_flag = "type 1"
+
+        tuple = (site, seed_state, anc1state, anc1pp, anc2state, anc2pp, mutation_flag)
+        mutation_rows.append( tuple )
+
+    context["mutation_rows"] = mutation_rows
 
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
@@ -926,8 +990,8 @@ def view_mutations_bybranch(request, alib, con):
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
     
-    context["default_ancname1"] = context["ancnames"][0]
-    context["default_ancname2"] = context["ancnames"][1]
+    context["default_ancname1"] = ancname1
+    context["default_ancname2"] = ancname2
 
     return render(request, 'libview/libview_mutations_branch.html', context)
 
