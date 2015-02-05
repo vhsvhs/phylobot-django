@@ -156,8 +156,6 @@ def get_msamodel(request, alib, con):
             cur.execute(sql)
             phylomodelname = cur.fetchone()[0]
 
-    print "459:", msaid, phylomodelid
-
     """"INPUT 4: no alignment and model were specified, so just pick some random values to initialize the page."""
     if msaid == None:
         sql = "select name, id from AlignmentMethods"
@@ -188,4 +186,42 @@ def get_seed_sequence(con, msaname):
     cur.execute(sql)
     seedsequence = cur.fetchone()[0]
     return seedsequence 
+
+def get_anc_cladogram(con, msaid, phylomodelid):
+    """Returns the Newick-formatted string with the cladogram of ancestral
+        nodes for the given alignment method (msaid) and model (phylomodelid)"""
+    cur = con.cursor()
+    sql = "select newick from AncestralCladogram where unsupportedmltreeid in"
+    sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
+    cur.execute(sql)
+    newick = cur.fetchone()[0]
+    return newick
+
+def get_list_of_same_ancids(con, ancid):
+    """Return a list of other ancestors, from other alignments and models, that share the same ingroup position
+        as the ancestor reference by ancid"""
+    sql = "select "
     
+    #newick = reroot_newick(con, newick)
+    
+
+#
+# depricated -- all the tree re-rooting should
+#                 occur in the ASR pipeline before it's placed in the database.
+#
+# def reroot_newick(con, newick):
+#     """Provide a newick string, this method will re-root the tree
+#         based on the 'outgroup' setting."""
+#     cur = con.cursor()
+#     dendrotree = Tree()
+#     dendrotree.read_from_string(newick, "newick")
+#     sql = "select shortname from Taxa where id in (select taxonid from GroupsTaxa where groupid in (select id from TaxaGroups where name='outgroup'))"
+#     cur.execute(sql)
+#     rrr = cur.fetchall()
+#     outgroup_labels = []
+#     for iii in rrr:
+#         outgroup_labels.append( iii[0].__str__() )
+#     mrca = dendrotree.mrca(taxon_labels=outgroup_labels)
+#     dendrotree.reroot_at_edge(mrca.edge, update_splits=True)
+#     newick = dendrotree.as_string("newick")
+#     return newick

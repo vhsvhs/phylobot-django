@@ -437,30 +437,10 @@ def view_library_ancestortree(request, alib, con):
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
     
-    cladogramstring = ""
-    sql = "select newick from AncestralCladogram where unsupportedmltreeid in"
-    sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
-    cur.execute(sql)
-    newick = cur.fetchone()[0]
+    """Get the cladogram of ancestors"""
+    newick = get_anc_cladogram(con, msaid, phylomodelid)
+    #newick = reroot_newick(con, newick)
     
-    print "446:", newick
-    
-    """Root the tree"""
-    dendrotree = Tree()
-    dendrotree.read_from_string(newick, "newick")
-    sql = "select shortname from Taxa where id in (select taxonid from GroupsTaxa where groupid in (select id from TaxaGroups where name='outgroup'))"
-    cur.execute(sql)
-    rrr = cur.fetchall()
-    outgroup_labels = []
-    for iii in rrr:
-        outgroup_labels.append( iii[0].__str__() )
-    print "457:", outgroup_labels
-    mrca = dendrotree.mrca(taxon_labels=outgroup_labels)
-    dendrotree.reroot_at_edge(mrca.edge, update_splits=True)
-    newick = dendrotree.as_string("newick")
-    
-    print "460:", newick
-
     """This following block is a mess. . . but it solves a problem with the Dendropy library.
         This block will fetch the XML string for use with the javascript-based phylogeny viewer.
         The code here is fundamentally a mess -- I can't figure out the API to get an XML
@@ -877,6 +857,11 @@ def view_mutations_bybranch(request, alib, con):
     """Which alignment and model is/was selected?"""
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
+
     """Which ancestors are selected (used to define the branch)"""
     fields = ["ancname1", "ancname2"]
     ancname1 = ""
@@ -913,7 +898,7 @@ def view_mutations_bybranch(request, alib, con):
         ancid2 = x[1]
         ancname2 = x[0]
 
-    print "917", msaid, msaname, phylomodelid, phylomodelname, ancid1, ancname2, ancid2, ancname2
+    #print "917", msaid, msaname, phylomodelid, phylomodelname, ancid1, ancname2, ancid2, ancname2
 
     """
     Get mutation information between anc1 and anc2
@@ -936,6 +921,7 @@ def view_mutations_bybranch(request, alib, con):
     
     mutation_rows = []
     
+    count_seed_sites = 0
     for site in sites:
         (anc1state, anc1pp) = get_ml_state_pp( anc1_site_state_pp[site] )
         (anc2state, anc2pp) = get_ml_state_pp( anc2_site_state_pp[site] )
@@ -943,6 +929,12 @@ def view_mutations_bybranch(request, alib, con):
             seed_state = seedsequence[site-1]
         else:
             seed_state = "-"
+    
+        if seed_state != "-":
+            count_seed_sites += 1
+            seed_site = count_seed_sites
+        else:
+            seed_site = ""
     
         if anc1state == "-" and anc2state == "-":
             continue
@@ -967,7 +959,7 @@ def view_mutations_bybranch(request, alib, con):
         elif anc1state != anc2state and anc1pp > 0.6 and anc2pp > 0.6:
             mutation_flag = "type 1"
 
-        tuple = (site, seed_state, anc1state, anc1pp, anc2state, anc2pp, mutation_flag)
+        tuple = (site, seed_site, seed_state, anc1state, anc1pp, anc2state, anc2pp, mutation_flag)
         mutation_rows.append( tuple )
 
     context["mutation_rows"] = mutation_rows
