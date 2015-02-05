@@ -200,7 +200,13 @@ def get_anc_cladogram(con, msaid, phylomodelid):
 def get_list_of_same_ancids(con, ancid):
     """Return a list of other ancestors, from other alignments and models, that share the same ingroup position
         as the ancestor reference by ancid"""
-    sql = "select "
+    cur = con.cursor()
+    sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid.__str__()
+    cur.execute(sql)
+    matches = []
+    for ii in cur.fetchall():
+        matches.append( ii[0])
+    return matches
     
     #newick = reroot_newick(con, newick)
     

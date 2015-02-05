@@ -900,6 +900,11 @@ def view_mutations_bybranch(request, alib, con):
 
     #print "917", msaid, msaname, phylomodelid, phylomodelname, ancid1, ancname2, ancid2, ancname2
 
+    anc1_same = get_list_of_same_ancids(con, ancid1)
+    anc2_same = get_list_of_same_ancids(con, ancid2)
+    print "906:", anc1_same
+    print "907:", anc2_same
+
     """
     Get mutation information between anc1 and anc2
     """
