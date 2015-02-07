@@ -857,6 +857,8 @@ def view_mutations_bybranch(request, alib, con):
     """Which alignment and model is/was selected?"""
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
+    print "860:", msaid, msaname, phylomodelid, phylomodelname
+
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
     save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
@@ -885,88 +887,179 @@ def view_mutations_bybranch(request, alib, con):
                     ancid2 = ancid
     
     """Deal with missing data in the HTML form by just grabbing the first ancestor from the database"""
-    if ancid1 == None:
+    if ancid1 == None or ancid2 == None:
         sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
         cur.execute(sql)
-        x = cur.fetchone()
-        ancid1 = x[1]
-        ancname1 = x[0]
-    if ancid2 == None:
-        sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
-        cur.execute(sql)
-        x = cur.fetchone()
-        ancid2 = x[1]
-        ancname2 = x[0]
+        x = cur.fetchall()
+        if x == None:
+            write_error(con, "I can't find the ancestor in the database for " + msaid.__str__() + " and " + phylomodelid.__str__() )
+        ancid1 = x[0][1]
+        ancname1 = x[0][0]
+        ancid2 = x[1][1]
+        ancname2 = x[1][0]
 
-    #print "917", msaid, msaname, phylomodelid, phylomodelname, ancid1, ancname2, ancid2, ancname2
-
+    """ Get a list of these ancestors in other alignments and models """
     anc1_same = get_list_of_same_ancids(con, ancid1)
-    anc2_same = get_list_of_same_ancids(con, ancid2)
-    print "906:", anc1_same
-    print "907:", anc2_same
+    anc2_same = get_list_of_same_ancids(con, ancid2)    
+    anc1s = [ancid1] + anc1_same
+    anc2s = [ancid2] + anc2_same
+    allancs = anc1s + anc2s
+    
+    print "907:", anc1s
+    print "908:", anc2s
+    
+    """ Get the model and alignment that go with each ancid """
+    ancid_msa = {}
+    ancid_model = {}
+    for id in allancs:
+        sql = "Select almethod, phylomodel from Ancestors where id=" + id.__str__()
+        cur.execute(sql)
+        x = cur.fetchone()
+        ancid_msa[id] = int(x[0])
+        ancid_model[id] = int(x[1])
 
-    """
-    Get mutation information between anc1 and anc2
-    """
-    anc1_site_state_pp = get_site_state_pp(con, ancid1, skip_indels = False) # False is important here, so that the sequence will match the seed sequence in length.
-    anc2_site_state_pp = get_site_state_pp(con, ancid2, skip_indels = False)
+            
+    """ Get the PP distribution for each ancestor"""
+    ancid_site_state_pp = {}
+    for ancid in anc1s + anc2s:
+        ancid_site_state_pp[ancid] = get_site_state_pp(con, ancid, skip_indels = False)
+    
+    if anc1s.__len__() != anc2s.__len__():
+        print "927: Error", anc1s, anc2s
+    
+    ancid_name = {}
+    for ancid in anc1_same + anc2_same:
+        sql = "select name from Ancestors where id=" + ancid.__str__()
+        cur.execute(sql)
+        ancname = cur.fetchone()[0]
+        ancid_name[ancid] = ancname
+    
+    """Get the seedsequence with indels"""
     seedsequence = get_seed_sequence(con, msaname)
-    
-    sql = "select value from Settings where keyword='seedtaxa'"
+    sql = "select id, shortname from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
     cur.execute(sql)
-    seedtaxonname = cur.fetchone()[0]
-    context["seedtaxonname"] = seedtaxonname
+    x = cur.fetchone()
+    seedtaxonid = x[0]
+    seedtaxonname = x[1]
+
+    """We need model names and alignment names for printing in the mutation table header rows."""
+    msaid_name = {}
+    phylomodelid_name = {}
+    sql = "select id, name from AlignmentMethods"
+    cur.execute(sql)
+    query = cur.fetchall()
+    for ii in query:
+        msaid_name[  ii[0]  ] = ii[1]
+    sql = "select modelid, name from PhyloModels"
+    cur.execute(sql)
+    query = cur.fetchall()
+    for ii in query:
+        phylomodelid_name[   ii[0]  ] = ii[1]
+
+    nsites = seedsequence.__len__()
     
-    #print "929", seedsequence, seedsequence.__len__()
-        
-    sites = anc1_site_state_pp.keys()
-    sites.sort()
-    
-    #print "931", sites.__len__()
-    
+    """Pre-build a map of sites from the user-spec. alignment (msaid) to other alignments."""
+    ancid_site1_site2 = {} # key = ancestor ID, value = hash, key = site in user-specified alignment, value = site in the ancestor's alignment.
+    for ancid in allancs:
+        if ancid not in ancid_site1_site2:
+            ancid_site1_site2[ancid] = {}
+                  
+        if int(ancid_msa[ancid]) == int(msaid):
+            """This anc has the same alignment as the user-selected anc. It will have no entires in SiteMap because their sites are identical."""
+            for site in range(0,nsites):
+                ancid_site1_site2[ancid][site] = site
+                  
+        """Lookup the mapped-to site from the SiteMap table."""
+        sql = "select site1, site2 from SiteMap where almethod1=" + msaid.__str__()
+        sql += " and almethod2=" + ancid_msa[ancid].__str__()
+        sql += " and taxonid=" + seedtaxonid.__str__()
+        cur.execute(sql)
+        query = cur.fetchall()
+        print "975: fetching site2 for ", ancid, query.__len__()
+        for qq in query:
+            site1 = qq[0]
+            site2 = qq[1]
+            ancid_site1_site2[ancid][site1] = site2
+               
+    mutation_header = []
     mutation_rows = []
-    
-    count_seed_sites = 0
-    for site in sites:
-        (anc1state, anc1pp) = get_ml_state_pp( anc1_site_state_pp[site] )
-        (anc2state, anc2pp) = get_ml_state_pp( anc2_site_state_pp[site] )
-        if site <= seedsequence.__len__():
+    seed_site = 0 # the index into the seed sequence sans indels
+    """For each site in the seed sequence"""
+    for site in range(1, nsites+1):
+        found_content = False # did we find any non-indel characters?
+        this_row = []
+        
+        if site == 1:
+            """Add header information"""
+            mutation_header = ["Site in " + msaname]
+            sl = seedtaxonname.__len__()
+            if sl > 10:
+                mutation_header.append( "Site in\n" + seedtaxonname[0:5] + "..." + seedtaxonname[sl-6:sl] )
+            else:
+                mutation_header.append(seedtaxonname)
+
+        if seedsequence[site-1] != "-":
+            seed_site += 1
+                
+        """For each ancestor"""
+        for ii in range(0, anc1s.__len__() ):
+            this_anc1 = anc1s[ii]
+            this_anc2 = anc2s[ii]
+            
+            if ancid_model[this_anc1] != ancid_model[this_anc2]:
+                print "954: error"
+                continue
+            if ancid_msa[this_anc1] != ancid_msa[this_anc2]:
+                print "957: error"
+                continue
+
+            if site == 1:
+                """Add header information"""
+                mutation_header.append( phylomodelid_name[ancid_model[this_anc1]].__str__() + "\n" + msaid_name[ancid_msa[this_anc1]].__str__() )
+
+            site21 = None
+            site22 = None
+            if this_anc1 == ancid1 or this_anc2 == ancid2:
+                site21 = site
+                site22 = site
+            elif seedsequence[site-1] != "-":
+                """Get a mapped site"""
+                if site in ancid_site1_site2[this_anc1]:
+                    site21 = ancid_site1_site2[this_anc1][site]
+                if site in ancid_site1_site2[this_anc1]:
+                    site22 = ancid_site1_site2[this_anc1][site]
+
+            #print "1020:", this_anc1, this_anc2, site21, site22
+
+            if site21 == None or site22 == None:
+                this_column = ("","","","","")
+                this_row.append( this_column)
+                continue
+            else:
+                (anc1state, anc1pp) = get_ml_state_pp( ancid_site_state_pp[this_anc1][site21] )
+                (anc2state, anc2pp) = get_ml_state_pp( ancid_site_state_pp[this_anc2][site22] )
+                mutation_flag = ""
+                if anc1state == "-" and anc2state == "-":
+                    continue
+                found_content = True
+                if anc1state == "-" and anc2state != "-":
+                    mutation_flag = "i"
+                elif anc2state == "-" and anc1state != "-":
+                    mutation_flag = "d"
+                elif anc1state != anc2state and anc1pp > 0.7 and anc2pp > 0.7:
+                    mutation_flag = "1"
+                elif anc1state != anc2state and anc1pp > 0.5 and anc2pp > 0.5:
+                    mutation_flag = "2"
+                elif anc1state != anc2state and anc1pp > 0.4 and anc2pp > 0.4:
+                    mutation_flag = "3"
+                this_column = ( anc1state, anc1pp.__str__(), anc2state, anc2pp.__str__(), mutation_flag)
+                this_row.append(  this_column  )
+        if found_content == True:
+            sdsit = seed_site
             seed_state = seedsequence[site-1]
-        else:
-            seed_state = "-"
+            mutation_rows.append( (site, sdsit, seed_state, this_row) )
     
-        if seed_state != "-":
-            count_seed_sites += 1
-            seed_site = count_seed_sites
-        else:
-            seed_site = ""
-    
-        if anc1state == "-" and anc2state == "-":
-            continue
-        
-#         sql = "select * from AncestralStates where ancid=" + ancid1.__str__() + " and site=" + site.__str__()
-#         cur.execute(sql)
-#         print "953: Site:", site
-#         print "954:", cur.fetchall()
-#         sql = "select * from AncestralStates where ancid=" + ancid2.__str__() + " and site=" + site.__str__()
-#         cur.execute(sql)
-#         print "957:", cur.fetchall()
-        
-        mutation_flag = ""
-        """Get the state in the seed sequence."""    
-        if anc1state == anc2state:
-            """No mutation"""
-            pass
-        elif anc1state == "-" and anc2state != "-":
-            mutation_flag = "insertion"
-        elif anc2state == "-" and anc1state != "-":
-            mutation_flag = "deletion"
-        elif anc1state != anc2state and anc1pp > 0.6 and anc2pp > 0.6:
-            mutation_flag = "type 1"
-
-        tuple = (site, seed_site, seed_state, anc1state, anc1pp, anc2state, anc2pp, mutation_flag)
-        mutation_rows.append( tuple )
-
+    context["mutation_header"] = mutation_header
     context["mutation_rows"] = mutation_rows
 
     """Save this viewing preference -- it will load automatically next time
@@ -980,13 +1073,11 @@ def view_mutations_bybranch(request, alib, con):
     context["ancnames"] = []
     for ii in x:
         context["ancnames"].append( ii[0] )
-    
+    context["seedtaxonname"] = seedtaxonname
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
-    
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
-    
     context["default_ancname1"] = ancname1
     context["default_ancname2"] = ancname2
 

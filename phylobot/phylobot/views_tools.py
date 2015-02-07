@@ -208,26 +208,3 @@ def get_list_of_same_ancids(con, ancid):
         matches.append( ii[0])
     return matches
     
-    #newick = reroot_newick(con, newick)
-    
-
-#
-# depricated -- all the tree re-rooting should
-#                 occur in the ASR pipeline before it's placed in the database.
-#
-# def reroot_newick(con, newick):
-#     """Provide a newick string, this method will re-root the tree
-#         based on the 'outgroup' setting."""
-#     cur = con.cursor()
-#     dendrotree = Tree()
-#     dendrotree.read_from_string(newick, "newick")
-#     sql = "select shortname from Taxa where id in (select taxonid from GroupsTaxa where groupid in (select id from TaxaGroups where name='outgroup'))"
-#     cur.execute(sql)
-#     rrr = cur.fetchall()
-#     outgroup_labels = []
-#     for iii in rrr:
-#         outgroup_labels.append( iii[0].__str__() )
-#     mrca = dendrotree.mrca(taxon_labels=outgroup_labels)
-#     dendrotree.reroot_at_edge(mrca.edge, update_splits=True)
-#     newick = dendrotree.as_string("newick")
-#     return newick
