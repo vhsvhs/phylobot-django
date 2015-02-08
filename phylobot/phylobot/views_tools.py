@@ -204,7 +204,106 @@ def get_list_of_same_ancids(con, ancid):
     sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid.__str__()
     cur.execute(sql)
     matches = []
+    msa_model_match = {}
     for ii in cur.fetchall():
-        matches.append( ii[0])
-    return matches
+        this_ancid = ii[0]
+        sql = "select almethod, phylomodel from Ancestors where id=" + this_ancid.__str__()
+        cur.execute(sql)
+        xx = cur.fetchone()
+        almethod = xx[0]
+        phylomodelid = xx[1]
+        if almethod not in msa_model_match:
+            msa_model_match[almethod] = {}
+        msa_model_match[almethod][phylomodelid] = this_ancid
     
+    """Get the alignment method of the user-specificid ancid.
+        Make a list of all alignment methods. Pop out the user-spec. method,
+        and then sort the remaining methods.
+        Finally, list the ancestral matches in the order of first those matches
+        with the same alignment as the user-spec. alignment, and then second
+        those matches from the other alignments."""
+    sql = "Select almethod from Ancestors where id=" + this_ancid.__str__()
+    cur.execute(sql)
+    input_almethod = cur.fetchone()[0]
+    
+    almethods = msa_model_match.keys()
+    almethods.sort()
+    almethods.pop(  almethods.index(input_almethod)  )
+    
+    for model in msa_model_match[input_almethod]:
+        matches.append( msa_model_match[input_almethod][model] )
+    for alid in almethods:
+        for model in msa_model_match[alid]:
+            matches.append( msa_model_match[alid][model] )
+    return matches
+
+
+def get_ancestral_matches(con, ancid1, ancid2):
+    cur = con.cursor()
+    sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid1.__str__()
+    cur.execute(sql)
+    
+    msas = []
+    models = []
+    
+    msa_model_match1 = {} # key = msa, value = hash; key = model, value = ancestral ID of a match to ancid1
+    for ii in cur.fetchall():
+        this_ancid = ii[0]
+        sql = "select almethod, phylomodel from Ancestors where id=" + this_ancid.__str__()
+        cur.execute(sql)
+        xx = cur.fetchone()
+        almethod = xx[0]
+        if almethod not in msas:
+            msas.append(almethod)
+        phylomodelid = xx[1]
+        if phylomodelid not in models:
+            models.append(phylomodelid)
+        if almethod not in msa_model_match1:
+            msa_model_match1[almethod] = {}
+        msa_model_match1[almethod][phylomodelid] = this_ancid
+    
+    
+    sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid2.__str__()
+    cur.execute(sql)
+
+    msa_model_match2 = {}# key = msa, value = hash; key = model, value = ancestral ID of a match to ancid2
+    for ii in cur.fetchall():
+        this_ancid = ii[0]
+        sql = "select almethod, phylomodel from Ancestors where id=" + this_ancid.__str__()
+        cur.execute(sql)
+        xx = cur.fetchone()
+        almethod = xx[0]
+        if almethod not in msas:
+            msas.append(almethod)
+        phylomodelid = xx[1]
+        if phylomodelid not in models:
+            models.append(phylomodelid)
+        if almethod not in msa_model_match2:
+            msa_model_match2[almethod] = {}
+        msa_model_match2[almethod][phylomodelid] = this_ancid    
+    
+    """Now find those alignment-model combinations with a match to both anc1 and anc2"""
+    sql = "Select almethod from Ancestors where id=" + ancid1.__str__()
+    cur.execute(sql)
+    input_almethod = cur.fetchone()[0]
+    
+    msas.pop( msas.index(input_almethod) )
+    
+    matches = []
+    if input_almethod in msa_model_match1 and input_almethod in msa_model_match2:
+        for model in models:
+            if model in msa_model_match1[input_almethod] and model in msa_model_match2[input_almethod]:
+                matches.append( (msa_model_match1[input_almethod][model], msa_model_match2[input_almethod][model]) )        
+    else:
+        print "\n. Error 296 (view_tools.py)", input_almethod, msa_model_match1.keys(), msa_model_match2.keys()
+        
+    for msa in msas:
+        if msa in msa_model_match1 and msa in msa_model_match2:
+            for model in models:
+                if model in msa_model_match1[msa] and model in msa_model_match2[msa]:
+                    matches.append( (msa_model_match1[msa][model], msa_model_match2[msa][model]) )
+    
+    return matches
+
+
+
