@@ -22,7 +22,7 @@ def get_alignmentnames(con):
         msanames.append( ii[0] )
     return msanames
 
-def __get_msamodel_from_url(request, con):
+def get_msamodel_from_url(request, con):
     """Returns a tuple, with the ID of the alignment method and 
         the ID of the phylo. model, interpreted from the URL.
         Assumes URLs formatted as "..../msa_method.phylomodel/X
@@ -31,31 +31,35 @@ def __get_msamodel_from_url(request, con):
     
     msaname = None
     msaid = None
-    modelname = None
-    modelid = None
-    
+    phylomodelname = None
+    phylomodelid = None
+        
     tokens = request.path_info.split("/")
+    
+    # datatoken may be <alignment>.<model> or just <alignment>
     datatoken = tokens[  tokens.__len__()-2  ]
     tokens = datatoken.split(".")
-    if tokens.__len__() < 2:
-        return None
-    msaname = tokens[0]
-    phylomodelname = tokens[1]
+
+    msaname = tokens[0].__str__()
     sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+    print sql
     cur.execute(sql)
     msaid = cur.fetchone()
     if msaid == None:
         """I can't find this alignment method in the database"""
+        print "52:", msaid
         return None
     msaid = msaid[0]
-    
-    sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
-    cur.execute(sql)
-    phylomodelid = cur.fetchone()
-    if phylomodelid == None:
-        """I can't find this model in the database."""
-        return None
-    phylomodelid = phylomodelid[0]
+
+    if tokens.__len__() == 2:
+        phylomodelname = tokens[1].__str__()    
+        sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+        cur.execute(sql)
+        phylomodelid = cur.fetchone()
+        if phylomodelid == None:
+            """I can't find this model in the database."""
+            return None
+        phylomodelid = phylomodelid[0]
     
     return (msaid, msaname, phylomodelid, phylomodelname)
 
@@ -139,9 +143,10 @@ def get_msamodel(request, alib, con):
     
     """INPUT 2: parse a URL like .../mafft.PROTCATLG/ancestors"""
     if msaid == None and phylomodelid == None:
-        x = __get_msamodel_from_url(request, con)
+        x = get_msamodel_from_url(request, con)
         if x != None:
             (msaid, msaname, phylomodelid, phylomodelname) = x
+            
 
     """INPUT 3: maybe the user has some saved viewing preferences?"""
     if msaid == None and phylomodelid == None:

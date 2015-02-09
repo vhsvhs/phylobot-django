@@ -107,6 +107,9 @@ def view_library(request, libid):
     
     elif request.path_info.__contains__("node"):
         return view_ancestor_ml(request, alib, con)
+
+    elif request.path_info.__contains__("site"):
+        return view_site(request, alib, con)
     
     elif request.path_info.__contains__("mutations"):    
         return view_mutations_bybranch(request, alib, con)
@@ -507,6 +510,8 @@ def get_ml_sequence(con, ancid):
     return mlseq
 
 def get_site_state_pp(con, ancid, skip_indels = True):
+    """Returns a hashtable, key = site, value = hash; key = residue state, value = PP of the state
+        skip_indels will skip those sites with indels"""
     cur = con.cursor()
     sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
     cur.execute(sql)
@@ -521,9 +526,31 @@ def get_site_state_pp(con, ancid, skip_indels = True):
             continue
         pp = ii[2]
         if site not in site_state_pp:
-            site_state_pp[site] = {}
-        site_state_pp[site][state] = pp
+            site_state_pp[site] = {}        
+        if state not in site_state_pp[site]:
+            site_state_pp[site][state] = pp
+            
     return site_state_pp
+
+def get_site_ml(con, ancid, skip_indels = True):
+    """Returns the hashtable; key = site, value = tuple of (mlstate, mlpp)"""
+    cur = con.cursor()
+    sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    cur.execute(sql)
+    x = cur.fetchall()
+    site_tuple = {}
+    site_mlpp = {}
+    for ii in x:
+        site = ii[0]
+        state = ii[1]
+        pp = ii[2]
+        if site not in site_mlpp:
+            site_mlpp[site] = pp
+            site_tuple[site] = (state, pp)
+        if pp > site_mlpp[site]:
+            site_mlpp[site] = pp
+            site_tuple[site] = (state, pp)
+    return site_tuple
 
 def get_ml_state_pp(state_pp):
     """state_pp is a hashtable, key = state, value = pp of that state
@@ -622,6 +649,69 @@ def get_sd(values):
     for v in values:
         sumofsquares += (v - mean)**2
     return math.sqrt( sumofsquares / float(values.__len__()) )
+
+def view_site(request, alib, con):
+    x = get_msamodel_from_url(request, con)
+    if x != None:
+        (msaid, msaname, phylomodelid, phylomodelname) = x
+    
+    tokens = request.path_info.split("/")
+    sitetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
+    site = re.sub("site", "", sitetoken)
+    
+    cur = con.cursor()
+    count_nonindel_taxa = 0
+    sql = "select taxonid, substr(alsequence, " + site.__str__() + ", 1) from AlignedSequences where almethod=" + msaid.__str__() + ";"
+    taxonname_residue = []
+    cur.execute(sql)
+    for ii in cur.fetchall():
+        taxonid = ii[0]
+        res = ii[1]
+        if res != "-":
+            count_nonindel_taxa += 1
+        sql = "select shortname from Taxa where id=" + taxonid.__str__()
+        cur.execute(sql)
+        name = cur.fetchone()[0]
+        taxonname_residue.append( (name,res) )
+    
+    sql = "select id, name from AlignmentMethods"
+    cur.execute(sql)
+    msaid_msaname = {}
+    for ii in cur.fetchall():
+        id = int(ii[0])
+        name = ii[1].__str__()
+        msaid_msaname[id] = name
+    
+    """How does this site map to other alignments?"""
+    sql = "select site2, almethod2 from SiteMap where site1=" + site.__str__() + " and almethod1=" + msaid.__str__()
+    cur.execute(sql)
+    msa_site_count = {}
+    for ii in cur.fetchall():
+        site2 = ii[0]
+        almethod = ii[1]
+        if almethod not in msa_site_count:
+            msa_site_count[almethod] = {}
+        if site2 not in msa_site_count[almethod]:
+            msa_site_count[almethod][site2] = 0
+        msa_site_count[almethod][site2] += (1.0/count_nonindel_taxa)*100
+    msa_similarity_tuples = {}
+    for msa in msa_site_count:
+        msa_similarity_tuples[  msaid_msaname[msa]  ] = []
+        for site2 in msa_site_count[msa]:
+            this_tuple = (site2, msa_site_count[msa][site2])
+            msa_similarity_tuples[  msaid_msaname[msa]  ].append(this_tuple)
+
+
+    context = get_base_context(request, alib, con)
+    context["site"] = site
+    context["msaname"] = msaname
+    context["msaid"] = msaid
+    context["taxonname_residue"] = taxonname_residue
+    context["msa_similarity_tuples"] = msa_similarity_tuples
+    #context["modelname"] = phylomodelname
+    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
+    return render(request, 'libview/libview_site.html', context)
+    
 
 def view_ancestor_ml(request, alib, con):
     cur = con.cursor()
@@ -857,8 +947,6 @@ def view_mutations_bybranch(request, alib, con):
     """Which alignment and model is/was selected?"""
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
-    print "\n. 860:", msaid, msaname, phylomodelid, phylomodelname
-
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
     save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
@@ -900,6 +988,25 @@ def view_mutations_bybranch(request, alib, con):
                     ancname2 = ancname
                     ancid2 = ancid
     
+    """For some reason, the ancestors weren't selected in the HTML form 
+        (or this is the first time rendering) so let's check if the user has 
+        any saved preferences about the last-viewed ancestors."""
+    
+    if ancid1 == None or ancid2 == None:
+        last_viewed_ancid1 = get_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
+        last_viewed_ancid2 = get_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
+        print "\n. 930 retrieving from save:", last_viewed_ancid1, last_viewed_ancid2
+        if last_viewed_ancid1 != None:
+            ancid1 = int(last_viewed_ancid1)
+            sql = "select name from Ancestors where id=" + ancid1.__str__()
+            cur.execute(sql)
+            ancname1 = cur.fetchone()[0]
+        if last_viewed_ancid2 != None:
+            ancid2 = int(last_viewed_ancid2)
+            sql = "select name from Ancestors where id=" + ancid2.__str__()
+            cur.execute(sql)
+            ancname2 = cur.fetchone()[0]
+        
     """Deal with missing data in the HTML form by just grabbing the first ancestor from the database"""
     if ancid1 == None or ancid2 == None:
         sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
@@ -907,12 +1014,19 @@ def view_mutations_bybranch(request, alib, con):
         x = cur.fetchall()
         if x == None:
             write_error(con, "I can't find the ancestor in the database for " + msaid.__str__() + " and " + phylomodelid.__str__() )
-        ancid1 = x[0][1]
+        ancid1 = int(x[0][1])
         ancname1 = x[0][0]
-        ancid2 = x[1][1]
+        ancid2 = int(x[1][1])
         ancname2 = x[1][0]
 
     print "\n. 915: ancid1=", ancid1, " ancid2=", ancid2
+    
+    save_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__(), ancid1) 
+    save_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__(), ancid2)
+
+    last_viewed_ancid1 = get_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
+    last_viewed_ancid2 = get_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
+    print "\n. 955:", last_viewed_ancid1, last_viewed_ancid2
 
     """Get the site map beween different sequence alignments"""
     msa_site1_site2 = {} # key = msaid, value = hash; key = site in user-specified msa, value = site in msaid
@@ -948,6 +1062,7 @@ def view_mutations_bybranch(request, alib, con):
     ancid_model = {}
     ancid_site_state_pp = {}
     ancid_name = {}    
+    ancid_site_statepp = {}
     for match in matched_ancestors:
         for id in [ match[0], match[1] ]:
             sql = "Select almethod, phylomodel, name from Ancestors where id=" + id.__str__()
@@ -957,7 +1072,8 @@ def view_mutations_bybranch(request, alib, con):
             ancid_model[id] = int(x[1])
             ancname = x[2]
             ancid_name[id] = ancname
-            ancid_site_state_pp[id] = get_site_state_pp(con, id, skip_indels = False)            
+            #msaname = msaid_name[ ancid_msaid[id] ]
+            ancid_site_statepp[id] = get_site_ml(con, id, skip_indels = False)   
 
     """We need model names and alignment names for printing in the mutation table header rows."""
     phylomodelid_name = {}
@@ -969,6 +1085,7 @@ def view_mutations_bybranch(request, alib, con):
                
     mutation_header = []
     mutation_rows = []
+    mutation_shortlist = [] # each item is a tuple: (site in msa, site in seed, ancestral state 1, anc. state 2, weight)
     seed_site = 0 # the index into the seed sequence sans indels
     """For each site in the seed sequence"""
     for site in range(1, nsites+1):
@@ -982,7 +1099,9 @@ def view_mutations_bybranch(request, alib, con):
 
         if seedsequence[site-1] != "-":
             seed_site += 1
-                
+        
+        count_replicates = 0 # how many of the columns support this mutation?
+         
         """For each ancestor"""
         for match in matched_ancestors:
             #print "988:", match
@@ -1008,8 +1127,6 @@ def view_mutations_bybranch(request, alib, con):
                 print "957: error"
                 continue
 
-            #print "\n1016: site", site, "anc1=", this_anc1, "(",this_modelname1,this_msaname1,")", this_anc2,"(",this_modelname2,this_msaname2,")",
-
             if site == 1:
                 """Add header information"""
                 mutation_header.append( this_modelname1 + "\n" + this_msaname1 )
@@ -1022,14 +1139,10 @@ def view_mutations_bybranch(request, alib, con):
                 if site in msa_site1_site2[this_msaid1]:
                     site2 = msa_site1_site2[this_msaid1][site]
 
-            if site2 == None:
-                #print "1031", this_anc1, this_anc2, this_msaid1, this_modelname1, this_msaname1, msaid, msaname
-                this_column = ("","","","","")
-                this_row.append( this_column)
-                continue
-            else:
-                (anc1state, anc1pp) = get_ml_state_pp( ancid_site_state_pp[this_anc1][site2] )
-                (anc2state, anc2pp) = get_ml_state_pp( ancid_site_state_pp[this_anc2][site2] )
+            this_column = ("","","","","", "") # Six values for the Django template to use. see the line down below starting with this_column = (
+            if site2 != None:
+                (anc1state, anc1pp) = ancid_site_statepp[this_anc1][site2]
+                (anc2state, anc2pp) = ancid_site_statepp[this_anc2][site2]
                 mutation_flag = ""
                 if anc1state == "-" and anc2state == "-":
                     continue
@@ -1044,14 +1157,24 @@ def view_mutations_bybranch(request, alib, con):
                     mutation_flag = "2"
                 elif anc1state != anc2state and anc1pp > 0.4 and anc2pp > 0.4:
                     mutation_flag = "3"
-                this_column = ( anc1state, anc1pp.__str__(), anc2state, anc2pp.__str__(), mutation_flag)
-                this_row.append(  this_column  )
-                #print "1051:", this_column
+                    
+                if mutation_flag in ["1", "2", "3"]:
+                    count_replicates += 1
+                    
+                this_column = ( anc1state, anc1pp.__str__(), anc2state, anc2pp.__str__(), mutation_flag, site2)
+            this_row.append(  this_column  )
         if found_content == True:
             mutation_rows.append( (site, seed_site, seedsequence[site-1], this_row) )
     
+        if count_replicates > phylomodelid_name.keys().__len__():
+            (anc1state, anc1pp) = ancid_site_statepp[ matched_ancestors[0][0] ][site]
+            (anc2state, anc2pp) = ancid_site_statepp[ matched_ancestors[0][1] ][site]
+            tuple = (site,seed_site, anc1state, anc2state, count_replicates)
+            mutation_shortlist.append( tuple )
+    
     context["mutation_header"] = mutation_header
     context["mutation_rows"] = mutation_rows
+    context["mutation_shortlist"] = mutation_shortlist
 
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""

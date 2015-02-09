@@ -1,0 +1,47 @@
+{% extends "libview/libview_base.html" %}
+
+{% block body %}
+
+
+<div style="width: 100%; display: table;">
+    <div style="display: table-row">	
+		{# left column is the site's identity across this alignment #}
+		<div style="display: table-cell;">
+			<h2>Site {{site}} in Alignment {{msaname}}</h2>
+			<table class="mutation_table">
+				<th>Species</th><th>Residue at Site {{site}}</th>
+			{% for item in taxonname_residue %}
+				<tr>
+					<td>{{item.0}}</td>
+					<td align="center">{{item.1}}</td>
+				</tr>
+			{% endfor %}
+			</table>
+		</div> 
+
+		
+		<div style="display: table-cell;">
+			<h2>Similarity to Other Alignments</h2>
+			
+			<table>
+				<th>Alignment</th>
+				<th>Site</th>
+				<th>Similarity to Site {{site}} ({{msaname}})</th>
+				{% for alignment, tuples in msa_similarity_tuples.items %}
+					{% for tuple in tuples %}
+					<tr>
+						<td align="center">{{alignment}}</td>
+						<td align="center"><a href="/{{alid}}/{{alignment}}/site{{tuple.0}}">Site {{tuple.0}}</a></td>
+						<td align="center">{{tuple.1|floatformat}}%</td>
+					</tr>
+					{% endfor %}
+				{% endfor %}
+			</table>		
+		</div>  	 	
+   	</div>
+</div>
+
+
+
+{% endblock %}
+
