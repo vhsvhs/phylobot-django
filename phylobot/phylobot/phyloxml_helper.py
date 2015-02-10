@@ -40,7 +40,7 @@ def annotate_phyloxml(xmlstring, urlprefix):
         if name.isdigit(): # this taxa name is all numbers, and therefore, an ancestor
             xmlstring += "<annotation>"
             xmlstring += "<desc>Ancestor #" + name + "</desc>"
-            url = urlprefix + "/node" + name
+            url = urlprefix + "/Node" + name
             xmlstring += "<uri>" + url + "</uri>"
             xmlstring += "<a>fake link</a>"
             xmlstring += "</annotation>"

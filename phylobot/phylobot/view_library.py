@@ -105,7 +105,7 @@ def view_library(request, libid):
     elif request.path_info.endswith("supportbysite.xls"):
         return view_ancestor_supportbysitexls(request, alib, con)
     
-    elif request.path_info.__contains__("node"):
+    elif request.path_info.__contains__("Node"):
         return view_ancestor_ml(request, alib, con)
 
     elif request.path_info.__contains__("sites"):
@@ -654,24 +654,62 @@ def get_sd(values):
     return math.sqrt( sumofsquares / float(values.__len__()) )
 
 def view_sites(request, alib, con):
-    tokens = request.path_info.split("/")
-    sitetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
-    site = re.sub("site", "", sitetoken)
+    """This is the generic sites view, which dispatches to a specific
+        site in a specific alignment"""
+    cur = con.cursor()
     
-    #
-    # continue here
-    #    
-
-def view_site(request, alib, con):
-    x = get_msamodel_from_url(request, con)
+    msaid = None
+    msaname = None
+    phylomodelid = None
+    phylomodelname = None
+    #x = get_msamodel_from_url(request, con)
+    x = get_msamodel(request, alib, con)
     if x != None:
         (msaid, msaname, phylomodelid, phylomodelname) = x
     
+    if msaid == None:
+        """There was no alignment method in the URL, nor was there a saved viewing preference
+            for the default alignment. . . so just pick a random alignment method from the database."""
+
+        sql = "select id, name from AlignmentMethods"
+        cur.execute(sql)
+        x = cur.fetchone()
+        msaid = x[0]
+        msaname = x[1]
+
+    """Is there a specified site on the HTML POST form?"""
+    site = None
+    if request.method == "POST":
+        if "site" in request.POST:
+            site = int( request.POST.get("site") )
+    if site == None or site < 1:
+        x = get_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__() )
+        if x != None:
+            site = x
+        else:
+            """There was no last-viewed site saved for this alignment, so just pick a random site."""
+            site = 1
+    
+    save_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
+    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())  
+    
+    return HttpResponseRedirect('/' + alib.__str__() + '/' + msaname + '/site' + site.__str__() )
+    
+
+def view_site(request, alib, con):
+    """Get the model and method from the URL"""
+    x = get_msamodel_from_url(request, con)
+    if x != None:
+        (msaid, msaname, phylomodelid, phylomodelname) = x    
+    
+    """Get the site from the URL"""
     tokens = request.path_info.split("/")
     sitetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
     site = int( re.sub("site", "", sitetoken) )
     if site < 1:
         return None
+    
+    save_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
     
     cur = con.cursor()
     
@@ -718,8 +756,6 @@ def view_site(request, alib, con):
             leftstride = 0
         
         right_flank = seq[site:site+leftstride]
-        
-        print "710:", left_flank, ",", res, ",", right_flank
         
         if res != "-":
             count_nonindel_taxa += 1
@@ -801,6 +837,8 @@ def view_site(request, alib, con):
     
 
 def view_ancestor_ml(request, alib, con):
+    print "840"
+    
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
@@ -825,7 +863,7 @@ def view_ancestor_ml(request, alib, con):
     phylomodelid = phylomodelid[0]
 
     nodetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
-    nodenumber = re.sub("node", "", nodetoken)
+    nodenumber = re.sub("Node", "", nodetoken)
     sql = "select id from Ancestors where almethod=" + msaid.__str__()
     sql += " and phylomodel=" + phylomodelid.__str__()
     sql += " and name='Node" + nodenumber.__str__() + "'"
@@ -852,7 +890,6 @@ def view_ancestor_ml(request, alib, con):
     context["modelname"] = phylomodelname
     context["ml_sequence"] = seq
     context["alt_sequences"] = alt_seqs
-    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
     return render(request, 'libview/libview_ancestor_ml.html', context)
         
 def view_ancestor_support(request, alib, con):
@@ -947,7 +984,6 @@ def view_ancestor_support(request, alib, con):
     context["stride"] = stride
     context["mean_pp"] = mean_pp
     context["sd_pp"] = sd_pp
-    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
     return render(request, 'libview/libview_ancestor_support.html', context)      
 
 def view_ancestor_supportbysite(request, alib, con, xls=False):
@@ -1016,7 +1052,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     context["node_number"] = nodenumber
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
-    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
     context["site_rows"] = site_rows
     if xls == True:
         return render(request, 'libview/libview_ancestor_supportbysite.xls', context, content_type='text')
@@ -1082,7 +1117,6 @@ def view_mutations_bybranch(request, alib, con):
     if ancid1 == None or ancid2 == None:
         last_viewed_ancid1 = get_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
         last_viewed_ancid2 = get_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
-        print "\n. 930 retrieving from save:", last_viewed_ancid1, last_viewed_ancid2
         if last_viewed_ancid1 != None:
             ancid1 = int(last_viewed_ancid1)
             sql = "select name from Ancestors where id=" + ancid1.__str__()
@@ -1105,15 +1139,12 @@ def view_mutations_bybranch(request, alib, con):
         ancname1 = x[0][0]
         ancid2 = int(x[1][1])
         ancname2 = x[1][0]
-
-    print "\n. 915: ancid1=", ancid1, " ancid2=", ancid2
     
     save_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__(), ancid1) 
     save_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__(), ancid2)
 
     last_viewed_ancid1 = get_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
     last_viewed_ancid2 = get_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
-    print "\n. 955:", last_viewed_ancid1, last_viewed_ancid2
 
     """Get the site map beween different sequence alignments"""
     msa_site1_site2 = {} # key = msaid, value = hash; key = site in user-specified msa, value = site in msaid
@@ -1144,7 +1175,6 @@ def view_mutations_bybranch(request, alib, con):
     matched_ancestors = get_ancestral_matches(con, ancid1, ancid2)
     matched_ancestors = [ (ancid1,ancid2) ] + matched_ancestors
      
-    print "906, matched_ancestors:", matched_ancestors
     ancid_msaid = {}
     ancid_model = {}
     ancid_site_state_pp = {}

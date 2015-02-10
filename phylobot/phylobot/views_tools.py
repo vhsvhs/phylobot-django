@@ -25,7 +25,8 @@ def get_alignmentnames(con):
 def get_msamodel_from_url(request, con):
     """Returns a tuple, with the ID of the alignment method and 
         the ID of the phylo. model, interpreted from the URL.
-        Assumes URLs formatted as "..../msa_method.phylomodel/X
+        Assumes URLs formatted as "..../msa_method.phylomodel/..."
+        or formatted as "..../msa_method/...."
         This is a helper method for the function named get_msamodel"""
     cur = con.cursor()
     
@@ -36,7 +37,7 @@ def get_msamodel_from_url(request, con):
         
     tokens = request.path_info.split("/")
     
-    # datatoken may be <alignment>.<model> or just <alignment>
+    """datatoken may be <alignment>.<model> or just <alignment>"""
     datatoken = tokens[  tokens.__len__()-2  ]
     tokens = datatoken.split(".")
 
@@ -47,11 +48,12 @@ def get_msamodel_from_url(request, con):
     msaid = cur.fetchone()
     if msaid == None:
         """I can't find this alignment method in the database"""
-        print "52:", msaid
+        print "Warning 50: I cannot find the alignment method " + msaname + " in the database."
         return None
     msaid = msaid[0]
 
     if tokens.__len__() == 2:
+        """The URL looks like .../msaname.modelname/..., then get the model name too"""
         phylomodelname = tokens[1].__str__()    
         sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
         cur.execute(sql)
@@ -90,7 +92,7 @@ def get_viewing_pref(request, alib, con, keyword):
         return pref.value
     
 def __get_msa_from_post(request, con):
-    """Returns (msaname, msaid) from POST form value named 'msaname'"""
+    """Returns the msaname from POST form containing the field named 'msaname'"""
     if "msaname" in request.POST:
         cur = con.cursor()
         msaname = request.POST.get("msaname")
@@ -103,7 +105,7 @@ def __get_msa_from_post(request, con):
     return None
 
 def __get_model_from_post(request, con):
-    """Returns the tuple containing (modelname, modelid) from a POST form value named 'modelname'
+    """Returns the modelid from a POST form value named 'modelname'
         If the form lacks a field named 'modelname', then this method returns None.
         This is a helper method for get_msamodel"""
     if "modelname" in request.POST:
