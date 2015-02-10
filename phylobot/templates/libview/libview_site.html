@@ -1,47 +1,155 @@
 {% extends "libview/libview_base.html" %}
 
+{% block head %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script><script type="text/javascript">
+google.load("visualization", "1.1", {packages:["corechart", "line"]});
+google.setOnLoadCallback(drawChart);
+
+function drawChart() {
+	var data = google.visualization.arrayToDataTable([
+	['Residue', 'Frequency', {role:'style'}],
+	{% for item in res_tuples %}
+		['{% if item.0 == "-" %}insertion/deletion{%else%}{{item.0}}{%endif%}', {{item.1}}, '#1E90FF']
+		{% if item.0 != last_res %}
+		,
+		{% endif %}
+	{% endfor %}
+	]);
+
+	var options = {
+	  title: 'Amino Acid Composition',
+	  titleTextStyle: {fontSize:20, color: '#444444'},
+	  orientation: 'horizontal',
+	  backgroundColor: '#f0f0f0',
+	  bar:{groupWidth: '75%'},
+	
+	  hAxis: {
+	      title: 'Amino Acid Residue',
+	      textStyle:{fontSize:14}
+	  },
+	  vAxis: {
+	      title: 'Count Occurances at Site {{site}}',
+	      textStyle:{fontSize:14}
+	  },
+	  legend: { position: "none" }
+	};
+
+
+	var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+	chart.draw(data, options);
+
+{% for alignment, tuples in msa_similarity_tuples.items %}	
+	var data{{alignment}} = google.visualization.arrayToDataTable([
+	['Site', 'Frequency', {role:'style'}],
+	{% for tuple in tuples %}
+			['Site {{tuple.0}}', {{tuple.1}}, '#1E90FF']
+			{% if forloop.last %} 
+			{% else %},
+			{% endif %}
+	{% endfor %}
+	]);
+
+	var options{{alignment}} = {
+          title: 'Similarity of Site {{site}} in \'{{msaname}}\' to Sites in \'{{alignment}}\'',
+          titleTextStyle: {fontSize:16, color: '#444444', bold:false},
+          backgroundColor: '#f0f0f0'
+    };
+	
+	var chart{{alignment}} = new google.visualization.PieChart(document.getElementById('piechart{{alignment}}'));
+	chart{{alignment}}.draw(data{{alignment}}, options{{alignment}});
+
+{% endfor %}
+	
+	
+	
+	
+}
+</script>
+{% endblock %}
+
+
+
+
+
 {% block body %}
 
-
-<div style="width: 100%; display: table;">
-    <div style="display: table-row">	
-		{# left column is the site's identity across this alignment #}
-		<div style="display: table-cell;">
-			<h2>Site {{site}} in Alignment {{msaname}}</h2>
-			<table class="mutation_table">
-				<th>Species</th><th>Residue at Site {{site}}</th>
-			{% for item in taxonname_residue %}
-				<tr>
-					<td>{{item.0}}</td>
-					<td align="center">{{item.1}}</td>
-				</tr>
+<form action="/{{alid}}/sites" method="post">
+{% csrf_token %}
+<table class='choice_table' width="100%">
+<tr>
+	<td>
+		<h3>Select an Alignment:</h3>
+	</td>
+	<td>
+		<select id="msaname" name="msaname" class="dropdown">
+			{% for alname in all_alignment_names %}
+				{% if alname == msaname %}
+		  			<option value="{{alname}}" id="{{alname}}" selected="selected">{{alname}}</option>
+				{% else %}
+					<option value="{{alname}}" id="{{alname}}">{{alname}}</option>
+				{% endif %}
 			{% endfor %}
-			</table>
-		</div> 
-
-		
-		<div style="display: table-cell;">
-			<h2>Similarity to Other Alignments</h2>
-			
-			<table>
-				<th>Alignment</th>
-				<th>Site</th>
-				<th>Similarity to Site {{site}} ({{msaname}})</th>
-				{% for alignment, tuples in msa_similarity_tuples.items %}
-					{% for tuple in tuples %}
-					<tr>
-						<td align="center">{{alignment}}</td>
-						<td align="center"><a href="/{{alid}}/{{alignment}}/site{{tuple.0}}">Site {{tuple.0}}</a></td>
-						<td align="center">{{tuple.1|floatformat}}%</td>
-					</tr>
-					{% endfor %}
-				{% endfor %}
-			</table>		
-		</div>  	 	
-   	</div>
-</div>
+		</select>
+	<td>
+	<td><h3>Select a Site:</h3></td>
+	<td>
+		<input id="site" name="site" type="text" value="{{site}}">
+	</td>
+	<td>
+		<input type="submit" value="Select" class="dropdown"/>
+	</td>
+</tr>
+</table>
+</form>
 
 
+
+<h2 align="center">Site {{site}} in Alignment '{{msaname}}'</h2>
+<div id="chart_div" style="width: 100%; height: 200px;"></div>
+
+<hr>
+
+
+<h2>Similarity to Other Alignments</h2>
+
+<table>
+<tr>
+{% for alignment, tuples in msa_similarity_tuples.items %}	
+	<td>
+		<div id="piechart{{alignment}}" style="width: 400px; height: 400px;"></div>
+	</td>
+{% endfor %}
+</tr>
+</table>
+
+<hr>
+
+<table class="mutation_table" width="80%">
+{% for row in taxonname_rows %}
+
+	{% if forloop.counter0|divisibleby:25 %}
+		<th align="left" class="bluerow">Species</th>
+		<th colspan="3" class="bluerow">Residue at Site {{site}}<br>in '{{msaname}}'</th>
+		{% for msaname in alignment_names %}
+			<th class="bluerow">'{{msaname}}'</th>
+		{% endfor %}		
+	{% endif %}
+
+	<tr>
+		<td>{{row.0}}</td>
+		<td align="right"><font class="smalltext"><tt>{{row.1.0}}</tt></font></td>
+		<td align="center"><font class="bigtext"><tt>{{row.1.1}}</tt></font></td>
+		<td align="left"><font class="smalltext"><tt>{{row.1.2}}</tt></font></td>
+		{% for item in row.2 %}
+			{% if item.0 == None %}
+				<td>&nbsp;</td>
+			{% else %}
+				<td align="center"><a href="/{{alid}}/{{item.0}}/site{{item.1}}">Site {{item.1}}</a></td>
+			{% endif %}						
+		{% endfor %}
+	</tr>
+{% endfor %}
+</table>
 
 {% endblock %}
 

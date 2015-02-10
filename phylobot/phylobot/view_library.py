@@ -108,6 +108,9 @@ def view_library(request, libid):
     elif request.path_info.__contains__("node"):
         return view_ancestor_ml(request, alib, con)
 
+    elif request.path_info.__contains__("sites"):
+        return view_sites(request, alib, con)
+
     elif request.path_info.__contains__("site"):
         return view_site(request, alib, con)
     
@@ -650,6 +653,15 @@ def get_sd(values):
         sumofsquares += (v - mean)**2
     return math.sqrt( sumofsquares / float(values.__len__()) )
 
+def view_sites(request, alib, con):
+    tokens = request.path_info.split("/")
+    sitetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
+    site = re.sub("site", "", sitetoken)
+    
+    #
+    # continue here
+    #    
+
 def view_site(request, alib, con):
     x = get_msamodel_from_url(request, con)
     if x != None:
@@ -657,48 +669,120 @@ def view_site(request, alib, con):
     
     tokens = request.path_info.split("/")
     sitetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
-    site = re.sub("site", "", sitetoken)
+    site = int( re.sub("site", "", sitetoken) )
+    if site < 1:
+        return None
     
     cur = con.cursor()
-    count_nonindel_taxa = 0
-    sql = "select taxonid, substr(alsequence, " + site.__str__() + ", 1) from AlignedSequences where almethod=" + msaid.__str__() + ";"
-    taxonname_residue = []
-    cur.execute(sql)
-    for ii in cur.fetchall():
-        taxonid = ii[0]
-        res = ii[1]
-        if res != "-":
-            count_nonindel_taxa += 1
-        sql = "select shortname from Taxa where id=" + taxonid.__str__()
-        cur.execute(sql)
-        name = cur.fetchone()[0]
-        taxonname_residue.append( (name,res) )
     
-    sql = "select id, name from AlignmentMethods"
+    """Get a list of alignment methods"""
+    sql = "select id, name from AlignmentMethods where id!=" + msaid.__str__()
     cur.execute(sql)
     msaid_msaname = {}
+    msa_site_count = {} # key = msa, value = hash; key = site in msa, value = count of sites in msaid that map to this site
     for ii in cur.fetchall():
         id = int(ii[0])
         name = ii[1].__str__()
         msaid_msaname[id] = name
+        if id not in msa_site_count:
+            msa_site_count[id] = {}
     
-    """How does this site map to other alignments?"""
-    sql = "select site2, almethod2 from SiteMap where site1=" + site.__str__() + " and almethod1=" + msaid.__str__()
+    count_nonindel_taxa = 0
+    res_count = {} # key = amino acid, value = count of occurrances
+    
+    leftstride=10
+    while (site-leftstride) <= 0:
+        leftstride -= 1
+    if leftstride < 0:
+        leftstride = 0
+    startsite = int(site)-leftstride
+    
+    sql = "select taxonid, alsequence from AlignedSequences where almethod=" + msaid.__str__() + ";"
+    taxonid_residue = {}  # key = taxonid, value = 3-tuple: (left flanking sequene, the residue, right flanking sequence)  
+    taxonid_msa_site = {} # key = taxonid, value = hash; key = msa, value = the mapped-to site in msa
     cur.execute(sql)
-    msa_site_count = {}
     for ii in cur.fetchall():
-        site2 = ii[0]
-        almethod = ii[1]
-        if almethod not in msa_site_count:
-            msa_site_count[almethod] = {}
-        if site2 not in msa_site_count[almethod]:
-            msa_site_count[almethod][site2] = 0
-        msa_site_count[almethod][site2] += (1.0/count_nonindel_taxa)*100
+        taxonid = ii[0]
+        seq = ii[1]
+        
+        """Get the sequence content at, and flanking, this site"""
+        #left_flank = seq[startsite-1: startsite+leftstride]
+        #res = seq[startsite+leftstride]
+        #right_flank = seq[startsite+leftstride+1: startsite+(2*leftstride)+2:]
+        left_flank = seq[site-1-leftstride:site-1]
+        res = seq[site-1]
+        
+        while (seq.__len__() < site+leftstride):
+            leftstride -= 1
+        if leftstride == 0:
+            leftstride = 0
+        
+        right_flank = seq[site:site+leftstride]
+        
+        print "710:", left_flank, ",", res, ",", right_flank
+        
+        if res != "-":
+            count_nonindel_taxa += 1
+        if res not in res_count:
+            res_count[res] = 0
+        res_count[res] += 1
+        
+        """The residue at this site in the msa"""
+        taxonid_residue[taxonid] = (left_flank, res, right_flank)
+        
+        """Not get the the mapped-to sites from other alignments"""
+        if taxonid not in taxonid_msa_site:
+            taxonid_msa_site[taxonid] = {}
+        sql = "select site2, almethod2 from SiteMap where site1=" + site.__str__()
+        sql += " and almethod1=" + msaid.__str__()
+        sql += " and taxonid=" + taxonid.__str__()
+        cur.execute(sql)
+        for jj in cur.fetchall():
+            site2 = jj[0]
+            almethod2 = jj[1]
+            taxonid_msa_site[taxonid][almethod2] = site2
+            
+            if site2 not in msa_site_count[almethod2]:
+                msa_site_count[almethod2][site2] = 0
+            msa_site_count[almethod2][site2] += 1
+    
+    ntaxa = taxonid_msa_site.__len__()
+    
+    """res tuples is a lsit of tuples for the Residue composition mini-table."""
+    res_tuples = []
+    last_res = None
+    for res in res_count:
+        res_tuples.append( (res,res_count[res]) )
+        last_res = res
+    
+    almethods = msaid_msaname.keys()
+    almethodnames = []
+    for al in almethods:
+        almethodnames.append(  msaid_msaname[al] )
+    
+    """taxonname rows is a list of tuples for the table showing the amino acid identity at each species."""
+    taxonname_rows = []
+    for taxonid in taxonid_residue:
+        sql = "select shortname from Taxa where id=" + taxonid.__str__()
+        cur.execute(sql)
+        taxonname = cur.fetchone()[0]
+        this_row = [ taxonname, taxonid_residue[taxonid] ]
+        this_sitelist = []
+        for almethod in almethods:
+            if almethod in taxonid_msa_site[taxonid]:
+                this_sitelist.append( (msaid_msaname[almethod], taxonid_msa_site[taxonid][almethod] ) )
+            else:
+                this_sitelist.append( (None,None) )
+        this_row.append(this_sitelist)
+        taxonname_rows.append( this_row )
+    
+    """Convert counts into percentages, and also format the hash as a list
+        of tuples, so that the Django template language can deal with more easily."""
     msa_similarity_tuples = {}
     for msa in msa_site_count:
         msa_similarity_tuples[  msaid_msaname[msa]  ] = []
         for site2 in msa_site_count[msa]:
-            this_tuple = (site2, msa_site_count[msa][site2])
+            this_tuple = (site2, msa_site_count[msa][site2] )
             msa_similarity_tuples[  msaid_msaname[msa]  ].append(this_tuple)
 
 
@@ -706,10 +790,13 @@ def view_site(request, alib, con):
     context["site"] = site
     context["msaname"] = msaname
     context["msaid"] = msaid
-    context["taxonname_residue"] = taxonname_residue
+    context["taxonname_rows"] = taxonname_rows
+    context["all_alignment_names"] = [msaname] + almethodnames
+    context["alignment_names"] = almethodnames
     context["msa_similarity_tuples"] = msa_similarity_tuples
-    #context["modelname"] = phylomodelname
-    #context["urlprefix"] = alib.id.__str__() + "/" + msaname + "." + phylomodelname + "/node" + nodenumber.__str__()
+    context["res_tuples"] = res_tuples
+    context["last_res"] = last_res
+    
     return render(request, 'libview/libview_site.html', context)
     
 
