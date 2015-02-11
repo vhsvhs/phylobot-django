@@ -1261,9 +1261,8 @@ def view_mutations_bybranch(request, alib, con):
                 (anc1state, anc1pp) = ancid_site_statepp[this_anc1][site2]
                 (anc2state, anc2pp) = ancid_site_statepp[this_anc2][site2]
                 mutation_flag = ""
-                if anc1state == "-" and anc2state == "-":
-                    continue
-                found_content = True
+                if anc1state != "-" or anc2state != "-":
+                    found_content = True
                 if anc1state == "-" and anc2state != "-":
                     mutation_flag = "i"
                 elif anc2state == "-" and anc1state != "-":
