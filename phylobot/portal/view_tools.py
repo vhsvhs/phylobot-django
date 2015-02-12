@@ -61,6 +61,8 @@ def kill_orphan_jobs(request):
     """Remove any jobs that were started to be composed, but not completed."""
     orphans = Job.objects.filter(owner=request.user)
     for o in orphans:
+        if o.settings == None:
+            continue
         if o.settings.name == None or o.settings.rawseqfile == None:
             o.settings.delete()
             o.delete()

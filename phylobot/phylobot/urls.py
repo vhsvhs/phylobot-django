@@ -4,7 +4,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from phylobot import views
-from view_library import *
+from phylobot.view_library import view_library
 
 urlpatterns = patterns('', 
 	(r'^$', views.main_page),
@@ -20,6 +20,7 @@ urlpatterns = patterns('',
 	(r'^examples/$', views.examples),
 	
 	(r'^portal/', include('portal.urls')),
+	(r'^status*', include('portal.urls')),	
 
 	#Note: the method named 'view_library' performs further URL dispatching.
 	#	In the future, that code should be moved to this urls.py file."""

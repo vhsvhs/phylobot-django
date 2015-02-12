@@ -836,9 +836,7 @@ def view_site(request, alib, con):
     return render(request, 'libview/libview_site.html', context)
     
 
-def view_ancestor_ml(request, alib, con):
-    print "840"
-    
+def view_ancestor_ml(request, alib, con):    
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
@@ -873,6 +871,26 @@ def view_ancestor_ml(request, alib, con):
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
 
+    similarity_rows = []
+    sql = "select ancid, same_ancid from AncestorsAcrossModels where ancid=" + ancid.__str__()
+    cur.execute(sql)
+    for ii in cur.fetchall():
+        sameancid = ii[1]
+        sql = "select name from PhyloModels where modelid in (select phylomodel from Ancestors where id=" + sameancid.__str__() + ")"
+        cur.execute(sql)
+        othermodelname = cur.fetchone()[0]
+        
+        sql = "select name from AlignmentMethods where id in (select almethod from Ancestors where id=" + sameancid.__str__() + ")"
+        cur.execute(sql)
+        othermsaname = cur.fetchone()[0]
+        
+        sql = "select name from Ancestors where id=" + sameancid.__str__()
+        cur.execute(sql)
+        othername = cur.fetchone()[0]
+        
+        this_row = (othermsaname, othermodelname, othername, sameancid )
+        similarity_rows.append( this_row )
+
     seq = get_ml_sequence(con, ancid)
 #     ml_sequence = ""
 #     for index, char in enumerate(seq):
@@ -890,6 +908,7 @@ def view_ancestor_ml(request, alib, con):
     context["modelname"] = phylomodelname
     context["ml_sequence"] = seq
     context["alt_sequences"] = alt_seqs
+    context["similarity_rows"] = similarity_rows
     return render(request, 'libview/libview_ancestor_ml.html', context)
         
 def view_ancestor_support(request, alib, con):
@@ -986,6 +1005,7 @@ def view_ancestor_support(request, alib, con):
     context["sd_pp"] = sd_pp
     return render(request, 'libview/libview_ancestor_support.html', context)      
 
+
 def view_ancestor_supportbysite(request, alib, con, xls=False):
     cur = con.cursor()
     tokens = request.path_info.split("/")
@@ -1022,7 +1042,27 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     ancid = x[0]
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
-        
+    
+    sql = "select value from Settings where keyword='seedtaxa'"
+    cur.execute(sql)
+    seedtaxonname = cur.fetchone()[0]
+    
+    sql = "select alsequence from AlignedSequences where almethod="+ msaid.__str__() + " and taxonid in (select id from Taxa where shortname='" + seedtaxonname + "')"
+    cur.execute(sql)
+    print "1048:", sql
+    x = cur.fetchone()
+    print "1050:", x
+    seedseq = x[0]
+    print "1052:", seedseq
+    alignedsite_seedsite = {}
+    countstates = 0
+    for ii in range(0, seedseq.__len__()):
+        if seedseq[ii] != "-":
+            countstates += 1
+            alignedsite_seedsite[ ii+1 ] = countstates
+        else:
+            alignedsite_seedsite[ ii+1 ] = "-"
+    
     # site_tuples is a list-ified version of site_state_pp, such that
     # the Django template library can deal with it.
     site_rows = []
@@ -1045,7 +1085,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
             for state in pp_states[pp]:
                 tuple = (state, pp)
                 tuples.append( tuple )
-        site_rows.append( [site,count_sites,tuples] )
+        site_rows.append( [site,count_sites,alignedsite_seedsite[site],seedseq[site-1],tuples] )
     
             
     context = get_base_context(request, alib, con)
@@ -1053,6 +1093,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
     context["site_rows"] = site_rows
+    context["seedtaxonname"] = seedtaxonname
     if xls == True:
         return render(request, 'libview/libview_ancestor_supportbysite.xls', context, content_type='text')
     return render(request, 'libview/libview_ancestor_supportbysite.html', context)   

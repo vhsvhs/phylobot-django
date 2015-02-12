@@ -4,7 +4,8 @@ from portal.view_queue import *
 @login_required
 def composenew(request):
     """Creates a new Job object, then redirects to compose1"""
-    newjob = Job.objects.create(owner=request.user, status=JobStatus.objects.get(short="draft"))
+    status = JobStatus.objects.get(short="draft")
+    newjob = Job.objects.create(owner=request.user, status=status)
     newjob.save()
     log( "views.py 55: Created a new job " + newjob.id.__str__() )
     return HttpResponseRedirect('/portal/compose1')
@@ -28,18 +29,25 @@ def compose1(request):
     That job object will then be loaded  upon calling get_mr_job.
     See below for an example.
     """
+    
+    print "33: compose1", request.method
+    
     context = RequestContext(request)    
     this_job = get_mr_job(request)
-
+    
     if this_job.settings == None:
         this_js = JobSetting()
         this_js.save()
         this_job.settings = this_js
         this_job.save()
     
-    if request.method == 'POST':        
+    if request.method == 'POST':  
+        print "45: found a POST"
+              
         seqfile_form = SeqFileForm(request.POST, request.FILES)
         js_form = JobSettingForm(request.POST)
+      
+        print "48:", request.FILES
       
         #
         # Deal with the sequence file itself
@@ -83,7 +91,7 @@ def compose1(request):
                 seqfile_form.fields['seq_path'].errors = "Please choose a FASTA file for this job."
                 print "Please choose a FASTA file for this job."
         elif this_job.settings.rawseqfile:
-            pass # nothing to do, the raw sequence file is all set!
+            pass # nothing to do, the raw sequence file exists and is OK.
         else:
             seqfile_form.fields['seq_path'].errors = "Please choose a FASTA file for this job."
             print "Please choose a FASTA file for this job."

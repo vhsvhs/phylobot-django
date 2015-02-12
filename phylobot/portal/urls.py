@@ -3,18 +3,15 @@ from django.conf.urls import patterns, url
 from portal import views
 from portal.views import *
 from portal.views_compose import *
-from portal.view_library import *
 
 urlpatterns = patterns('',
-	(r'^composenew/$', composenew),
-	(r'^compose1/$', compose1),
-	(r'^compose2/$', compose2),
-	(r'^cancelcompose/$', cancelcompose),
+	(r'^composenew', composenew),
+	(r'^compose1', compose1),
+	(r'^compose2', compose2),
+	(r'^cancelcompose', cancelcompose),
 	(r'^compose/(.*)/$', edit_job),
 	(r'^status/(.*)$', jobstatus),
 	#(r'^/(.*)$', portal_process_request),
 	#(r'^(.*)$', portal_process_request),
 	(r'^$', portal_main_page),
-
-
 )

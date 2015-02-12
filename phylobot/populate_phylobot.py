@@ -13,7 +13,7 @@ def name_generator():
 
 def populate_known():    
     print "\n. OK, I'm populating PhyloBot with default settings."
-    print "\n. Use the /admin URL, on a running instance of this Django application, to access the database and change these values.\n"    
+    print "\n. Use the /admin URL, on a running instance of this Django application, to access the database and change the default settings.\n"    
     
     build_software_paths()
     
@@ -47,7 +47,7 @@ def populate_known():
 
 def build_software_paths():
     print "49:", SoftwarePaths
-    sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python /Users/victor/Applications/asr-pipeline/runme.py")
+    sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python /Users/victor/Documents/SourceCode/asrpipeline/runme.py")
     print "51:", sp
     sp = sp[0]
     print "53:", sp
@@ -125,11 +125,17 @@ def add_job(owner, status):
 
 # Start execution here!
 if __name__ == '__main__':
+    #os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
     os.environ['DJANGO_SETTINGS_MODULE'] = 'phylobot.settings'
+    
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+    
+    
     from django.db import models
     from django.contrib.auth.models import User
     from phylobot.models import *
     from portal.models import *
     from django.contrib.auth.hashers import *
     populate_known()
-    #populate_examples()
+    populate_examples()

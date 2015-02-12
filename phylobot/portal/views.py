@@ -95,12 +95,14 @@ def portal_main_page(request):
     #
     # Generate a list of the last X jobs (for all users) in the queue.
     #
-    the_q = JobQueue.objects.all()
+    the_qs = JobQueue.objects.all()
     q_jobs = []
-    if the_q.__len__() > 0:
-        for job in the_q.jobs.all():
-            if job.status.id > 0: # only jobs that are enqueued or running
-                q_jobs.append( job )
+    print "100:", the_qs
+    if the_qs != None and the_qs.__len__() > 0:
+        for q in the_qs:
+            for job in q.jobs.all():
+                if job.status.id > 0: # only jobs that are enqueued or running
+                    q_jobs.append( job )
     
     #
     # Generate a list of jobs that are complete for user
