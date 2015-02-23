@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from portal.models import *
+from django.utils.translation import ugettext_lazy as _
 
 from django.forms.widgets import CheckboxSelectMultiple, Select, CheckboxInput
 from django.forms.models import ModelMultipleChoiceField
@@ -35,14 +36,24 @@ class JobSettingForm(forms.ModelForm):
                   'n_bayes_samples',
                   )
 
-class SeqFileForm(forms.ModelForm):    
+class AASeqFileForm(forms.ModelForm):        
     def __init__(self, *args, **kwargs):
         super(forms.ModelForm, self).__init__(*args, **kwargs)
-        self.fields["seq_path"].label = "Select a FASTA file"
+        self.fields["aaseq_path"].label = "Select a FASTA file"
+    
     class Meta:
-        model = SeqFile
-        fields = ('seq_path',)
-        
+        model = AASeqFile
+        fields = ('aaseq_path',)
+
+class CodonSeqFileForm(forms.ModelForm):        
+    def __init__(self, *args, **kwargs):
+        super(forms.ModelForm, self).__init__(*args, **kwargs)
+        self.fields["codonseq_path"].label = "Select a FASTA file"
+    
+    class Meta:
+        model = CodonSeqFile
+        fields = ('codonseq_path',)
+
 class TaxaGroupForm(forms.ModelForm):
     """This form displays a TaxaGroup, which includes a list of taxon names,
     and a name for this group."""    

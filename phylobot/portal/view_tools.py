@@ -19,7 +19,7 @@ except ImportError:
     
 def get_mr_seqfile(request):
     lastjob = get_mr_job(request)
-    return lastjob.settings.rawseqfile
+    return lastjob.settings.original_aa_file
     
     """Returns the most-recently modified sequence file."""
     # Get the file that was most recently uploaded
@@ -63,7 +63,7 @@ def kill_orphan_jobs(request):
     for o in orphans:
         if o.settings == None:
             continue
-        if o.settings.name == None or o.settings.rawseqfile == None:
+        if o.settings.name == None or o.settings.original_aa_file == None:
             o.settings.delete()
             o.delete()
 

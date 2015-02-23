@@ -232,11 +232,16 @@ def trash_job(request, job):
         if job.settings.ancestors != None:
             for a in job.settings.ancestors.all():
                 a.delete()
-        if job.settings.rawseqfile:
-            for t in job.settings.rawseqfile.contents.all():
+        if job.settings.original_aa_file:
+            for t in job.settings.original_aa_file.contents.all():
                 t.delete()
-            os.system("rm " + job.settings.rawseqfile.seq_path.__str__())
-            job.settings.rawseqfile.delete()
+            os.system("rm " + job.settings.original_aa_file.aaseq_path.__str__())
+            job.settings.original_aa_file.delete()
+        if job.settings.original_codon_file:
+            for t in job.settings.original_codon_file.contents.all():
+                t.delete()
+            os.system("rm " + job.settings.original_codon_file.codonseq_path.__str__())
+            job.settings.original_codon_file.delete()
         job.settings.delete()
         
         if job.path:

@@ -1098,10 +1098,8 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
         return render(request, 'libview/libview_ancestor_supportbysite.xls', context, content_type='text')
     return render(request, 'libview/libview_ancestor_supportbysite.html', context)   
 
-
 def view_ancestor_supportbysitexls(request, alib, con):
     return view_ancestor_supportbysite(request, alib, con, xls=True)
-
 
 def view_mutations_bybranch(request, alib, con):
     cur = con.cursor()

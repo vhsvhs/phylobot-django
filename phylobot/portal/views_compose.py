@@ -44,7 +44,8 @@ def compose1(request):
     if request.method == 'POST':  
         print "45: found a POST"
               
-        seqfile_form = SeqFileForm(request.POST, request.FILES)
+        aa_seqfileform = AASeqFileForm(request.POST, request.FILES)
+        codon_seqfileform = CodonSeqFileForm(request.POST, request.FILES)
         js_form = JobSettingForm(request.POST)
       
         print "48:", request.FILES
@@ -52,23 +53,44 @@ def compose1(request):
         #
         # Deal with the sequence file itself
         #
-        seqfile = None
-        if 'seq_path' in request.FILES:
-            seqfile = SeqFile(seq_path=request.FILES['seq_path'])
+        aaseqfile = None
+        codonseqfile = None
+        inputnames = ["aaseq_path", "codonseq_path"]
+        for ii in range(0, inputnames.__len__()):
+            
+            inputname = inputnames[ii]
+            if inputname not in request.FILES:
+                continue
+            filepath = request.FILES[inputname]
+            
+            seqfile = None
+            this_type = None
+            if ii == 0: 
+                """AA"""
+                seqfile = AASeqFile(aaseq_path=filepath)
+                this_type = "aa"
+            elif ii == 1: 
+                """Codons"""
+                seqfile = CodonSeqFile(codonseq_path=filepath)
+                this_type = "codon"
             seqfile.owner = request.user
+            
             #
             # to-do: change these values based on parsing the actual file.
             #
             this_format = "fasta"
-            this_type = "aa"
             if this_format == "fasta":
                 seqfile.format = SeqFileFormat.objects.get_or_create(name=this_format)[0]
                 seqfile.save()
-            if this_type != None:
-                this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
-            
+                print "70:", seqfile.__str__()
+                print "71:", filepath
+
             # full path to the uploaded sequence file.
             fullpath = os.path.join(settings.MEDIA_ROOT, seqfile.__str__())
+                        
+            this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
+            print "92:", this_seqtype
+
             # note: taxa_seq[taxon name] = sequence
             if is_valid_fasta(fullpath):
                 taxa_seq = get_taxa(fullpath, this_format)      
@@ -78,27 +100,40 @@ def compose1(request):
                                                 sequence=taxa_seq[taxa])[0]
                     t.save()
                     seqfile.contents.add(t)
-                    seqfile.save()
-                #if this_format != None and this_type != None:
-                #    seqfile.save()     
-                this_job.settings.rawseqfile = seqfile
+                    seqfile.save()    
+                
+                if ii == 0: 
+                    """AA"""
+                    this_job.settings.original_aa_file = seqfile
+                if ii == 1: 
+                    """Codons"""
+                    this_job.settings.original_codon_file = seqfile
                 this_job.settings.save()
                 log((request.user).__str__() + " uploaded the file " + seqfile.__str__() + " with " + (len(taxa_seq)).__str__() + " sequences." )
             else:
-                this_job.settings.rawsewfile = None
+                if ii == 0:
+                    this_job.settings.original_aa_file = None
+                if ii == 1:
+                    this_job.settings.original_codon_file = None
                 this_job.settings.save()
                 seqfile.delete()
-                seqfile_form.fields['seq_path'].errors = "Please choose a FASTA file for this job."
-                print "Please choose a FASTA file for this job."
-        elif this_job.settings.rawseqfile:
-            pass # nothing to do, the raw sequence file exists and is OK.
-        else:
-            seqfile_form.fields['seq_path'].errors = "Please choose a FASTA file for this job."
-            print "Please choose a FASTA file for this job."
+                if is_aa:
+                    aa_seqfileform.fields['aaseq_path'].errors = "Please select a FASTA-formatted file of amino acid sequences."
+                if is_codon:
+                    codon_seqfileform.fields['codonseq_path'].errors = "Please select a FASTA-formatted file of codon sequences."
+        
+        """The AA sequences are required, but the codon sequences are optional.
+            Here we verify that all the prior code indeed captured an AA sequence file."""
+        if aaseqfile == None:
+            if this_job.settings.original_aa_file:
+                pass
+            else:
+                aa_seqfileform.fields['aaseq_path'].errors = "Please choose a FASTA file for this job."
+                print "Please select a FASTA-formatted file with amino acid sequences."
              
-        #
-        # Now deal with the job settings parameters
-        #
+        """
+            Now update the JobSettings object
+        """
         if 'name' in request.POST:
             this_job.settings.name = request.POST.get('name')
         if 'project_description' in request.POST:
@@ -124,22 +159,29 @@ def compose1(request):
         this_job.save()
         print "Saving the job!"
     
-        if this_job.settings.rawseqfile and this_job.settings.name:
+        if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
 
-    #
-    # Render the page:        
-    #
+    """
+        Finally render the page
+    """
 
-    if this_job.settings.rawseqfile and this_job.settings.name:
+    if this_job.settings.original_aa_file and this_job.settings.name:
         forward_unlock = True
     else:
         forward_unlock = False
 
-    seqfile_form = SeqFileForm()
-    if this_job.settings.rawseqfile:
-        print "views.py 124 - ", this_job.settings.rawseqfile.seq_path
-        seqfile_form.fields["seq_path"].default = this_job.settings.rawseqfile.seq_path
+    aa_seqfileform = AASeqFileForm()
+    selected_aaseqfile = None
+    if this_job.settings.original_aa_file:
+        aa_seqfileform.fields["aaseq_path"].default = this_job.settings.original_aa_file.aaseq_path
+        selected_aaseqfile =  settings.STATIC_MEDIA_URL + this_job.settings.original_aa_file.aaseq_path.__str__()
+    
+    codon_seqfileform = CodonSeqFileForm()
+    selected_codonseqfile = None
+    if this_job.settings.original_codon_file:
+        codon_seqfileform.fields["codonseq_path"].default = this_job.settings.original_codon_file.codonseq_path
+        selected_codonseqfile = settings.STATIC_MEDIA_URL +  this_job.settings.original_codon_file.codonseq_path.__str__()
         
     js_form = JobSettingForm()
     js_form.fields["name"].initial = this_job.settings.name
@@ -156,7 +198,12 @@ def compose1(request):
     js_form.fields["end_motif"].initial = this_job.settings.end_motif
     js_form.fields["n_bayes_samples"].initial = this_job.settings.n_bayes_samples
 
-    context_dict = {'seqfile_form': seqfile_form,
+    context_dict = {'aa_seqfileform': aa_seqfileform,
+                    'aa_seqfile_url':selected_aaseqfile,
+                    'aa_seqfile_short':selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ],
+                    'codon_seqfileform': codon_seqfileform,
+                    'codon_seqfile_url':selected_codonseqfile,
+                    'codon_seqfile_short':selected_codonseqfile.split("/")[ selected_codonseqfile.split("/").__len__()-1 ],
                     'js_form':js_form,
                     'forward_unlock':forward_unlock}
     return render(request, 'portal/compose1.html', context_dict)
@@ -194,7 +241,7 @@ def compose2(request):
             matching_groups = this_job.settings.taxa_groups.filter(name=new_group_name)
             if not matching_groups:
                 newgroup = TaxaGroup.objects.create(name=new_group_name, owner=request.user)
-                for taxa in this_job.settings.rawseqfile.contents.filter(id__in=checked_taxa): # for each checked taxon
+                for taxa in this_job.settings.original_aa_file.contents.filter(id__in=checked_taxa): # for each checked taxon
                     newgroup.taxa.add(taxa)
                 newgroup.save()
                 this_job.settings.taxa_groups.add( newgroup )
@@ -241,7 +288,7 @@ def compose2(request):
             
             selected_seed_taxon = request.POST.get('seedtaxa')
             print "233:", selected_seed_taxon
-            query_results = this_job.settings.rawseqfile.contents.filter(id=selected_seed_taxon)
+            query_results = this_job.settings.original_aa_file.contents.filter(id=selected_seed_taxon)
             if query_results:
                 this_seed = query_results[0]
             else:
@@ -337,7 +384,7 @@ def compose2(request):
         list_of_taxagroups.append( (tg.name, tg.taxa.all().__len__()) )
 
     new_taxagroup_form = TaxaGroupForm()
-    new_taxagroup_form.fields["taxa"].queryset = this_job.settings.rawseqfile.contents.all()
+    new_taxagroup_form.fields["taxa"].queryset = this_job.settings.original_aa_file.contents.all()
     
     list_of_ancestors = []
     for aa in this_job.settings.ancestors.all():
@@ -345,7 +392,7 @@ def compose2(request):
     
     newanc_form = AncestorForm()
     newanc_form.fields['ingroup'].queryset = this_job.settings.taxa_groups
-    newanc_form.fields['seedtaxa'].queryset = this_job.settings.rawseqfile.contents.all()
+    newanc_form.fields['seedtaxa'].queryset = this_job.settings.original_aa_file.contents.all()
     
     anccomp_form = AncCompForm()
     anccomp_form.fields["oldanc"].queryset = this_job.settings.ancestors.all()
@@ -428,7 +475,7 @@ def jobstatus(request, jobid):
     checkpoints.append( (7,     "Final Check") )
     
     context_dict = {'job': this_job, 
-                    'nseqs':this_job.settings.rawseqfile.contents.count(),
+                    'nseqs':this_job.settings.original_aa_file.contents.count(),
                     'list_of_aa':list_of_aa,
                     'list_of_rm':list_of_rm,
                     'checkpoints':checkpoints

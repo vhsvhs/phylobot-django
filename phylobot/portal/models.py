@@ -78,8 +78,12 @@ class SeqFileFormat(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30)
 
-class SeqFile(models.Model):
-    seq_path = models.FileField(upload_to='raw_seqs')
+    def __unicode__(self):
+        return unicode(self.name) 
+
+
+class AASeqFile(models.Model):
+    aaseq_path = models.FileField(upload_to='uploaded_sequences')
     format = models.ForeignKey(SeqFileFormat,null=True)
     owner = models.ForeignKey(User)
     timestamp_uploaded = models.DateTimeField(auto_now=True)
@@ -87,14 +91,26 @@ class SeqFile(models.Model):
     contents.help_text = ''
     
     def __unicode__(self):
-        return unicode(self.seq_path)    
+        return unicode(self.aaseq_path)    
+
+class CodonSeqFile(models.Model):
+    codonseq_path = models.FileField(upload_to='uploaded_sequences')
+    format = models.ForeignKey(SeqFileFormat,null=True)
+    owner = models.ForeignKey(User)
+    timestamp_uploaded = models.DateTimeField(auto_now=True)
+    contents = models.ManyToManyField(Taxon,null=True)
+    contents.help_text = ''
+    
+    def __unicode__(self):
+        return unicode(self.codonseq_path) 
 
 class JobSetting(models.Model):
     """Defines the settings for an ASR pipeline job."""
     outgroup = models.ForeignKey(TaxaGroup, related_name="outgroup",null=True)
     name = models.CharField(max_length=100,null=True)
     project_description = models.TextField(null=True)
-    rawseqfile = models.ForeignKey(SeqFile,null=True)
+    original_aa_file = models.ForeignKey( AASeqFile,null=True,related_name="aa_file" )
+    original_codon_file = models.ForeignKey( CodonSeqFile,null=True,related_name="codon_file" )
     alignment_algorithms = models.ManyToManyField(AlignmentAlgorithm,null=True)
     alignment_algorithms.help_text = ''
     raxml_run = models.TextField(null=True)
@@ -176,16 +192,22 @@ class Job(RandomPrimaryIdModel):
         #
         if allokay:
             self.path = settings.MEDIA_ROOT + "/" + self.id.__str__()
+            
             if False == os.path.exists( self.path ):
                 os.system("mkdir + " + self.path)
-            os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.rawseqfile.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.fasta")            
+            os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_aa_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.aa.fasta")            
+            
+            if False == os.path.exists( self.path ):
+                os.system("mkdir + " + self.path)
+            os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_codon_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.codon.fasta")  
         return True
 
     def generate_configfile(self):
         """This script generates the config file, necessary for the ASR pipeline."""
         cout = "GENE_ID = " + self.settings.name + "\n"
         cout += "PROJECT_TITLE = " + self.settings.name + "\n" 
-        cout += "SEQUENCES = " + self.settings.name.__str__() + ".erg.fasta\n" 
+        cout += "SEQUENCES = " + self.settings.name.__str__() + ".erg.aa.fasta\n" 
+        cout += "NTFASTA = " + self.settings.name.__str__() + ".erg.codon.fasta\n"
         cout += "MSAPROBS = " + SoftwarePaths.objects.get(softwarename="msaprobs").__str__() + "\n"
         cout += "MUSCLE = " + SoftwarePaths.objects.get(softwarename="muscle").__str__() + "\n"
         cout += "RAXML = " + SoftwarePaths.objects.get(softwarename="raxml").__str__() + "\n" 

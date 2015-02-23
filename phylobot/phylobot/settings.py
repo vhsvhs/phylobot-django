@@ -32,6 +32,8 @@ STATICFILES_DIRS= (STATIC_PATH,)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(STATIC_PATH, "media") 
 
+STATIC_MEDIA_URL = STATIC_URL + MEDIA_URL
+
 # URL of the login page.
 LOGIN_URL = '/login/'
 
