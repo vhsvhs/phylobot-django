@@ -13,23 +13,9 @@ from portal.tools import *
 
 from portal.view_tools import *
 
+
 def get_queue_status():
-    the_q = JobQueue.objects.all()
-    n = 0
-    if the_q.__len__() > 0:
-        the_q = the_q[0]
-        n = len( the_q.jobs.all() )
-    #
-    # to-do: this following code is a hack demo
-    # fix it so that the reported status is based on
-    # ETAs of queued jobs.
-    #
-    if n > 3:
-        return "heavy"
-    if n > 2:
-        return "medium"
-    else:
-        return "low"
+    return "low"
 
 def checkpoint_to_pdone(checkpoint):
     """Translates the checkpoint into a % complete """
@@ -44,6 +30,7 @@ def update_running_job(job):
     #
     # Try to read the log.txt from the active running job.
     #
+    checkpoint = None
     if job.path:
         if os.path.exists(job.path):
             logpath = job.path + "/log.txt"
@@ -82,6 +69,12 @@ def update_running_job(job):
                 job.save()
             
             print "view_queue.py 54 - job.note = ", job.note.__str__()               
+
+    if checkpoint == None:
+        new_status = JobStatus.objects.get(short="error")
+        job.status = new_status
+        job.save()
+        return
 
     print "view_queue.py 74 - ", checkpoint, job.status.short
     
@@ -126,7 +119,6 @@ def update_running_job(job):
     # is running!
 
 
-
 def parse_asr_log_line(line):
     checkpoint = float( line.split()[0] )
     contents = line.split("\t")[1]
@@ -134,7 +126,7 @@ def parse_asr_log_line(line):
     return (checkpoint, contents)
 
 def enqueue_job(request, job):    
-    """This method assumes that the job has been validated, and can, safely, be launched."""
+    """This method assumes that the job has been validated and can safely be launched."""
     the_q = JobQueue.objects.all()[0]
     
     # First determine if the job is already in the queue.

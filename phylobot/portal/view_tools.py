@@ -12,6 +12,8 @@ from portal.models import *
 from portal.forms import *
 from portal.tools import *
 
+from aws_tools import *
+
 try:
     from cPickle import loads, dumps
 except ImportError:

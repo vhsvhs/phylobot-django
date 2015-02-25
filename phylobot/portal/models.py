@@ -191,14 +191,17 @@ class Job(RandomPrimaryIdModel):
         # to-do: write this method!
         #
         if allokay:
+            
+            """Working directory for the project"""
             self.path = settings.MEDIA_ROOT + "/" + self.id.__str__()
-            
             if False == os.path.exists( self.path ):
+                """Make it"""
                 os.system("mkdir + " + self.path)
+            
+            """amino acid file"""
             os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_aa_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.aa.fasta")            
-            
-            if False == os.path.exists( self.path ):
-                os.system("mkdir + " + self.path)
+
+            """codon file (optional)"""
             os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_codon_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.codon.fasta")  
         return True
 
@@ -225,8 +228,10 @@ class Job(RandomPrimaryIdModel):
         for mr in self.settings.raxml_models.all():
             cout += " " + mr.name.__str__()
         cout += "\n"
-        cout += "START_MOTIF = " + self.settings.start_motif + "\n"
-        cout += "END_MOTIF = " + self.settings.end_motif + "\n"
+        if self.settings.start_motif:
+            cout += "START_MOTIF = " + self.settings.start_motif + "\n"
+        if self.settings.end_motif:
+            cout += "END_MOTIF = " + self.settings.end_motif + "\n"
         cout += "N_BAYES_SAMPLES = " + self.settings.n_bayes_samples.__str__() + "\n"
         cout += "OUTGROUP = [" + (TaxaGroup.objects.get(id=self.settings.outgroup.id)).listall() + "]\n"
         cout += "ANCESTORS ="

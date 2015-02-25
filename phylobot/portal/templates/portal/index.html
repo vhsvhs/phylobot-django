@@ -63,7 +63,7 @@
 
 		</td>
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
-	  		<form method="post" action="." enctype="multipart/form-data">
+	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
 	  		<input type="hidden" name="action" value="status" />
 	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
@@ -72,7 +72,7 @@
 	  		</div>
 	  	</td>
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
-	  		<form method="post" action="." enctype="multipart/form-data">
+	  		<form method="post" action="/portal/compose2/{{j.id}}/" enctype="multipart/form-data">
 	  		{% csrf_token %}
 	  		<input type="hidden" name="action" value="edit" />
 	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
@@ -81,7 +81,7 @@
 	  		</div>
 	  	</td>
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
-	  		<form method="post" action="." enctype="multipart/form-data">
+	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
 	  		<input type="hidden" name="action" value="start" />
 	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
@@ -90,7 +90,7 @@
 	  		</div>
 	  	</td>
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button">
-	  		<form method="post" action="." enctype="multipart/form-data">
+	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
 	  		<input type="hidden" name="action" value="stop" />
 	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
@@ -99,7 +99,7 @@
 	  		</div>
 	  	</td>
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
-	  		<form method="post" action="." enctype="multipart/form-data">
+	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
 	  		<input type="hidden" name="action" value="stop" />
 	  		<input type="hidden" name="jobid" value="{{ j.id }}" />
@@ -108,7 +108,7 @@
 	  		</div>
 	  	</td>
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
-	  		<form method="post" action="." enctype="multipart/form-data">
+	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
 	  		<input type="hidden" name="action" value="remove" />
 	  		<input type="hidden" name="jobid" value="{{ j.id }}" />

@@ -10,7 +10,7 @@
     enctype="multipart/form-data">
 {% csrf_token %}
 
-<h2>Step 1: Setup the Job</h2>
+<h2>Step 1: Setup the Basics</h2>
 
 <div style="float:left; width:49%">
 	<div class="rounded_div_medium" style="background-color:#dedede;">
@@ -48,22 +48,22 @@
 <div style="margin-left:50%; width:50%">
 
 	<div class="rounded_div_medium" style="background-color:#dedede;">
-		<h3>Sequence Alignment</h3>
-		<p>Use the following alignment algorithms:</p> 
+		<h3>Sequence Alignment Algorithms</h3>
 		{{ js_form.alignment_algorithms }}
 		<p>
-		<h3>Phylogenetics</h3>
-		<p>Try the following RAxML phylogenetic models:</p> 
+		<h3>Phylogenetic Models</h3>
 		{{ js_form.raxml_models }}
 		<p>
 	</div>
 
+	<!--
 	<div class="rounded_div_medium" style="background-color:#dedede;">
 		<h3>Sequence Uncertainty</h3>
 		<p>How many Bayesian-sampled alternate ancestral sequences do you want?</p>
 		{{ js_form.n_bayes_samples }}
 		<p>
 	</div>
+	-->
 	<div align="center">
 	<button class="button" type="submit" name="submit" align="center">Save and Continue</button>
 	</div>

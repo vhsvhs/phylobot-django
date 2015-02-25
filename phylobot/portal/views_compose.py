@@ -110,6 +110,10 @@ def compose1(request):
                     this_job.settings.original_codon_file = seqfile
                 this_job.settings.save()
                 log((request.user).__str__() + " uploaded the file " + seqfile.__str__() + " with " + (len(taxa_seq)).__str__() + " sequences." )
+                
+                """Finally, Upload the files to S3"""
+                push_jobfile_to_s3(this_job.id, fullpath)
+            
             else:
                 if ii == 0:
                     this_job.settings.original_aa_file = None
@@ -122,14 +126,8 @@ def compose1(request):
                 if is_codon:
                     codon_seqfileform.fields['codonseq_path'].errors = "Please select a FASTA-formatted file of codon sequences."
         
-        """The AA sequences are required, but the codon sequences are optional.
-            Here we verify that all the prior code indeed captured an AA sequence file."""
-        if aaseqfile == None:
-            if this_job.settings.original_aa_file:
-                pass
-            else:
-                aa_seqfileform.fields['aaseq_path'].errors = "Please choose a FASTA file for this job."
-                print "Please select a FASTA-formatted file with amino acid sequences."
+                 
+             
              
         """
             Now update the JobSettings object
@@ -173,15 +171,19 @@ def compose1(request):
 
     aa_seqfileform = AASeqFileForm()
     selected_aaseqfile = None
+    selected_aaseqfile_short = None
     if this_job.settings.original_aa_file:
         aa_seqfileform.fields["aaseq_path"].default = this_job.settings.original_aa_file.aaseq_path
         selected_aaseqfile =  settings.STATIC_MEDIA_URL + this_job.settings.original_aa_file.aaseq_path.__str__()
+        selected_aaseqfile_short = selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ]
     
     codon_seqfileform = CodonSeqFileForm()
     selected_codonseqfile = None
+    selected_codonseqfile_short = None
     if this_job.settings.original_codon_file:
         codon_seqfileform.fields["codonseq_path"].default = this_job.settings.original_codon_file.codonseq_path
         selected_codonseqfile = settings.STATIC_MEDIA_URL +  this_job.settings.original_codon_file.codonseq_path.__str__()
+        selected_codonseqfile_short = selected_codonseqfile.split("/")[ selected_codonseqfile.split("/").__len__()-1 ]
         
     js_form = JobSettingForm()
     js_form.fields["name"].initial = this_job.settings.name
@@ -198,14 +200,15 @@ def compose1(request):
     js_form.fields["end_motif"].initial = this_job.settings.end_motif
     js_form.fields["n_bayes_samples"].initial = this_job.settings.n_bayes_samples
 
-    context_dict = {'aa_seqfileform': aa_seqfileform,
-                    'aa_seqfile_url':selected_aaseqfile,
-                    'aa_seqfile_short':selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ],
-                    'codon_seqfileform': codon_seqfileform,
-                    'codon_seqfile_url':selected_codonseqfile,
-                    'codon_seqfile_short':selected_codonseqfile.split("/")[ selected_codonseqfile.split("/").__len__()-1 ],
+    context_dict = {'aa_seqfileform':       aa_seqfileform,
+                    'aa_seqfile_url':       selected_aaseqfile,
+                    'aa_seqfile_short':     selected_aaseqfile_short,
+                    'codon_seqfileform':    codon_seqfileform,
+                    'codon_seqfile_url':    selected_codonseqfile,
+                    'codon_seqfile_short':  selected_codonseqfile_short,
                     'js_form':js_form,
-                    'forward_unlock':forward_unlock}
+                    'forward_unlock':forward_unlock,
+                    'current_step':1}
     return render(request, 'portal/compose1.html', context_dict)
 
 @login_required
@@ -370,6 +373,7 @@ def compose2(request):
             # Launch the job!
             #
             if this_job.validate():
+                """enqueue_job launches the job!"""
                 enqueue_job(request, this_job)
                 return HttpResponseRedirect('/portal/status/' + this_job.id.__str__())
             else:
@@ -416,7 +420,8 @@ def compose2(request):
                     'list_of_ancestors': list_of_ancestors,
                     'newanc_form':newanc_form,
                     'list_of_anccomps':list_of_anccomps,
-                    'anccomp_form':anccomp_form}
+                    'anccomp_form':anccomp_form,
+                    'current_step':2}
 
     return render(request, 'portal/compose2.html', context_dict)
     

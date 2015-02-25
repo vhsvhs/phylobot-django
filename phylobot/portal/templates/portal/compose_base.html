@@ -10,17 +10,30 @@
 <tr>
 
 <td>
+	<h2 style="margin-right:60px;">Create a New Job:</h2>
+</td>
+
+<td>
 	<h2 style="margin-right:60px;"><a href="/portal/cancelcompose">Cancel</a></h2>
 </td>
 
 <td>
 	<h2>
-	<a href="/portal/compose1"><button type="submit" name="submit" class="button">Step 1</button></a>
+	<a href="/portal/compose1"><button type="submit" name="submit" class="button"
+	{% if current_step == 1 %}
+		style="background:#00eb00"
+	{% endif %}
+	>Step 1</button></a>
 	
 	&rarr; 
 	
 	{% if forward_unlock %}
-	<a href="/portal/compose2"><button type="submit" name="submit" class="button">Step 2</button></a>
+	<a href="/portal/compose2"><button type="submit" name="submit" class="button"
+	{% if current_step == 2 %}
+		style="background:#00eb00"
+	{% endif %}
+	
+	>Step 2</button></a>
 	{% else %}
 	<button class="button_off">Step 2</button>
 	{% endif %}

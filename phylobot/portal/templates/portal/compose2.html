@@ -10,151 +10,147 @@
 
 <table width="100%">
 <tr>
-<td>
-
-<div class="holder">     
-	<div id="popup" class="popup">
-		<div style="background:lightgreen" class="rounded_div_medium">
-			<p>Create A New Taxa Group:</p>
-			<form id="new_taxagroup_form" method="post" action="."
-			        enctype="multipart/form-data">
-			    {% csrf_token %}
-			    {{new_taxagroup_form.as_p}}
-			    <input type="hidden" name="action" value="creategroup">
-			    <input type="submit" name="submit_newgroup" value="Create Taxa Group" />
+<td>							
+	<div style="background:lightblue" class="rounded_div_medium">
+	<p>Taxa Groups:</p>
+	{% if list_of_taxagroups %}
+		<table>
+		<tr>
+		<th>Group Name</th>
+		<th>N Sequences</th>
+		<th>&nbsp;</th>
+		</tr>
+		{% for tg in list_of_taxagroups %}
+			<tr>
+			<td align="center"><p>{{tg.0}}</p></td>
+			<td align="center">
+			<p>{{tg.1}}</p>
+			</td>
+			<td>
+			<form method="post" action="/portal/compose2" enctype="multipart/form-data">
+			{% csrf_token %}
+			<input type="hidden" name="taxagroup" value="{{tg.0}}" />
+			<input type="hidden" name="action" value="deletegroup" />
+			<input type="submit" name="submit_group" value="Remove" />
 			</form>
-		</div>
+			</td>
+			</tr>
+		{% endfor %}
+		</table>
+	{% else %}
+		<p>No taxa groups have been defined. Use the tool below to create some groups.</p>
+	{% endif %}
 	</div>
-</div>
-
-</td><td>
-
-<div style="background:lightblue" class="rounded_div_medium">
-<p>Taxa Groups:</p>
-{% if list_of_taxagroups %}
-	<table>
-	<tr>
-	<th>Group Name</th>
-	<th>N Sequences</th>
-	<th>&nbsp;</th>
-	</tr>
-	{% for tg in list_of_taxagroups %}
-		<tr>
-		<td align="center"><p>{{tg.0}}</p></td>
-		<td align="center">
-		<p>{{tg.1}}</p>
-		</td>
-		<td>
-		<form method="post" action="." enctype="multipart/form-data">
-		{% csrf_token %}
-		<input type="hidden" name="taxagroup" value="{{tg.0}}" />
-		<input type="hidden" name="action" value="deletegroup" />
-		<input type="submit" name="submit_group" value="Remove" />
-		</form>
-		</td>
-		</tr>
-	{% endfor %}
-	</table>
-{% else %}
-	<p>No taxa groups have been defined. Use the tool below to create some groups.</p>
-{% endif %}
-</div>
-
-<div style="background:lightgrey" class="rounded_div_medium">
-{% if outgroup %}
-	<p>Current Outgroup: {{outgroup}}</p>
-{% else %}
-	<p>You haven't defined an outgroup.</p>
-{% endif %}
-<hr>
-<p>Define the Outgroup</p>
-<form id="outgroup_form" method="post" action="."
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ outgroup_form.as_p }}
-    <input type="hidden" name="action" value="setoutgroup">
-    <input type="submit" name="submit_newoutgroup" value="Set Outgroup" />
-</form>
-</div>
- 
-
-<div style="background:yellow" class="rounded_div_medium">
-<p>Ancestors:</p>
-    {% if list_of_ancestors %}
-	<table>
-	{% for aa in list_of_ancestors %}
-		<tr>
-		<td align="center"><p>{{aa}}</p></td>
-		<td>
-		<form method="post" action="." enctype="multipart/form-data">
-		{% csrf_token %}
-		<input type="hidden" name="ancname" value="{{aa}}" />
-		<input type="hidden" name="action" value="deleteancestor" />
-		<input type="submit" name="submit" value="Remove" />
-		</form>
-		</td>
-		</tr>
-	{% endfor %}
-	</table>
 	
-    {% else %}
-    	<p>No ancestors have been defined.</p>
-    {% endif %}
-
- {% if outgroup %}
- <hr>
-<p>Add an Ancestor</p>
-<form id="anc_form" method="post" action="."
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ newanc_form.as_p }}
-    <input type="hidden" name="action" value="addanc">
-    <input type="submit" name="submit_newanc" value="Add Ancestor" />
-</form>
-</div>
-
-<div style="background:orange" class="rounded_div_medium">
-<p>Functional Loci</p>
-{% if list_of_anccomps %}
-
-    <table>
-    {% for comp in list_of_anccomps %}
-		<tr>
-		<td>{{ comp.0 }} &#8594; {{ comp.2 }}</td>
-		<td>
-			<form id="anc_form" method="post" action="."
+	<div style="background:lightgrey" class="rounded_div_medium">
+	{% if outgroup %}
+		<p>Current Outgroup: {{outgroup}}</p>
+	{% else %}
+		<p>You haven't defined an outgroup.</p>
+	{% endif %}
+	<hr>
+	<p>Define the Outgroup</p>
+	<form id="outgroup_form" method="post" action="/portal/compose2"
 	        enctype="multipart/form-data">
-	        {% csrf_token %}
-	    	<input type="hidden" name="oldancid" value="{{ comp.1 }}" />
-	    	<input type="hidden" name="newancid" value="{{ comp.3 }}" />
-	    	<input type="hidden" name="action" value="deletecomp">
-	    	<input type="submit" name="submit_anccomp" value="Remove" />
-	    	</form>
-    	</td>
-    {% endfor %}
-    </table>
-
-</form>
-{% else %}
-	<p>No comparisons have been defined.</p>
-{% endif %}
-<hr>
-<p>Add an Ancestral Comparison:</p>
-<form id="anccomp_form" method="post" action="."
-        enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ anccomp_form.as_p }}
-    <input type="hidden" name="action" value="addcomp">
-    <input type="submit" name="submit_newanccomp" value="Add Comparison" />
-</form>
-</div>
-
-{% endif %}
-
-</td></tr>
+	    {% csrf_token %}
+	    {{ outgroup_form.as_p }}
+	    <input type="hidden" name="action" value="setoutgroup">
+	    <input type="submit" name="submit_newoutgroup" value="Set Outgroup" />
+	</form>
+	</div>
+	 
+	
+	<div style="background:yellow" class="rounded_div_medium">
+	<p>Ancestors:</p>
+	    {% if list_of_ancestors %}
+		<table>
+		{% for aa in list_of_ancestors %}
+			<tr>
+			<td align="center"><p>{{aa}}</p></td>
+			<td>
+			<form method="post" action="/portal/compose2" enctype="multipart/form-data">
+			{% csrf_token %}
+			<input type="hidden" name="ancname" value="{{aa}}" />
+			<input type="hidden" name="action" value="deleteancestor" />
+			<input type="submit" name="submit" value="Remove" />
+			</form>
+			</td>
+			</tr>
+		{% endfor %}
+		</table>
+		
+	    {% else %}
+	    	<p>No ancestors have been defined.</p>
+	    {% endif %}
+	
+	 {% if outgroup %}
+	 <hr>
+	<p>Add an Ancestor</p>
+	<form id="anc_form" method="post" action="/portal/compose2"
+	        enctype="multipart/form-data">
+	    {% csrf_token %}
+	    {{ newanc_form.as_p }}
+	    <input type="hidden" name="action" value="addanc">
+	    <input type="submit" name="submit_newanc" value="Add Ancestor" />
+	</form>
+	</div>
+	
+	<div style="background:orange" class="rounded_div_medium">
+	<p>Functional Loci</p>
+	{% if list_of_anccomps %}
+	
+	    <table>
+	    {% for comp in list_of_anccomps %}
+			<tr>
+			<td>{{ comp.0 }} &#8594; {{ comp.2 }}</td>
+			<td>
+				<form id="anc_form" method="post" action="/portal/compose2"
+		        enctype="multipart/form-data">
+		        {% csrf_token %}
+		    	<input type="hidden" name="oldancid" value="{{ comp.1 }}" />
+		    	<input type="hidden" name="newancid" value="{{ comp.3 }}" />
+		    	<input type="hidden" name="action" value="deletecomp">
+		    	<input type="submit" name="submit_anccomp" value="Remove" />
+		    	</form>
+	    	</td>
+	    {% endfor %}
+	    </table>
+	
+	</form>
+	{% else %}
+		<p>No comparisons have been defined.</p>
+	{% endif %}
+	<hr>
+	<p>Add an Ancestral Comparison:</p>
+	<form id="anccomp_form" method="post" action="/portal/compose2"
+	        enctype="multipart/form-data">
+	    {% csrf_token %}
+	    {{ anccomp_form.as_p }}
+	    <input type="hidden" name="action" value="addcomp">
+	    <input type="submit" name="submit_newanccomp" value="Add Comparison" />
+	</form>
+	</div>
+	
+	{% endif %}
+	
+	</td>
+	<td width="25%">
+	
+	<div style="background:lightgreen" class="rounded_div_medium">
+		<p>Create A New Taxa Group:</p>
+		<form id="new_taxagroup_form" method="post" action="/portal/compose2"
+		        enctype="multipart/form-data">
+		    {% csrf_token %}
+		    {{new_taxagroup_form.as_p}}
+		    <input type="hidden" name="action" value="creategroup">
+		    <input type="submit" name="submit_newgroup" value="Create Taxa Group" />
+		</form>
+	</div>
+	</td>
+</tr>
 </table>
 
-<form id="anccomp_form" method="post" action="."
+<form id="anccomp_form" method="post" action="/portal/compose2"
         enctype="multipart/form-data">
 {% csrf_token %}
 <input type="hidden" name="action" value="done">
@@ -163,7 +159,6 @@
 <button class="button" type="submit" name="submit" align="center">Save and Continue</button>
 </div>
 
-<input type="image" src="{% static "portal/launch.png"%}">
 </form>
 
 {% endblock %}
