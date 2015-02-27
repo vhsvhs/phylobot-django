@@ -1,0 +1,21 @@
+{% extends "libview/libview_base.html" %}
+
+
+{% block body %}
+
+<h2>Ancestral Node {{node_number}}, Alignment: {{msaname}}, Model: {{modelname}}</h2>
+
+<p>&#10095; &#10095; &#10095; 
+	<a href='{{node_number}}.ml'>Sequence</a> |
+	<a href='{{node_number}}.support'>Support Summary</a> |
+	<a href='{{node_number}}.supportbysite'>Support by Site</a>
+	&#10094; &#10094; &#10094;
+</p>
+
+<hr>
+
+	{% block ancestor_body %}
+	
+	{% endblock %}
+
+{% endblock %}

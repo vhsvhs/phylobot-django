@@ -1,0 +1,69 @@
+{% extends "libview/libview_ancestor_base.html" %}
+
+{% block ancestor_body %}
+
+<h3>Maximum Likelihood Sequence
+		<a href="#" class="tooltip">
+			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<span>
+	        	<p class="smalltext">The maximum likelihood sequence is the string of amino acids representing the highest-probability residue at each site in the ancestral sequence.</p>
+	    	</span>
+		</a>
+</h3>
+<p class="smalltext">{{ml_sequence|safe}}</p>
+
+<hr>
+
+<h3>Similarity to Other Alignments		
+		<a href="#" class="tooltip">
+			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<span>
+	        	<p class="smalltext">Based on the ingroup and outgroup of Ancestral Node {{node_number}}, this ancestor is located at the same evolutionary branching point as ancestors found by other models.</p>
+	    	</span>
+		</a>
+
+</h3>
+
+<table width="50%">
+{% for row in similarity_rows %}
+	{% if forloop.counter0|divisibleby:25 %}
+	<th class="mu_header_small">Alignment Method</th>
+	<th class="mu_header_small">Markov Model</th>
+	<th class="mu_header_small">Ancestor</th>
+	{% endif %}
+	<tr>
+
+		<td>{{row.0}}</td>
+		<td>{{row.1}}</td>
+		<td align="center"><a href="/{{alid}}/{{row.0}}.{{row.1}}/{{row.2}}">{{row.2}}</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+
+<hr>
+
+<h3>Alternate Ancestral Sequences
+	<a href="#" class="tooltip">
+		<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+		<span>
+			<h3>Alternate Ancestral Sequences</h3>
+	    	<p class="smalltext">Alternate sequences are created by taking Bayesian-weighted samples from the probability of ancestral states at each site. Although these alternate sequences are probably less accurate than the ML sequence, it may be useful to characterize the molecular function of several of these alternate ancestors in order to ensure that your ancestral reconstruction is robust to uncertainty.</p>
+	    	<p class="smalltext">Reference:</p>
+	    	<p class="tinytext">
+	    	Williams, Pollock, Blackburne, and Goldstein<br>
+	    	<em>Assessing the Accuracy of Ancestral Protein Reconstruction Methods</em><br>
+	    	PLoS One, June 23, 2006<br>
+	    	DOI: 10.1371/journal.pcbi.0020069
+	    	</p>
+		</span>
+	</a>
+</h3>
+<p class="smalltext">
+{% for rs in alt_sequences %}
+{{rs}}<br>
+{% endfor %}
+</p>
+
+{% endblock %}
+

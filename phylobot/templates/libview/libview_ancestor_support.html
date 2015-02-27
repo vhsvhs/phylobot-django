@@ -1,0 +1,98 @@
+{% extends "libview/libview_ancestor_base.html" %}
+
+{% block head %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script><script type="text/javascript">
+google.load("visualization", "1.1", {packages:["corechart", "line"]});
+google.setOnLoadCallback(drawChart);
+
+function drawChart() {
+
+var data = google.visualization.arrayToDataTable([
+['Probability', 'Proportion of Sites', {role:'style'}],
+{% for tuple in bin_freq_tuples %}
+	{% if item.0 == 1.0 %}
+		['[{{tuple.0}},{{ tuple.1 }})', {{tuple.2}}, '#1E90FF']
+	{% else %}
+		['[{{tuple.0}},{{ tuple.1 }})', {{tuple.2}}, '#1E90FF'],
+	{% endif %}
+{% endfor %}
+]);
+
+var options = {
+  title: 'Probability Distribution of ML Residues',
+  titleTextStyle: {fontSize:18, color: '#444444'},
+  textStyle:{fontSize: 11},
+  vAxis: {
+  	title: 'Proportion of Sites',  
+  	titleTextStyle: {color: 'black', fontName:'Helvetica',fontSize:'12pt'}
+  	},
+  orientation: 'horizontal',
+  backgroundColor: '#f0f0f0',
+  bar:{groupWidth: '75%'},
+
+  hAxis: {
+      title: 'Probability of ML Amino Acid',
+      textStyle:{fontSize:11}
+  },
+  vAxis: {
+      title: 'Proportion of Sites in Ancestor {{node_number}}',
+      textStyle:{fontSize:15}
+  },
+  legend: { position: "none" }
+};
+
+var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+chart.draw(data, options);
+
+var data2 = new google.visualization.DataTable();
+data2.addColumn('number', 'Site in Ancestor {{node_number}}');
+data2.addColumn('number', 'ML Residue');
+data2.addColumn('number', '2nd-Best Residue');
+data2.addColumn('number', '3rd-Best Residue');
+data2.addRows([
+{% for tuple in site_support_tuples %} 
+	{% if tuple.0 == last_site %}
+		[{{tuple.0}}, {{tuple.1}}, {{tuple.2}}, {{tuple.3}}]
+	{% else %}
+		[{{tuple.0}}, {{tuple.1}}, {{tuple.2}}, {{tuple.3}}],
+	{% endif %}
+{% endfor %}
+]);
+
+var options2 = {
+	title: 'Probability by Site',
+  	titleTextStyle: {fontSize:18, color: '#444444'},
+   	colors: ['#3399FF', '#FF9933', '#666666'],
+  	backgroundColor: '#f0f0f0',
+   	hAxis: {
+      title: 'Site in Ancestor {{node_number}}',
+      textStyle:{ fontSize:11 }
+  	},
+  	vAxis: {
+      title: 'Probability',
+      textStyle:{fontSize:15}
+  	},
+  	legend: { position: "bottom" }
+};
+
+var chart2 = new google.visualization.LineChart(document.getElementById('linechart_div'));
+chart2.draw(data2, options2);
+}
+
+</script>
+{% endblock %}
+  	  
+{% block ancestor_body %}
+
+<h3>Support Summary</h3>
+<p>The posterior probabilities of all maximum likelihood sequence residues
+ were binned by their probability, and then the proportion of sites was counted in each bin.</p>
+<div align="center">
+	<p class="smalltext">Mean Probability: {{mean_pp|floatformat:2}}, Standard Deviation: {{sd_pp|floatformat:2}}</p>
+	<div id="chart_div" style="width: 100%; height: 200px;"></div>
+	
+	<div id="linechart_div" style="width: 100%; height: 200px;"></div>	
+</div>
+
+{% endblock %}
+

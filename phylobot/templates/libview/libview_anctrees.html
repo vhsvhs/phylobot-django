@@ -1,0 +1,67 @@
+{% extends "libview/libview_base.html" %}
+
+{% block head %}
+{% load staticfiles %}
+<script type="text/javascript" src="{% static "phylobot/cladogram_support/raphael-min.js" %}" ></script>
+<script type="text/javascript" src="{% static "phylobot/cladogram_support/jsphylosvg-min.js" %}" ></script>
+<script type="text/javascript">window.onload = function(){var dataObject = { phyloxml:'{{xmltreestring|safe}}', fileSource:false};phylocanvas = new Smits.PhyloCanvas(dataObject,"svgCanvas",800,{{ plotheight }});
+};
+</script>
+
+{% endblock %}
+
+
+{% block body %}
+
+<form action="/{{alid}}/ancestors" method="post">
+{% csrf_token %}
+<table class='choice_table' width="100%">
+<tr>
+	<td align="left">
+		<h3>Select a tree:</h3>
+		<div width="100%" align="center">
+			<a href="#" class="tooltip">
+			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="20px">
+			<span align="center">
+	        	<p class="smalltext">Select a maximum likelihood phylogeny (i.e. a tree) by choosing a combination of one alignment method and one evolutionary Markov model.</p>
+	    	</span>
+		</a>
+		</div>
+	</td>
+
+	<td><p>Alignment Method:</p>
+		<select id="msaname" name="msaname" class="dropdown">
+			{% for msaname in msanames %}
+				{% if msaname == default_msaname %}
+		  			<option value="{{msaname}}" id="{{msaname}}" selected="selected">{{msaname}}</option>
+				{% else %}
+					<option value="{{msaname}}" id="{{msaname}}">{{msaname}}</option>
+				{% endif %}
+			{% endfor %}
+		</select>
+	</td>
+	<td>
+		<p>Markov Model:</p>
+		<select id="modelname" name="modelname" class="dropdown">
+			{% for model in modelnames %}
+			  {% if model == default_modelname %}
+			  	<option value="{{model}}" selected="selected">{{model}}</option>
+			  {% else %}
+			  	<option value="{{model}}">{{model}}</option>
+			  {% endif %}
+			 {% endfor %}
+		</select>
+	</td>
+	<td>
+		<input type="submit" value="Select" class="dropdown"/>
+	</td>
+</tr>
+</table>
+</form>
+
+<br>
+<h3>Select an Ancestral Node:</h3>
+
+<div id="svgCanvas"> </div>
+{% endblock %}
+

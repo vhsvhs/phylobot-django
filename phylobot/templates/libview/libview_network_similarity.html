@@ -1,0 +1,15 @@
+{% extends "libview/libview_base.html" %}
+
+{% block head %}
+{% load staticfiles %}
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+
+<script>{{cytoscape_string}}</string>
+
+{% endblock %}
+
+{% block body %}
+<div id="cy"></div>
+{% endblock %}

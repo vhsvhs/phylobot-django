@@ -1,0 +1,46 @@
+{% extends "libview/libview_ancestor_base.html" %}
+
+{% block ancestor_body %}
+
+<p>Download: <a href='{{node_number}}.supportbysite.xls'>Excel Spreadsheet</a></p>
+
+<table>
+	
+{% for row in site_rows %}
+	{% if forloop.counter0|divisibleby:25 %}
+	<th class='ppheader' align='center'>Site in {{msaname}}</th>
+	<th class='ppheader' align='center'>Site in Ancestor Node {{node_number}}</th>
+	<th class='ppheader' align='center'>Site in {{seedtaxonname}}</th>
+	<th class='ppheader' colspan=20 align='center'>State(Probability)</th>
+	{% endif %}
+	
+	<tr>
+	<td align='center'><a href="/{{alid}}/{{msaname}}/site{{row.0}}">{{row.0}}</a></td>
+	<td align='center'>{{row.1}} {{row.4.0.0}}</td>
+	<td align='center'>{{row.2}} {{row.3}}</td>
+		{% for tuple in row.4 %}
+			<td align="center"
+			{% if tuple.1 > 0.9 %}
+			class="pp9"
+			{% elif tuple.1 > 0.8 %}
+			class="pp8"
+			{% elif tuple.1 > 0.7 %}
+			class="pp7"
+			{% elif tuple.1 > 0.6 %}
+			class="pp6"
+			{% elif tuple.1 > 0.5 %}
+			class="pp5"
+			{% else %}
+			class="pplow"
+			{% endif %}
+			>
+			{{tuple.0}} ({{tuple.1}})
+			</td>
+		{% endfor %}
+	</tr>
+{% endfor %}
+</table>
+
+
+{% endblock %}
+

@@ -14,7 +14,6 @@ from phylobot.models import *
 from phylobot.phyloxml_helper import *
 
 import sqlite3 as sqlite
-from dendropy import Tree
 import math, random
 
 from views_tools import *

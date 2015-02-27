@@ -1,0 +1,4 @@
+{% for data in site_rows %}
+	{{data.0}} {{data.1}} {% for tuple in data.2 %}{{tuple.0}} ({{tuple.1}})	{% endfor %}
+{% endfor %}
+
