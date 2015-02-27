@@ -131,11 +131,10 @@ if __name__ == '__main__':
     from django.core.wsgi import get_wsgi_application
     application = get_wsgi_application()
     
-    
     from django.db import models
     from django.contrib.auth.models import User
     from phylobot.models import *
     from portal.models import *
     from django.contrib.auth.hashers import *
     populate_known()
-    populate_examples()
+    #populate_examples()

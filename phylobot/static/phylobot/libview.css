@@ -1,0 +1,200 @@
+body {
+background-color: #f0f0f0;
+/*background-color: #e5e5e5;*/
+width: 75%;
+margin: auto;
+font-family: sans-serif;
+line-height: 140%;
+}
+
+.buttontext {
+color: #0066ff;
+text-decoration: none;
+cursor: pointer;}
+
+a:link {
+text-decoration: none;
+color: #0066ff;
+cursor: pointer;    
+}
+a:visited {
+color: #0066ff;
+text-decoration: none;
+cursor: pointer;    
+}
+a:mouseover {
+color: #ff9900;
+text-decoration: underline;
+cursor: pointer;    
+}
+a:hover {
+color: #ff9900;
+text-decoration: underline;
+cursor: pointer;    
+}
+a:active {
+text-decoration: none;
+color: #0066ff;
+cursor: pointer;    
+}
+
+p{ color: #444444; 
+	font-size: 12pt;
+}
+
+h1{ /* Big titles */
+color: #444444;
+font-size: 27pt;
+font-weight: bold;
+font-family: Helvetica, Optima, sans-serif;
+line-height: 120%;
+}
+h2{ /* sub-titles, such as \"Section 1\", \"Section 2\"*/
+font-size: 18pt;
+color: #444444;
+font-family: Helvetica, Optima, sans-serif;
+}
+h3{ /* navigation text, on the top*/
+color: #444444;
+font-size: 14pt;
+font-family: Helvetica, sans-serif;
+}
+h4{ /* clickable links, usually underneath clickable icons*/
+font-size: 12pt;
+padding: 0;
+color: #444444;
+}
+h5{ /* misc sub-titles, smaller than h2 and usually in-line */
+font-size: 12pt;
+color: #444444;
+}
+hr{
+height: 5px;
+color: #444444;
+background-color: #444444;
+}
+
+.thinhr{
+height: 1px;
+color: #444444;
+background-color: #444444;
+}
+
+.verythinhr{
+height: 0.5px;
+color: #444444;
+background-color: #444444;
+}
+
+th { font-size: 11pt; color: #444444;}")
+p, ul, li{ /* body text */
+font-size: 11pt;
+color: #444444;
+font-family: Helvetica, serif;
+line-height: 160%;
+}
+.bigp{ /* Nav links */
+font-size: 12pt;
+font-family: Helvetica;
+}
+.biggerp{
+font-size: 16pt;
+font-family: Helvetica;
+}
+.longp{
+font-family:Georgia;
+}
+
+img{
+border: 0;
+}
+
+
+.aqua{color: #3399ff;}
+.yellow{color: #ffcc33;}
+.white{color: #ffffff;}
+
+.red{color:#ff6666;}
+.orange{color:#ff6666;}
+.blue{color:#ff6666;}
+
+.redrow{background: #ffcccc;}
+
+.orangerow{background: #ffffcc;}
+.whiterow{background: #ffffff;}
+.bluerow{background: #C2E0FF;}
+.indelrow{background: #ffcc00;}
+
+.redtd{background: #ffcccc; font-size: 7pt;}
+.orangetd{background: #ffffcc; font-size: 7pt;}
+.whitetd{font-size: 7pt;}
+.bluetd{background: #C2E0FF; font-size: 7pt;}
+.indeltd{background: #ffcc00; font-size: 7pt;}
+
+.bigtext{font-size: 14pt; font-style: bold;}
+.smalltext{font-size: 10pt;}
+.tinytext{font-size: 7pt;}
+.verytinytext{font-size: 3pt;}
+div{word-wrap: break-word;}
+
+/* Classes for the Ancestral PP distribution table */
+.ppheader{background: #C0C0C0;}
+.headerrow{background: #C0C0C0; font-weight: bold; font-size: 12pt;}
+.ppfull{background: #1E90FF;}
+.pp9{background: #00BFFF;font-size: 10pt;}
+.pp8{background: #90EE90;font-size: 10pt;}
+.pp7{background: #ADFF2F;font-size: 10pt;}
+.pp6{background: #FFD700;font-size: 9pt;}
+.pp5{background: #FFA07A;font-size: 8pt;}
+.pplow{background: #FFB6C1;font-size: 9pt;}
+.type1{background: #FFB6C1;font-size: 10pt; font-style: bold;}
+
+/* Classes for the mutation table */
+.mutation_table{font-size: 9pt;}
+.mu_header_small{font-size: 9pt; color: #444444; background: #99CCFF;}
+.mu{}
+.mu1{background: #FFB6C1;}
+.mu2{background: #FFD700;}
+.mu3{background: #FFFF99;}
+.mui{background: #ADFF2F;}
+.mud{background: #33CC33;}
+.mtable{font-size: 10pt;}
+
+.divInfo { display:block; }
+
+.choice_table{
+	border: 2px;
+	border-radius: 25px;
+	padding-left:25px;
+	padding-right: 25px;
+	padding-top: 0px;
+	background-color: #cccccc;
+	box-shadow: 6px 6px 5px #777777;
+}
+
+.dropdown{
+	font-family: sans-serif;
+	font-size: 200%;
+}
+
+
+
+a.tooltip {outline:none; }
+a.tooltip strong {line-height:30px;}
+a.tooltip:hover {text-decoration:none;} 
+a.tooltip span {
+    z-index:10;display:none; padding:4px 20px;
+    margin-top:-30px; margin-left:28px;
+    width:300px; line-height:16px;
+}
+a.tooltip:hover span{
+    display:inline; position:absolute; color:#111;
+    border:1px solid #DCA; background:#FFFFCC;}
+.callout {z-index:20;position:absolute;top:30px;border:0;left:-12px;}
+    
+/*CSS3 extras*/
+a.tooltip span
+{
+    border-radius:4px;
+    box-shadow: 5px 5px 8px #CCC;
+}
