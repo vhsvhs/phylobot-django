@@ -59,9 +59,19 @@ def register(request):
             # Save the user's form data to the database.
             user = user_form.save()
 
+            print "62: views.register", user.username
+            print "63:", user.password
+
+            # Depricated:
+            # user.password is already encrypted. If you call set_password,
+            # then you'll effectively encrypt the encrypted password.
+            # when the user attempts to login, their password won't work.
+            #
             # Now we hash the password with the set_password method.
             # Once hashed, we can update the user object.
-            user.set_password(user.password)
+            #user.set_password(user.password)
+            
+            
             user.save()
 
             # Now sort out the UserProfile instance.

@@ -46,11 +46,8 @@ def populate_known():
     add_seqtype(2, "nucleotides", "nt")
 
 def build_software_paths():
-    print "49:", SoftwarePaths
     sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python /Users/victor/Documents/SourceCode/asrpipeline/runme.py")
-    print "51:", sp
     sp = sp[0]
-    print "53:", sp
     sp.save()
     sp = SoftwarePaths.objects.get_or_create(softwarename="phyml", path="phyml")[0]
     sp.save()
