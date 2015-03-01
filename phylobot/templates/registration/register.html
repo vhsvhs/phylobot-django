@@ -1,26 +1,20 @@
-{% extends "base.html" %}
+{% extends "phylobot_base.html" %}
+
 {% comment %}
   Main page to authenticate users.
 {% endcomment %}
 
-{% block head %}
-  <title>PhyloBot | Create an Account</title>
-{% endblock %}
+	{% block title %}
+  	<title>PhyloBot | Create an Account</title>
+	{% endblock %}
 
-{% block body %}
+{% block content %}
 
   <header>
     {% load staticfiles %}
-  	<table width="100%">
-	  	<tr>
-	  	<td>
-	  	<img src="{% static 'phylobot/phylobot_bot.png' %}" width="120px">
-	    </td>
-	    <td>
-	    <h1>Create a New Account</h1>
-	    </td>
-	    </tr>
-    </table>
+
+	 <h1 align="center">Create a New Account</h1>
+
   </header>
 
 {% if registered %}
@@ -32,14 +26,49 @@ PhyloBot says: <strong>thank you for registering!</strong>
 
     {% csrf_token %}
 
-    <!-- Display each form. The as_p method wraps each element in a paragraph
-         (<p>) element. This ensures each element appears on a new line,
-         making everything look neater. -->
-    {{ user_form.as_p }}
-    {{ profile_form.as_p }}
+	<table width="100%">
+	<tr>
+		<td width="20%">New Username:</td>
+		<td>{{user_form.username}}</td>
+		<td>30 characters or fewer. Letters, digits and @/./+/-/_ only.</td>
+	</tr>	
+
+	<tr>
+		<td>Email Address:</td>
+		<td>{{user_form.email}}</td>
+		<td>&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td>First Name:</td>
+		<td>{{user_form.first_name}}</td>
+		<td>&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td>Last Name:</td>
+		<td>{{user_form.last_name}}</td>
+		<td>&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td>New Password:</td>
+		<td>{{user_form.password1}}</td>
+		<td>&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td>Verify Password:</td>
+		<td>{{user_form.password2}}</td>
+		<td>&nbsp;</td>
+	</tr>
+	
+	</table>
+
 
     <!-- Provide a button to click to submit the form. -->
     <input type="submit" name="submit" value="Register" />
 </form>
 {% endif %}
+
 {% endblock %}

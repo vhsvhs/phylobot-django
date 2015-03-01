@@ -4,8 +4,7 @@ from portal.view_queue import *
 @login_required
 def composenew(request):
     """Creates a new Job object, then redirects to compose1"""
-    status = JobStatus.objects.get(short="draft")
-    newjob = Job.objects.create(owner=request.user, status=status)
+    newjob = Job.objects.create(owner=request.user)
     newjob.save()
     log( "views.py 55: Created a new job " + newjob.id.__str__() )
     return HttpResponseRedirect('/portal/compose1')
@@ -29,8 +28,6 @@ def compose1(request):
     That job object will then be loaded  upon calling get_mr_job.
     See below for an example.
     """
-    
-    print "33: compose1", request.method
     
     context = RequestContext(request)    
     this_job = get_mr_job(request)
@@ -96,8 +93,7 @@ def compose1(request):
                 taxa_seq = get_taxa(fullpath, this_format)      
                 for taxa in taxa_seq:
                     t = Taxon.objects.get_or_create(name=taxa,
-                                                seqtype=this_seqtype,
-                                                sequence=taxa_seq[taxa])[0]
+                                                seqtype=this_seqtype)[0]
                     t.save()
                     seqfile.contents.add(t)
                     seqfile.save()    
@@ -110,10 +106,7 @@ def compose1(request):
                     this_job.settings.original_codon_file = seqfile
                 this_job.settings.save()
                 log((request.user).__str__() + " uploaded the file " + seqfile.__str__() + " with " + (len(taxa_seq)).__str__() + " sequences." )
-                
-                """Finally, Upload the files to S3"""
-                push_jobfile_to_s3(this_job.id, fullpath)
-            
+                            
             else:
                 if ii == 0:
                     this_job.settings.original_aa_file = None
@@ -468,6 +461,8 @@ def jobstatus(request, jobid):
     for rm in this_job.settings.raxml_models.all():
         list_of_rm.append( rm.name )
     
+    job_status = get_job_status(this_job.id)
+    
     checkpoints = []
     checkpoints.append( (-1,    "Reading sequences") )
     checkpoints.append( (0,     "Aligning sequences") )
@@ -480,6 +475,7 @@ def jobstatus(request, jobid):
     checkpoints.append( (7,     "Final Check") )
     
     context_dict = {'job': this_job, 
+                    'job_status': job_status,
                     'nseqs':this_job.settings.original_aa_file.contents.count(),
                     'list_of_aa':list_of_aa,
                     'list_of_rm':list_of_rm,

@@ -124,31 +124,6 @@
 	  {% endif %}
   </div>
   
-  <div class="rounded_div_medium" style="background-color:#ffffcc;">
-  	<h3>The Job Queue</h3>
-	<p>Shown here are details about the global job queue, including jobs from other users.</p>
-
-  	{% if qjobs %}
-  		<p><a href="."><img src="{% static "portal/refresh_0066ff.png"%}" width=20 height=20 valign="top"> Refresh</a></p>
-  		<p>Current Workload: {{ q_status }}</p>
-  		<table width="100%">
-		<th align="left">Owner</th>
-		<th align="left">Job Name</th>
-		<th align="left">Status</th>
-		<th align="left">ETA?</th>
-  		{% for j in qjobs %}
-  		<tr>
-  			<td>{{j.owner}}</td>
-  			<td>{{j.settings.name}}</td>
-			<td>{{j.status.short}}</td>
-  			<td>???</td>
-  		</tr>
-  		{% endfor %}
-  		</table>  		
-  	{% else %}
-  		<p>The job queue is empty.</p>
-  	{% endif %}
-  </div>
   
   <div class="rounded_div_medium" style="background-color:#a9e2ff;">
   	<h3>My Libraries</h3>

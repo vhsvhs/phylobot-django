@@ -88,39 +88,16 @@ def portal_main_page(request):
             continue
         elif not job.settings.name:
             continue
-        elif not job.status:
-            continue 
         my_jobs.append( job )
         
-    #
-    # Generate a list of the last X jobs (for all users) in the queue.
-    #
-    the_qs = JobQueue.objects.all()
-    q_jobs = []
-    print "100:", the_qs
-    if the_qs != None and the_qs.__len__() > 0:
-        for q in the_qs:
-            for job in q.jobs.all():
-                if job.status.id > 0: # only jobs that are enqueued or running
-                    q_jobs.append( job )
-    
     #
     # Generate a list of jobs that are complete for user
     #
     my_libraries = []
-    if JobStatus.objects.all().__len__() > 0:
-        r = JobStatus.objects.get(short="done")
-        for job in Job.objects.filter(owner=request.user, status=r):
-            my_libraries.append( job )
-    
-    update_jobqueues()
-    
-    q_status = get_queue_status()
+
     
     context_dict = {'jobs':my_jobs,
-                    'qjobs':q_jobs,
-                    'libraries':my_libraries,
-                    'q_status':q_status
+                    'libraries':my_libraries
                     }
     
     # Another, better, method:

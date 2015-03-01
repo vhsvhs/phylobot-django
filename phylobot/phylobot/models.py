@@ -8,11 +8,6 @@ class UserProfile(models.Model):
     firstname = models.CharField(max_length=30,blank=True)
     lastname = models.CharField(max_length=40,blank=True)
 
-    # The additional attributes we wish to include.
-    website = models.URLField(blank=True)
-    labwebsite = models.URLField(blank=True)
-    picture = models.ImageField(upload_to='profile_images', blank=True)
-
     # Override the __unicode__() method to return out something meaningful!
     def __unicode__(self):
         return self.user.username   

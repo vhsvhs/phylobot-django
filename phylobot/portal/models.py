@@ -26,7 +26,6 @@ class SeqType(models.Model):
 class Taxon(models.Model):
     name = models.CharField(max_length=100)
     seqtype = models.ForeignKey(SeqType)
-    sequence = models.TextField()
     
     def __unicode__(self):
         return unicode(self.name)
@@ -137,13 +136,8 @@ class JobSetting(models.Model):
         """Error checks the values. Returns True if all is OK."""
         return True
 
-class JobStatus(models.Model):
-    id = models.IntegerField(primary_key=True)
-    short = models.CharField(max_length=20)
-    long = models.TextField()
-
     def __unicode__(self):
-        return unicode(self.short)
+        return unicode(self.name) 
 
 ID_FIELD_LENGTH = 16
     
@@ -156,22 +150,18 @@ def random_id(length):
     random_bytes = [random.randint(0, 0xFF) for i in range(length)]
     return ''.join(map(byte_to_base32_chr, random_bytes))
     
-    
 class Job(RandomPrimaryIdModel):
     """ A job can be any executable task. It can be an invocation of software, like Muscle,
     or it can be a call to a shell script, like source X.
     """
     #id = models.CharField(primary_key=True, max_length=ID_FIELD_LENGTH)
     owner = models.ForeignKey(User)
-    status = models.ForeignKey(JobStatus)
     settings = models.ForeignKey(JobSetting,null=True)
     last_modified = models.DateTimeField(auto_now=True)
     
     exe = models.TextField(null=True) # this is the shell command used to invoke the job.
     path = models.TextField(null=True) # this is the directory path in which output from this job is written
     
-    # a pickled string representing a subprocess.Popen object of the running job
-    pickled_popen = models.TextField(null=True)
     note = models.TextField(null=True) # notes about the job, in addition to its status, can be written here.
     checkpoint = models.FloatField(null=True)
     p_done = models.FloatField(null=True)
@@ -254,26 +244,22 @@ class Job(RandomPrimaryIdModel):
         fout.close()
         return configpath
 
-    def generate_exe(self):
+    def generate_exe(self, jumppoint = None, stoppoint = None):
         """Generates a shell-executable command that will invoke the job.
         NOTE: this method assumes that validate() was called, and returned True."""
         configpath = self.generate_configfile()
-        self.exe = SoftwarePaths.objects.get(softwarename="asrpipeline").__str__() + " --configpath " + self.id.__str__() + ".config"
+        self.exe = SoftwarePaths.objects.get(softwarename="asrpipeline").__str__()
+        self.exe += " --configpath " + self.id.__str__() + ".config"
+        if jumppoint != None:
+            self.exe += " --jump " + jumppoint.__str__()
+        if stoppoint != None:
+            self.exe += " --stop " + stoppoint.__str__()
+        self.exe += " --enable_aws True"
+        self.exe += " --s3_bucket phylobot.jobfiles"
+        self.exe += " --s3_keybase " + self.id.__str__()
         if self.checkpoint:
             self.exe += " --jump " + self.checkpoint.__str__()
         self.save()
 
-class JobQueue(models.Model):
-    id = models.IntegerField(primary_key=True)
-    jobs = models.ManyToManyField(Job, through='QueueOp')
-    jobs.help_text = ''
-
-class QueueOp(models.Model):
-    """Queue operations."""
-    job = models.ForeignKey(Job)
-    queue = models.ForeignKey(JobQueue)
-    timestamp = models.DateTimeField(default=datetime.date.today, auto_now=True)
-    opcode = models.IntegerField()
-    note = models.CharField(max_length=100)
 
     

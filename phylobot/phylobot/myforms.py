@@ -7,14 +7,8 @@ class UserForm(UserCreationForm):
     #password = forms.CharField(widget=forms.PasswordInput())
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2',)
+        fields = ('username', 'email', 'password1', 'password2', 'first_name', 'last_name')
 
-class UserProfileForm(forms.ModelForm):
-    website = forms.URLField(required=False, help_text="Please enter a website associated with your work")
-    
-    class Meta:
-        model = UserProfile
-        fields = ('firstname', 'lastname', 'website', 'picture',)
 
 
     

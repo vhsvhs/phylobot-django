@@ -16,19 +16,7 @@ def populate_known():
     print "\n. Use the /admin URL, on a running instance of this Django application, to access the database and change the default settings.\n"    
     
     build_software_paths()
-    
-    # We have only one queue, for now.
-    jq = JobQueue.objects.get_or_create(id=1)[0]
-    jq.save()
-    
-    add_jobstatus(-1, "draft", "Draft")
-    add_jobstatus(0, "done", "Complete")
-    add_jobstatus(1, "stopped", "Stopped")
-    add_jobstatus(2, "stopping", "Waiting to Stop")
-    add_jobstatus(4, "running", "Running")
-    add_jobstatus(5, "queued", "Waiting in the Queue")
-    add_jobstatus(6, "error", "Stalled, Error")
-    
+        
     add_aa("muscle", "muscle")
     add_aa("msaprobs", "msaprobs")
 
@@ -44,9 +32,10 @@ def populate_known():
     
     add_seqtype(1, "amino acids", "aa")
     add_seqtype(2, "nucleotides", "nt")
+    add_seqtype(3, "codons", "codon")
 
 def build_software_paths():
-    sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python /Users/victor/Documents/SourceCode/asrpipeline/runme.py")
+    sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python $HOME/repository/asr-pipeline/runme.py")
     sp = sp[0]
     sp.save()
     sp = SoftwarePaths.objects.get_or_create(softwarename="phyml", path="phyml")[0]
@@ -76,9 +65,6 @@ def add_rm(name):
     rm = RaxmlModel.objects.get_or_create(name=name)[0]
     rm.save()
 
-def add_jobstatus(id,short,long):
-    s = JobStatus.objects.get_or_create(id=id,short=short,long=long)[0]
-    s.save()
 
 def add_seqfileformat(id,name):
     ff = SeqFileFormat(id=id,name=name)
@@ -93,16 +79,11 @@ def populate_examples():
         pw = make_password("password")
         add_user( id.__str__(),lastname,firstname,email, pw )
 
-    #for u in User.objects.all():
-    #    this_profile = UserProfile.objects.get(user=u)
-    #    print u.username, u.password, this_profile.user
-
-    stopped_status = JobStatus.objects.get_or_create(id=1)[0]
     
     for u in User.objects.all():
         njobs = random.randint(0,10)
         for ii in range(0, njobs):
-            job = add_job(u,stopped_status)
+            job = add_job(u)
 
     # Print out what we have added to the user.
     #for c in Category.objects.all():
@@ -116,8 +97,8 @@ def add_user(name,last,first,mail,pw):
     up = UserProfile.objects.get_or_create(user=u)[0]
     up.save()
 
-def add_job(owner, status):
-    j = Job(owner=owner, status=status)
+def add_job(owner):
+    j = Job(owner=owner)
     j.save()
 
 # Start execution here!

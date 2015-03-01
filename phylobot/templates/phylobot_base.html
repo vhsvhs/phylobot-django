@@ -1,11 +1,18 @@
 {% extends "base.html" %}
 
 {% block head %}
+	
+	{% block title %}
 	<title>PhyloBot</title>
+    {% endblock %}
+    
     {% block css %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static "phylobot/phylobot.css" %}">
     {% endblock %}
+
+	
+
 {% endblock %}
 
 {% block body %}

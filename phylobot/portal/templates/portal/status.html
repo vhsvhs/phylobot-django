@@ -144,10 +144,9 @@
 	</div>
 	
 	<div class="rounded_div_medium" style="background:#dedede;">
-		<table>
-			<tr>
-			<!--<td><p class="smalltext">&#x25B2;&#x25BC;</p></td>-->
-			<td><h2>Status: 
+		
+		
+		<h2>Status: 
 			
 			{% if job.status.short == "error"%}
 			<font style="color:red;">
@@ -162,28 +161,10 @@
 			{{ job.status.short }}
 			</font>
 			{% endif %}
+		</h2>
 
 			
-			</h2>
-			</td>
-			</tr>
-		</table>
-		
-		<!--
-		<p style="color:
-		{% if job.status.short == "error"%}
-		red;
-		{% elif job.status.short == "stopped" %}
-		black;
-		{% else %}
-		green;
-		{% endif %}
-		">{{job.status.long}}<br>
-		{% if job.note %}
-		{{job.note}}
-		{% endif %}
-		</p>
-		-->
+		<p>{{job_status}}</p>
 		
 		<div width="100%" style="height:6px;background-color:lightgrey; margin-right:40px">
 		<div style="height:7px; width:{{job.p_done}}%;background-color:
