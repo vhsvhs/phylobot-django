@@ -67,7 +67,7 @@ def portal_main_page(request):
         if action == "stop":
             jobid = request.POST.get( 'jobid' )
             this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
-            stop_job( request, this_job ) 
+            dequeue_job( request, this_job ) 
         if action == "start":
             jobid = request.POST.get('jobid')
             this_job = Job.objects.filter(owner=request.user, id=jobid)[0]

@@ -25,11 +25,16 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     """ Update S3 """
     job.generate_exe(jumppoint=jumppoint, stoppoint=stoppoint)
     set_job_exe(job.id, job.exe)
+    
+    """
+        to-do: these file uploads are taking sweet time.
+            Maybe we could move the uploads to a separate thread?
+    """
     push_jobfile_to_s3(job.id, job.settings.original_aa_file.aaseq_path._get_path() )
     push_jobfile_to_s3(job.id, job.settings.original_codon_file.codonseq_path._get_path() )
     configfile = job.generate_configfile()
     push_jobfile_to_s3(job.id, configfile)
-    set_job_status(job.id, "Added to the Queue")
+    set_job_status(job.id, "Starting, waiting for cloud resources to spawn")
 
     """ Add to the SQS """
     sqs_start(job.id)
@@ -39,12 +44,12 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     #
     
 
-def stop_job(request, job):
+def dequeue_job(request, job):
     status = get_job_status(jobid)
     if status == "Finished":
         # You can't stop an already stopped job
         return
-    
+    set_job_status(jobid, "Stopping, waiting for cloud resources to evaporate")
     sqs_stop(job.id)
 
 

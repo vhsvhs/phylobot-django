@@ -6,8 +6,11 @@ import boto.sqs
 from boto.sqs.message import Message
 import sys, time
 
-
 ZONE = "us-west-1"
+AMI_SLAVE_MOTHER = "ami-6b23c62f"
+INSTANCE_TYPE = "t2.micro"
+INSTANCE_KEY_NAME = "phylobot-ec2-key"
+INSTANCE_SECURITY_GROUP = 'phylobot-security'
 
 def push_jobfile_to_s3(jobid, filepath):
     """Pushes the startup files for a job to S3.
@@ -82,21 +85,21 @@ def set_job_exe(jobid, exe):
         exit()   
     key.set_contents_from_string(exe)
     
-def sqs_start(jobid):
+def sqs_start(jobid, attempts=0):
     conn = boto.sqs.connect_to_region(ZONE)
     queue = conn.get_queue("phylobot-jobs")
     if queue == None:
         queue = conn.create_queue("phylobot-jobs")
     m = Message()
-    m.set_body('start ' + jobid.__str__())
+    m.set_body('start ' + jobid.__str__() + " " + attempts.__str__())
     queue.write(m)
     
-def sqs_stop(jobid):
+def sqs_stop(jobid, attempts=0):
     conn = boto.sqs.connect_to_region(ZONE)
     queue = conn.get_queue("phylobot-jobs")
     if queue == None:
         queue = conn.create_queue("phylobot-jobs")
     m = Message()
-    m.set_body('stop ' + jobid.__str__())
+    m.set_body('stop ' + jobid.__str__() + " " + attempts.__str__())
     queue.write(m)    
        
