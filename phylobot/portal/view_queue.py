@@ -31,9 +31,7 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
             Maybe we could move the uploads to a separate thread?
     """
     push_jobfile_to_s3(job.id, job.settings.original_aa_file.aaseq_path._get_path() )
-    
-    print "35:", job.settings.original_codon_file
-    
+        
     if job.settings.original_codon_file != None:
         push_jobfile_to_s3(job.id, job.settings.original_codon_file.codonseq_path._get_path() )
     configfile = job.generate_configfile()
