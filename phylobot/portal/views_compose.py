@@ -104,7 +104,9 @@ def compose1(request):
                 if ii == 1: 
                     """Codons"""
                     this_job.settings.original_codon_file = seqfile
+                    this_job.settings.has_codon_data = True
                 this_job.settings.save()
+                this_job.save()
                 log((request.user).__str__() + " uploaded the file " + seqfile.__str__() + " with " + (len(taxa_seq)).__str__() + " sequences." )
                             
             else:
@@ -118,7 +120,8 @@ def compose1(request):
                     aa_seqfileform.fields['aaseq_path'].errors = "Please select a FASTA-formatted file of amino acid sequences."
                 if is_codon:
                     codon_seqfileform.fields['codonseq_path'].errors = "Please select a FASTA-formatted file of codon sequences."
-        
+                this_job.settings.save()
+                this_job.save()
                  
              
              

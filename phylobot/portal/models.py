@@ -109,6 +109,7 @@ class JobSetting(models.Model):
     name = models.CharField(max_length=100,null=True)
     project_description = models.TextField(null=True)
     original_aa_file = models.ForeignKey( AASeqFile,null=True,related_name="aa_file" )
+    has_codon_data = models.BooleanField(default=False)
     original_codon_file = models.ForeignKey( CodonSeqFile,null=True,related_name="codon_file" )
     alignment_algorithms = models.ManyToManyField(AlignmentAlgorithm,null=True)
     alignment_algorithms.help_text = ''
