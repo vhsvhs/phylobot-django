@@ -82,6 +82,4 @@ def is_valid_fasta(path):
                 firstchar = l[0]
     return False
 
-def log(message):
-    print message
     

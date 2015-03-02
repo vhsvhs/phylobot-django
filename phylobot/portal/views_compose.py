@@ -6,14 +6,11 @@ def composenew(request):
     """Creates a new Job object, then redirects to compose1"""
     newjob = Job.objects.create(owner=request.user)
     newjob.save()
-    log( "views.py 55: Created a new job " + newjob.id.__str__() )
     return HttpResponseRedirect('/portal/compose1')
 
 
 @login_required
 def edit_job(request, jobid):
-    print "views.py 14 - edit_job"
-    print "views.py 15 - ", jobid
     this_job = Job.objects.filter(owner=request.user, id=jobid)
     if this_job:
         this_job = this_job[0]
@@ -38,14 +35,11 @@ def compose1(request):
         this_job.settings = this_js
         this_job.save()
     
-    if request.method == 'POST':  
-        print "45: found a POST"
-              
+    if request.method == 'POST':                
         aa_seqfileform = AASeqFileForm(request.POST, request.FILES)
         codon_seqfileform = CodonSeqFileForm(request.POST, request.FILES)
         js_form = JobSettingForm(request.POST)
       
-        print "48:", request.FILES
       
         #
         # Deal with the sequence file itself
@@ -79,14 +73,10 @@ def compose1(request):
             if this_format == "fasta":
                 seqfile.format = SeqFileFormat.objects.get_or_create(name=this_format)[0]
                 seqfile.save()
-                print "70:", seqfile.__str__()
-                print "71:", filepath
 
             # full path to the uploaded sequence file.
-            fullpath = os.path.join(settings.MEDIA_ROOT, seqfile.__str__())
-                        
+            fullpath = os.path.join(settings.MEDIA_ROOT, seqfile.__str__())                        
             this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
-            print "92:", this_seqtype
 
             # note: taxa_seq[taxon name] = sequence
             if is_valid_fasta(fullpath):
@@ -107,8 +97,7 @@ def compose1(request):
                     this_job.settings.has_codon_data = True
                 this_job.settings.save()
                 this_job.save()
-                log((request.user).__str__() + " uploaded the file " + seqfile.__str__() + " with " + (len(taxa_seq)).__str__() + " sequences." )
-                            
+                          
             else:
                 if ii == 0:
                     this_job.settings.original_aa_file = None
@@ -138,7 +127,6 @@ def compose1(request):
         for mid in selected_msa_algs:
             this_alg = AlignmentAlgorithm.objects.get(id = mid)
             this_job.settings.alignment_algorithms.add( this_alg )
-            print "348:", mid, this_alg
         
         selected_raxml_models = request.POST.getlist('raxml_models')
         this_job.settings.raxml_models.clear()
@@ -151,7 +139,6 @@ def compose1(request):
         this_job.settings.n_bayes_samples = request.POST.get('n_bayes_samples')
         this_job.settings.save()        
         this_job.save()
-        print "Saving the job!"
     
         if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
@@ -234,7 +221,6 @@ def compose2(request):
         # Add new taxa group
         #
         if request.POST['action'] == 'creategroup':
-            print "Creating a group"
             checked_taxa = request.POST.getlist('taxa')
             new_group_name = request.POST.get('name')
             matching_groups = this_job.settings.taxa_groups.filter(name=new_group_name)
@@ -251,9 +237,7 @@ def compose2(request):
         #
         if request.POST['action'] == 'deletegroup':
             name_of_taxagroup = request.POST.get('taxagroup')
-            print "189:", name_of_taxagroup
             this_tg = this_job.settings.taxa_groups.get(name=name_of_taxagroup)
-            print "Deleting the TaxaGroup", name_of_taxagroup
             if this_job.settings.outgroup == this_tg:
                 this_job.settings.outgroup = None
                 this_job.settings.save()
@@ -262,7 +246,6 @@ def compose2(request):
                 this_job.settings.save()
             if this_tg:
                 this_tg.delete()
-            #print this_taxagroup
 
         #
         # Set the outgroup
@@ -275,7 +258,6 @@ def compose2(request):
             else:
                 desired_outgroup = None
                                                                                 
-            print "views.py 200:", desired_outgroup
             this_job.settings.outgroup = desired_outgroup
             this_job.settings.save()
 
@@ -286,7 +268,6 @@ def compose2(request):
             new_anc_name = request.POST.get('ancname')
             
             selected_seed_taxon = request.POST.get('seedtaxa')
-            print "233:", selected_seed_taxon
             query_results = this_job.settings.original_aa_file.contents.filter(id=selected_seed_taxon)
             if query_results:
                 this_seed = query_results[0]
@@ -300,9 +281,6 @@ def compose2(request):
             else:
                 this_ingroup = None
             
-            print "views_compose.py 226!"
-            print this_seed # continue here - this is None, for some reason?
-            print this_ingroup
             if this_seed != None and this_ingroup != None:
                 newanc = Ancestor.objects.get_or_create(id__in=this_job.settings.ancestors.all(),
                                                     ancname=new_anc_name,
@@ -310,8 +288,6 @@ def compose2(request):
                                                     ingroup=this_ingroup,
                                                     outgroup=this_job.settings.outgroup)[0]
                 newanc.save()
-                log((request.user).__str__() + " added an ancestor named " + new_anc_name)
-       
                 this_job.settings.ancestors.add( newanc )
                 this_job.settings.save()
         
@@ -320,9 +296,7 @@ def compose2(request):
         #
         if request.POST['action'] == 'deleteancestor':
             name_of_ancestor = request.POST.get('ancname')
-            print "238:", name_of_ancestor
             this_a = this_job.settings.ancestors.get(ancname=name_of_ancestor)
-            print "Deleting the Ancestor", name_of_ancestor
             if this_job.settings.ancestors.filter(id=this_a.id).exists():
                 this_job.settings.ancestors.remove( this_a )
                 this_job.settings.save()
@@ -335,13 +309,11 @@ def compose2(request):
         if request.POST['action'] == 'addcomp':
             old_anc_id = request.POST.get('oldanc')
             new_anc_id = request.POST.get('newanc')
-            print "283:", old_anc_id, new_anc_id
             
             this_oldanc = this_job.settings.ancestors.get(id__in=old_anc_id)
             this_newanc = this_job.settings.ancestors.get(id__in=new_anc_id)
            
             if this_oldanc and this_newanc:
-                print "286:", this_oldanc, this_newanc
                 newcomp = AncComp.objects.get_or_create(oldanc=this_oldanc, newanc=this_newanc)[0]
                 newcomp.save()
                 this_job.settings.anc_comparisons.add( newcomp )
@@ -360,8 +332,6 @@ def compose2(request):
                 this_comp = this_job.settings.anc_comparisons.filter(oldanc=this_olda, newanc=this_newa)
                 if this_comp:
                     this_job.settings.anc_comparisons.remove( this_comp )
-                    
-                    print "Deleting the ancestral comparison", id_of_oldanc, id_of_newanc
                     this_comp.delete()
         
         if request.POST['action'] == 'done':
@@ -455,7 +425,7 @@ def jobstatus(request, jobid):
             if this_job.validate():
                 enqueue_job( request, this_job )
             else:
-                print "I couldn't launch the job:", this_job.name, this_job.id
+                print >> sys.stderr, "I couldn't validate the job: " + this_job.name + " " + this_job.id.__str__()
     
     list_of_aa = []
     for aa in this_job.settings.alignment_algorithms.all():

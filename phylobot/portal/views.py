@@ -7,16 +7,10 @@ page, or raising an exception such as Http404. The rest is up to you."
 from portal.view_tools import *
 from portal.view_queue import *
 
-def portal_process_request(request, library=None):
-    print "views.py 21 - library = ", library
-    
-    # Is there a publicly-available project named 'library'
-    
+def portal_process_request(request, library=None):    
     for j in Job.objects.all():
         if j.settings.name == library:
-            print "views.py 17 - ", j.id, j.settings.name
             return HttpResponseRedirect('/static/media/' + j.id + '/HTML/index.html')
-    
     return portal_main_page(request)
 
 
@@ -30,18 +24,7 @@ def portal_main_page(request):
     If users are authenticated, direct them to the main page. Otherwise, take
     them to the login page.
     """
-        
-    #
-    #print request.user
-    
-    # One method:
-    #t = loader.get_template('portal/index.html')
-    #c = RequestContext(request)
-    #return HttpResponse(t.render(c))
-    
-    # test - can we access the username here?
-    # print "32:", request.user
-    
+
     #
     # Some housekeeping to perform before showing the portal
     #
@@ -74,7 +57,7 @@ def portal_main_page(request):
             if this_job.validate():
                 enqueue_job( request, this_job )
             else:
-                print "I couldn't launch the job:", this_job.name, this_job.id
+                print >> sys.stderr, "I couldn't launch the job:" + this_job.name + " " + this_job.id.__str__()
     context_dict = {}
     
     #
