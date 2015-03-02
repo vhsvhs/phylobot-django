@@ -49,7 +49,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['www.phylobot.com', '*']
+ALLOWED_HOSTS = ['www.phylobot.com', '*', '54.153.13.127']
 
 # Application definition
 
