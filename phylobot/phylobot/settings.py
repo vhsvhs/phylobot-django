@@ -45,7 +45,7 @@ AUTH_PROFILE_MODULE = 'phylobot.UserProfile'
 SECRET_KEY = 't#i6at$qj62e(-*61bh_y3379#zti@5q-n%h&@3x)!pmaoq-_k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
