@@ -101,5 +101,25 @@ def sqs_stop(jobid, attempts=0):
         queue = conn.create_queue("phylobot-jobs")
     m = Message()
     m.set_body('stop ' + jobid.__str__() + " " + attempts.__str__())
-    queue.write(m)    
+    queue.write(m)   
+    
+def setup_slave_startup_script(jobid): 
+    s3 = S3Connection()
+    bucket = s3.lookup("phylobot.jobfiles")
+    SLAVE_STARTUP_SCRIPT_KEY = jobid.__str__() + "/slave_startup_script"
+    key = bucket.get_key(SLAVE_STARTUP_SCRIPT_KEY)
+    if key == None:
+        key = bucket.new_key(SLAVE_STARTUP_SCRIPT_KEY) 
+    if key == None:
+        print "\n. Error 115 - the key is None"
+        exit()   
+        
+    """The startup script:"""
+    l = ""
+    l += "cd ~/\n"
+    l += "sudo rm -rf repository/asr-pipeline\n"
+    l += "cd repository\n"
+    l += "git clone https://github.com/vhsvhs/asr-pipeline\n"
+    l += "cd ~/\n"
+    key.set_contents_from_string(l)    
        

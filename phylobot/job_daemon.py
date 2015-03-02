@@ -104,6 +104,7 @@ def write_error(con, message, code=None):
     con.commit()
     print "\n. ERROR: " + message
 
+
 def start_job(jobid, dbconn):
     """dbconn is a connection to the job_daemon database."""
     
@@ -144,12 +145,22 @@ def start_job(jobid, dbconn):
         add_instance(dbconn, instance.id, instance.ip_address)
         map_job_on_instance(dbconn, jobid, instance.id)
         set_job_status(jobid, "Starting, cloud resources activated")
+        
+        remote_command = "aws s3 cp s3://phylobot.jobfiles/" + jobid.__str__() + " ./"
+        os.system("ssh -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "'" + remote_command + "'")
+        
+        """Run the startup script"""
+        
+        """Run the job"""
+        
         return instance.id
     except:
         e = sys.exc_info()[0]
+        print "Error:"
         print e
         
         """An error occurred, so try to kill the instance."""
+        write_log(dbconn, "There was a problem starting job " + jobid.__str__() + ". I'm terminating the instance " + instance.id__str__(), code=0)
         conn.terminate_instances( instance_ids=[instance.id] )
         return None
 
@@ -182,7 +193,8 @@ def stop_job(jobid, dbconn):
                 AWS to terminate."""
             all_instances = conn.get_all_instances()
             alive_instanceids = []
-            for ai in all_instances:
+            for reservation in all_instances:
+                ai = reservation.instances[0]
                 if ai.state != "terminated":
                     """If the instance isn't terminated, then it's on our list."""
                     alive_instanceids.append( ai.id )
@@ -193,7 +205,7 @@ def stop_job(jobid, dbconn):
                 if instanceid not in alive_instanceids:
                     print "\n. 161 - instance " + instanceid.__str__() + " is terminated."
                     known_instances.remove( instanceid )
-                    remove_instance( instanceid )
+                    remove_instance(dbconn, instanceid )
             
             if known_instances.__len__() == 0:
                 set_job_status(jobid, "Stopped.")
@@ -225,6 +237,8 @@ while(True):
     
     """Get any messages on the SQS queue"""
     messages = queue.get_messages()
+    if messages.__len__() > 0:
+        print "\n. Daemon Status: There are ", messages.__len__().__str__(), "pending messages in the SQS queue."
     for msg in messages:
         body = msg.get_body()
                 
@@ -267,7 +281,7 @@ while(True):
                     then add the message back onto the queue."""
                 queue.delete_message( msg )
                 """Re-queue the msg with attempts += 1"""
-                sqs_start(jobid, attempts=msg_attempts+1 )
+                sqs_start(msg_jobid, attempts=msg_attempts+1 )
                 continue
             else:
                 queue.delete_message( msg )

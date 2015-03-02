@@ -461,7 +461,7 @@ def jobstatus(request, jobid):
     for rm in this_job.settings.raxml_models.all():
         list_of_rm.append( rm.name )
     
-    job_status = get_job_status(this_job.id)
+    job_status = get_job_status(jobid)
     
     checkpoints = []
     checkpoints.append( (-1,    "Reading sequences") )

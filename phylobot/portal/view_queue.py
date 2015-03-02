@@ -34,23 +34,24 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     push_jobfile_to_s3(job.id, job.settings.original_codon_file.codonseq_path._get_path() )
     configfile = job.generate_configfile()
     push_jobfile_to_s3(job.id, configfile)
+    setup_slave_startup_script(job.id)
     set_job_status(job.id, "Starting, waiting for cloud resources to spawn")
 
     """ Add to the SQS """
     sqs_start(job.id)
 
-    #
-    # continue here!
-    #
-    
+    """At this point, we're done. We wait for the PhyloBot job daemon
+        to read the SQS queue and take action."""
+    return
 
 def dequeue_job(request, job):
-    status = get_job_status(jobid)
+    status = get_job_status(job.id)
     if status == "Finished":
         # You can't stop an already stopped job
         return
-    set_job_status(jobid, "Stopping, waiting for cloud resources to evaporate")
+    set_job_status(job.id, "Stopping, waiting for cloud resources to evaporate")
     sqs_stop(job.id)
+    return
 
 
 def trash_job(request, job):
