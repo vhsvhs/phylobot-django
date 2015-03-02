@@ -22,11 +22,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 def view_library(request, libid):
-    
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
+    
+    
     if libid == None:
-        print ". no libid was provided."
+        """What?"""
+        context = get_base_context(request, None, con)
+        return render(request, 'libview/no_library.html', context)
 
     libid = libid.split("/")[0]
     
@@ -1048,11 +1051,8 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     
     sql = "select alsequence from AlignedSequences where almethod="+ msaid.__str__() + " and taxonid in (select id from Taxa where shortname='" + seedtaxonname + "')"
     cur.execute(sql)
-    print "1048:", sql
     x = cur.fetchone()
-    print "1050:", x
     seedseq = x[0]
-    print "1052:", seedseq
     alignedsite_seedsite = {}
     countstates = 0
     for ii in range(0, seedseq.__len__()):
@@ -1276,10 +1276,8 @@ def view_mutations_bybranch(request, alib, con):
             this_modelname2 = phylomodelid_name[this_modelid2]
             
             if this_modelid1 != this_modelid2:
-                print "954: error"
                 continue
             if this_msaid1 != this_msaid2:
-                print "957: error"
                 continue
 
             if site == 1:
