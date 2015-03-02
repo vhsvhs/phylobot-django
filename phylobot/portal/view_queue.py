@@ -32,7 +32,7 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     """
     push_jobfile_to_s3(job.id, job.settings.original_aa_file.aaseq_path._get_path() )
         
-    if job.settings.original_codon_file != None:
+    if job.settings.has_codon_data != False:
         push_jobfile_to_s3(job.id, job.settings.original_codon_file.codonseq_path._get_path() )
     configfile = job.generate_configfile()
     push_jobfile_to_s3(job.id, configfile)
