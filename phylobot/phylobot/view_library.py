@@ -458,6 +458,7 @@ def view_library_ancestortree(request, alib, con):
         get the XML string."""
     print >> sys.stderr, "458: " + msaid.__str__() + " " + phylomodelid.__str__()
     handle = StringIO(newick)
+    print >> sys.stderr, "458b"
     tree = Phylo.read(handle, "newick")
     print >> sys.stderr, "459: " + tree.__str__()   
     

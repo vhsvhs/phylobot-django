@@ -207,6 +207,8 @@ def get_anc_cladogram(con, msaid, phylomodelid):
     sql += "(select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + phylomodelid.__str__() + ")"
     cur.execute(sql)
     newick = cur.fetchone()[0]
+    newick = newick.__str__()
+    newick = re.sub("\[.*\]", "", newick)
     return newick
 
 def get_list_of_same_ancids(con, ancid):
