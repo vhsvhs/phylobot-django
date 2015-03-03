@@ -448,6 +448,7 @@ def view_library_ancestortree(request, alib, con):
     """Get the cladogram of ancestors"""
     newick = get_anc_cladogram(con, msaid, phylomodelid)
     #newick = reroot_newick(con, newick)
+    print >> sys.stderr, "451: " + newick.__str__()
     
     """This following block is a mess. . . but it solves a problem with the Dendropy library.
         This block will fetch the XML string for use with the javascript-based phylogeny viewer.
