@@ -695,7 +695,7 @@ def view_sites(request, alib, con):
         if "site" in request.POST:
             site = int( request.POST.get("site") )
     if site == None or site < 1:
-        x = get_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__() )
+        x = get_viewing_pref(request, alib.id, con, "lastviewed_site_msa=" + msaid.__str__() )
         if x != None:
             site = int(x)
         else:
@@ -1163,8 +1163,8 @@ def view_mutations_bybranch(request, alib, con):
         any saved preferences about the last-viewed ancestors."""
     
     if ancid1 == None or ancid2 == None:
-        last_viewed_ancid1 = get_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
-        last_viewed_ancid2 = get_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
+        last_viewed_ancid1 = get_viewing_pref(request, alib.id, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
+        last_viewed_ancid2 = get_viewing_pref(request, alib.id, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
         if last_viewed_ancid1 != None:
             ancid1 = int(last_viewed_ancid1)
             sql = "select name from Ancestors where id=" + ancid1.__str__()

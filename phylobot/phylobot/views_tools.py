@@ -157,8 +157,8 @@ def get_msamodel(request, alib, con):
 
     """INPUT 3: maybe the user has some saved viewing preferences?"""
     if msaid == None and phylomodelid == None:
-        msaid = get_viewing_pref(request, alib, con, "lastviewed_msaid")
-        phylomodelid = get_viewing_pref(request, alib, con, "lastviewed_modelid")
+        msaid = get_viewing_pref(request, alib.id, con, "lastviewed_msaid")
+        phylomodelid = get_viewing_pref(request, alib.id, con, "lastviewed_modelid")
         if msaid != None:
             sql = "select name from AlignmentMethods where id=" + msaid.__str__()
             cur.execute(sql)
