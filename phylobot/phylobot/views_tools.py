@@ -41,7 +41,7 @@ def get_msamodel_from_url(request, con):
     datatoken = tokens[  tokens.__len__()-2  ]
     tokens = datatoken.split(".")
 
-    print "44:", tokens
+    print >> sys.stderr, "44: " + tokens.__str__()
 
     if tokens.__len__() < 2:
         """Then this token doesn't contain an msa.model"""
@@ -53,7 +53,7 @@ def get_msamodel_from_url(request, con):
     msaid = cur.fetchone()
     if msaid == None:
         """I can't find this alignment method in the database"""
-        print "Warning 50: I cannot find the alignment method " + msaname + " in the database."
+        print >> sys.stderr, "Warning 50: I cannot find the alignment method " + msaname + " in the database."
         return None
     msaid = msaid[0]
 
@@ -307,7 +307,7 @@ def get_ancestral_matches(con, ancid1, ancid2):
             if model in msa_model_match1[input_almethod] and model in msa_model_match2[input_almethod]:
                 matches.append( (msa_model_match1[input_almethod][model], msa_model_match2[input_almethod][model]) )        
     else:
-        print "\n. Error 296 (view_tools.py)", input_almethod, msa_model_match1.keys(), msa_model_match2.keys()
+        print >> sys.stderr, "Error 296 (view_tools.py) " +  input_almethod.__str__() + " " + msa_model_match1.keys().__str__() + " " + msa_model_match2.keys().__str__()
         
     for msa in msas:
         if msa in msa_model_match1 and msa in msa_model_match2:
