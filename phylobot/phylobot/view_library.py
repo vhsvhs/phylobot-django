@@ -432,6 +432,7 @@ def view_library_trees(request, alib, con):
     return render(request, 'libview/libview_trees.html', context)
 
 def reset_all_biopython_branchlengths(root, length):
+    print >> sys.stderr, "435: setting al BLs to 1.0"
     root.branch_length = length
     for child in root.clades:
         print >> sys.stderr, "437 found a child: " + child.name.__str__()
