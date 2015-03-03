@@ -74,7 +74,7 @@ def save_viewing_pref(request, alib, con, keyword, value):
     """Save a viewing preference so that it can be loaded automatically next time
         the user views the same page.
         If this method fails, it just returns without error."""
-    user = request.user
+    user = request.user.id
     query = ViewingPrefs.objects.filter(user=user, libid=alib.id, keyword=keyword)
     if query.__len__() == 0:
         """Create a new preference entry"""
@@ -88,7 +88,7 @@ def save_viewing_pref(request, alib, con, keyword, value):
 def get_viewing_pref(request, alib, con, keyword):
     """Returns the value for a saved viewing preference 'keyword', 
         or None if the preference entry doesn't exist."""
-    user = request.user
+    user = request.user.id
     query = ViewingPrefs.objects.filter(user=user, libid=alib.id, keyword=keyword)
     if query.__len__() == 0:
         return None
