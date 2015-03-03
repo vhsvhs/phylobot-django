@@ -41,9 +41,12 @@ def get_msamodel_from_url(request, con):
     datatoken = tokens[  tokens.__len__()-2  ]
     tokens = datatoken.split(".")
 
+    if tokens.__len__() < 2:
+        """Then this token doesn't contain an msa.model"""
+        return None
+
     msaname = tokens[0].__str__()
     sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
-    print sql
     cur.execute(sql)
     msaid = cur.fetchone()
     if msaid == None:
