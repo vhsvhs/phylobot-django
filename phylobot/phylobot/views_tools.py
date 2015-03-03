@@ -75,6 +75,9 @@ def save_viewing_pref(request, alibid, con, keyword, value):
         the user views the same page.
         If this method fails, it just returns without error."""
     user = request.user
+    """Deal with users that aren't signed in"""    
+    if user.is_anonymous():
+        return
     query = ViewingPrefs.objects.filter(user=user, libid=int(alibid), keyword=keyword)
     if query.__len__() == 0:
         """Create a new preference entry"""
@@ -90,9 +93,10 @@ def get_viewing_pref(request, alibid, con, keyword):
         or None if the preference entry doesn't exist."""
     user = request.user
     
-    print >> sys.stderr, "93:" + user.__str__()
-    print >> sys.stderr, "94:" + user.id.__str__()
-    
+    """Deal with users that aren't signed in"""    
+    if user.is_anonymous():
+        return None
+        
     query = ViewingPrefs.objects.filter(user=user, libid=alibid, keyword=keyword)
     if query.__len__() == 0:
         return None
