@@ -1,4 +1,4 @@
-import os, sys
+import os, re, sys
 from phylobot.models import *
 from django.core.exceptions import ObjectDoesNotExist
 
