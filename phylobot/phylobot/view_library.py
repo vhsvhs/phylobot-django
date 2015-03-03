@@ -710,6 +710,10 @@ def view_sites(request, alib, con):
 
 def view_site(request, alib, con):
     """Get the model and method from the URL"""
+    msaid = None
+    msaname = ""
+    phylomodelid = None
+    phylomodelname = ""
     x = get_msamodel_from_url(request, con)
     if x != None:
         (msaid, msaname, phylomodelid, phylomodelname) = x    
