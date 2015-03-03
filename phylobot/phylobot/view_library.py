@@ -455,7 +455,13 @@ def view_library_ancestortree(request, alib, con):
         string directly from the Phylo class. In the meantime, the messy way is to write
         an XML phylogeny to the /tmp folder, and then read the contents of the file to
         get the XML string."""
+    print >> sys.stderr, "458: " + msaid.__str__() + " " + phylomodel.__str__()
     tree = Phylo.read(StringIO(newick), "newick")
+    print >> sys.stderr, "460: " + tree.__str__()
+    
+    #
+    # continue here
+    #
     xmltree = tree.as_phyloxml()
     Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
     fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
