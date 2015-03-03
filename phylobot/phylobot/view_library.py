@@ -467,6 +467,7 @@ def view_library_ancestortree(request, alib, con):
     # continue here
     #
     xmltree = tree.as_phyloxml()
+    print >> sys.stderr, "470: XMLtree=" + xmltree.__str__()
     Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
     fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
     xmltreelines = fin.readlines()
