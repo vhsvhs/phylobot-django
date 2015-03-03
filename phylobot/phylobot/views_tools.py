@@ -70,26 +70,26 @@ def get_msamodel_from_url(request, con):
     
     return (msaid, msaname, phylomodelid, phylomodelname)
 
-def save_viewing_pref(request, alib, con, keyword, value):
+def save_viewing_pref(request, alibid, con, keyword, value):
     """Save a viewing preference so that it can be loaded automatically next time
         the user views the same page.
         If this method fails, it just returns without error."""
     user = request.user
-    query = ViewingPrefs.objects.filter(user=user, libid=int(alib.id), keyword=keyword)
+    query = ViewingPrefs.objects.filter(user=user, libid=int(alibid), keyword=keyword)
     if query.__len__() == 0:
         """Create a new preference entry"""
-        pref = ViewingPrefs(user=user, libid=int(alib.id), keyword=keyword, value=value)
+        pref = ViewingPrefs(user=user, libid=alibid, keyword=keyword, value=value)
     else:
         """An entry already exists. Overwrite it."""
         pref = query[0]
         pref.value = value
     pref.save()
 
-def get_viewing_pref(request, alib, con, keyword):
+def get_viewing_pref(request, alibid, con, keyword):
     """Returns the value for a saved viewing preference 'keyword', 
         or None if the preference entry doesn't exist."""
     user = request.user
-    query = ViewingPrefs.objects.filter(user=user, libid=int(alib.id), keyword=keyword)
+    query = ViewingPrefs.objects.filter(user=user, libid=alibid, keyword=keyword)
     if query.__len__() == 0:
         return None
     else:

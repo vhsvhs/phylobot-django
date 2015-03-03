@@ -438,8 +438,8 @@ def view_library_ancestortree(request, alib, con):
 
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
-    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
-    save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
            
     context = get_base_context(request, alib, con)  
     context["default_msaname"] = msaname
@@ -702,8 +702,8 @@ def view_sites(request, alib, con):
             """There was no last-viewed site saved for this alignment, so just pick a random site."""
             site = 1
     
-    save_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
-    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())  
+    save_viewing_pref(request, alib.id, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())  
     
     return HttpResponseRedirect('/' + alib.__str__() + '/' + msaname + '/site' + site.__str__() )
     
@@ -721,7 +721,7 @@ def view_site(request, alib, con):
     if site < 1:
         return None
     
-    save_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
+    save_viewing_pref(request, alib.id, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
     
     cur = con.cursor()
     
@@ -1119,8 +1119,8 @@ def view_mutations_bybranch(request, alib, con):
 
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
-    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
-    save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
 
     """Get the seedsequence with indels"""
     seedsequence = get_seed_sequence(con, msaname)
@@ -1188,8 +1188,8 @@ def view_mutations_bybranch(request, alib, con):
         ancid2 = int(x[1][1])
         ancname2 = x[1][0]
     
-    save_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__(), ancid1) 
-    save_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__(), ancid2)
+    save_viewing_pref(request, alib.id, con, "lastviewed_ancid1_msa=" + msaid.__str__(), ancid1) 
+    save_viewing_pref(request, alib.id, con, "lastviewed_ancid2_msa=" + msaid.__str__(), ancid2)
 
     """Get the site map beween different sequence alignments"""
     msa_site1_site2 = {} # key = msaid, value = hash; key = site in user-specified msa, value = site in msaid
@@ -1337,8 +1337,8 @@ def view_mutations_bybranch(request, alib, con):
 
     """Save this viewing preference -- it will load automatically next time
         the user comes to the ancestors page."""
-    save_viewing_pref(request, alib, con, "lastviewed_msaid", msaid.__str__())        
-    save_viewing_pref(request, alib, con, "lastviewed_modelid", phylomodelid.__str__()) 
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
 
     sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
     cur.execute(sql)
