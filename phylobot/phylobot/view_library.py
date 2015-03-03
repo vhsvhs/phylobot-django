@@ -104,6 +104,9 @@ def view_library(request, libid):
     elif request.path_info.endswith("supportbysite"):
         return view_ancestor_supportbysite(request, alib, con)
     
+    elif request.path_info.endswith("zorro"):
+        return view_zorro_profiles(request, alib, con)
+    
     elif request.path_info.endswith("supportbysite.xls"):
         return view_ancestor_supportbysitexls(request, alib, con)
     
@@ -372,6 +375,43 @@ def view_alignments(request, alib, con):
     context[ "msaid_tuples"] = msa_tuples
     
     return render(request, 'libview/libview_alignments.html', context)
+
+def view_zorro_profiles(request, alib, con):
+    cur = con.cursor()
+    context = get_base_context(request, alib, con)
+    
+    sql = "select id from AlignmentSiteScoringMethods where name='zorro'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    zorromethodid = None
+    if x != None:
+        zorromethodid = int( x[0] )
+    
+    context[ "zorro_tuples" ] = [] # a list of lists; each list contains tuples (site,score) for the i-th MSA method.
+    sql = "select name, id from AlignmentMethods"
+    cur.execute(sql)
+    x = cur.fetchall()
+    for ii in x:
+        almethodid = int( ii[1] )
+        
+        """Get the ZORRO data for this alignment"""
+        if zorromethodid != None:
+            site_score_tuples = []
+            
+            sql = "select site, score from AlignmentSiteScores where almethodid=" + almethodid.__str__()
+            sql += " and scoringmethodid=" + zorromethodid.__str__()
+            sql += " order by site ASC"
+            cur.execute(sql)
+            yy = cur.fetchall()
+            for jj in yy:
+                site = int( jj[0] )
+                score = float( jj[1] )
+                site_score_tuples.append( (site,score) )
+            
+            lastsite = site_score_tuples[ site_score_tuples.__len__()-1 ][0] 
+            context[ "zorro_tuples" ].append( (ii[0], lastsite, site_score_tuples ) )
+    
+    return render(request, 'libview/libview_zorro_all.html', context)
 
 def view_library_trees(request, alib, con):
     cur = con.cursor()
