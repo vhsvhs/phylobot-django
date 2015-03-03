@@ -460,6 +460,9 @@ def view_library_ancestortree(request, alib, con):
     handle = StringIO(newick)
     print >> sys.stderr, "458b"
     tree = Phylo.read(handle, "newick")
+    
+    print >> sys.stderr, "464:" + dir(tree).__str__()
+    
     print >> sys.stderr, "459: " + tree.__str__()   
     
     
