@@ -431,6 +431,13 @@ def view_library_trees(request, alib, con):
     
     return render(request, 'libview/libview_trees.html', context)
 
+def reset_all_biopython_branchlengths(root, length):
+    root.branch_length = length
+    for child in root.clades:
+        print >> sys.stderr, "437 found a child: " + child.name.__str__()
+        child = reset_all_biopython_branchlengths(child, length)
+    return root
+
 def view_library_ancestortree(request, alib, con):
     cur = con.cursor() 
     
@@ -460,6 +467,10 @@ def view_library_ancestortree(request, alib, con):
     handle = StringIO(newick)
     print >> sys.stderr, "458b"
     tree = Phylo.read(handle, "newick")
+    
+    """This is a small hack to make new versions of BioPython behave with our javascript
+        tree visuazliation."""
+    tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
     
     print >> sys.stderr, "464:" + dir(tree).__str__()
     
