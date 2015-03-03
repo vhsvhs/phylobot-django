@@ -457,12 +457,10 @@ def view_library_ancestortree(request, alib, con):
         an XML phylogeny to the /tmp folder, and then read the contents of the file to
         get the XML string."""
     print >> sys.stderr, "458: " + msaid.__str__() + " " + phylomodelid.__str__()
-    
-    tree = Phylo.read(newick.__str__(), "newick")
+    handle = StringIO(newick)
+    tree = Phylo.read_(handle, "newick")
     print >> sys.stderr, "459: " + tree.__str__()   
     
-    tree = Phylo.read(StringIO(newick.__str__()), "newick")
-    print >> sys.stderr, "460: " + tree.__str__()
     
     #
     # continue here
