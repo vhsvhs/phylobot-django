@@ -697,7 +697,7 @@ def view_sites(request, alib, con):
     if site == None or site < 1:
         x = get_viewing_pref(request, alib, con, "lastviewed_site_msa=" + msaid.__str__() )
         if x != None:
-            site = x
+            site = int(x)
         else:
             """There was no last-viewed site saved for this alignment, so just pick a random site."""
             site = 1
@@ -1190,9 +1190,6 @@ def view_mutations_bybranch(request, alib, con):
     
     save_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__(), ancid1) 
     save_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__(), ancid2)
-
-    last_viewed_ancid1 = get_viewing_pref(request, alib, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
-    last_viewed_ancid2 = get_viewing_pref(request, alib, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
 
     """Get the site map beween different sequence alignments"""
     msa_site1_site2 = {} # key = msaid, value = hash; key = site in user-specified msa, value = site in msaid
