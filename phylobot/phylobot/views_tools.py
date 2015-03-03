@@ -90,8 +90,8 @@ def get_viewing_pref(request, alibid, con, keyword):
         or None if the preference entry doesn't exist."""
     user = request.user
     
-    print >> sys.stderr, "93:" + user
-    print >> sys.stderr, "94:" + user.id
+    print >> sys.stderr, "93:" + user.__str__()
+    print >> sys.stderr, "94:" + user.id.__str__()
     
     query = ViewingPrefs.objects.filter(user=user, libid=alibid, keyword=keyword)
     if query.__len__() == 0:
