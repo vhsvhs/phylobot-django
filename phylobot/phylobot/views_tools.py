@@ -22,7 +22,7 @@ def get_alignmentnames(con):
         msanames.append( ii[0] )
     return msanames
 
-def get_msamodel_from_url(request, con):
+def get_msamodel_from_url(request, con, msaonly=False):
     """Returns a tuple, with the ID of the alignment method and 
         the ID of the phylo. model, interpreted from the URL.
         Assumes URLs formatted as "..../msa_method.phylomodel/..."
@@ -43,7 +43,7 @@ def get_msamodel_from_url(request, con):
 
     print >> sys.stderr, "44: " + tokens.__str__()
 
-    if tokens.__len__() < 2:
+    if msaonly == False and tokens.__len__() < 2:
         """Then this token doesn't contain an msa.model"""
         return None
 

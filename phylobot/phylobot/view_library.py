@@ -714,7 +714,7 @@ def view_site(request, alib, con):
     msaname = ""
     phylomodelid = None
     phylomodelname = ""
-    x = get_msamodel_from_url(request, con)
+    x = get_msamodel_from_url(request, con, msaonly=True)
     if x != None:
         (msaid, msaname, phylomodelid, phylomodelname) = x    
     
@@ -727,8 +727,9 @@ def view_site(request, alib, con):
     
     save_viewing_pref(request, alib.id, con, "lastviewed_site_msa=" + msaid.__str__(), site.__str__())  
     
-    cur = con.cursor()
     
+    
+    cur = con.cursor()
     """Get a list of alignment methods"""
     sql = "select id, name from AlignmentMethods where id!=" + msaid.__str__()
     cur.execute(sql)
