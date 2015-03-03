@@ -25,6 +25,7 @@ python phylobot-django/phylobot/manage.py syncdb
 # Allow Apache write control of the Django database
 sudo chown -R www-data:www-data ~/phylobot-django/phylobot/db.sqlite3
 sudo chown -R www-data:www-data ~/phylobot-django/phylobot
+sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
 
 # Run the populate_phylobot script to add things like
 # known alignment algorithms, phylogenetic models, and job status
