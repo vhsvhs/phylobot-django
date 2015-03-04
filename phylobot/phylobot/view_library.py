@@ -89,7 +89,6 @@ def view_library(request, libid):
     elif request.path_info.endswith(".newick"):
         return view_tree(request, alib, con, format="newick")
         
-        
     elif request.path_info.endswith("trees"):
         return view_library_trees(request, alib, con)
     
@@ -106,6 +105,12 @@ def view_library(request, libid):
     
     elif request.path_info.endswith("zorro"):
         return view_zorro_profiles(request, alib, con)
+    
+    elif request.path_info.endswith("alignment"):
+        print "110:", request.path_info
+        tokens = request.path_info.split("/")
+        alignment_method = tokens[   tokens.__len__()-2  ]
+        return view_single_alignment(request, alib, con, alignment_method)
     
     elif request.path_info.endswith("supportbysite.xls"):
         return view_ancestor_supportbysitexls(request, alib, con)
@@ -375,6 +380,68 @@ def view_alignments(request, alib, con):
     context[ "msaid_tuples"] = msa_tuples
     
     return render(request, 'libview/libview_alignments.html', context)
+
+def view_single_alignment(request, alib, con, alignment_method):
+    """alignment_method can be either the ID or the name of the method"""
+    cur = con.cursor()
+    
+    """Which alignment method?"""
+    if alignment_method == None:
+        return view_library_frontpage(request, alib, con)
+    alignment_methodid = None
+    sql = "select name, id from AlignmentMethods where name='" + alignment_method + "'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x != None:
+        alignment_methodid = int( x[1] )
+    else:
+        sql = "select name, id from AlignmentMethods where id=" + alignment_method.__str__()
+        cur.execute(sql)
+        x = cur.fetchone()
+        if x != None:
+            alignment_methodid = int( x[1] )
+    if alignment_methodid == None:
+        """We couldn't find this alignment method in the database."""
+        return view_library_frontpage(request, alib, con)
+
+    context = get_base_context(request, alib, con)
+    context["firstseq"] = None
+    
+    """Fill a.a. taxon_seq"""
+    taxon_aaseq = {}    
+    sql = "select taxonid, alsequence from AlignedSequences where datatype=1 and almethod=" + alignment_methodid.__str__()       
+    cur.execute(sql)
+    x = cur.fetchall()
+    for ii in x:
+        taxonid = ii[0]
+        sequence = ii[1]
+        if context["firstseq"] == None:
+            context["firstseq"] = sequence
+        sql = "select fullname from Taxa where id=" + taxonid.__str__()
+        cur.execute(sql)
+        fullname = cur.fetchone()[0]
+        taxon_aaseq[ fullname ] = sequence
+    context["taxon_aaseq"] = taxon_aaseq
+
+
+    """Fill codon taxon_seq (optional)"""
+    taxon_codonseq = {}    
+    sql = "select taxonid, alsequence from AlignedSequences where datatype=0 and almethod=" + alignment_methodid.__str__()       
+    cur.execute(sql)
+    x = cur.fetchall()
+    for ii in x:
+        taxonid = ii[0]
+        sequence = ii[1]
+        sql = "select fullname from Taxa where id=" + taxonid.__str__()
+        cur.execute(sql)
+        fullname = cur.fetchone()[0]
+        taxon_codonseq[ fullname ] = sequence    
+    context["taxon_codonseq"] = taxon_aaseq
+    
+    
+    
+    return render(request, 'libview/libview_alignment_viz.html', context)
+
 
 def view_zorro_profiles(request, alib, con):
     cur = con.cursor()
@@ -1386,7 +1453,8 @@ def view_mutations_bybranch(request, alib, con):
         if found_content == True:
             mutation_rows.append( (site, seed_site, seedsequence[site-1], this_row) )
     
-        if count_replicates > phylomodelid_name.keys().__len__():
+        """This classifies as 'strong' support"""
+        if count_replicates > (phylomodelid_name.keys()-1).__len__():
             (anc1state, anc1pp) = ancid_site_statepp[ matched_ancestors[0][0] ][site]
             (anc2state, anc2pp) = ancid_site_statepp[ matched_ancestors[0][1] ][site]
             tuple = (site,seed_site, anc1state, anc2state, count_replicates)

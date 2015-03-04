@@ -1,6 +1,5 @@
 body {
 background-color: #f0f0f0;
-/*background-color: #e5e5e5;*/
 width: 75%;
 margin: auto;
 font-family: sans-serif;
@@ -10,7 +9,8 @@ line-height: 140%;
 .buttontext {
 color: #0066ff;
 text-decoration: none;
-cursor: pointer;}
+cursor: pointer;
+}
 
 a:link {
 text-decoration: none;
@@ -38,8 +38,9 @@ color: #0066ff;
 cursor: pointer;    
 }
 
-p{ color: #444444; 
-	font-size: 12pt;
+p{ 
+color: #444444; 
+font-size: 12pt;
 }
 
 h1{ /* Big titles */
@@ -197,4 +198,15 @@ a.tooltip span
 {
     border-radius:4px;
     box-shadow: 5px 5px 8px #CCC;
+}
+
+/* The scrollable table for viewing sequence alignments */
+.table-wrapper { 
+    overflow-x:scroll;
+    overflow-y:visible;
+    width:100%;
+}
+th:first-child {
+    position: fixed;
+    left: 5px
 }
