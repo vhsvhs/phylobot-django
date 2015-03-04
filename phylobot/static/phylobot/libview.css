@@ -206,7 +206,3 @@ a.tooltip span
     overflow-y:visible;
     width:100%;
 }
-th:first-child {
-    position: fixed;
-    left: 5px
-}
