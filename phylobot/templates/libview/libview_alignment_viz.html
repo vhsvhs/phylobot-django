@@ -1,0 +1,27 @@
+{% extends "libview/libview_base.html" %}
+
+{% block body %}
+
+<div style="width: 100%; overflow: hidden;">
+	<div style="float: left; width=200px;">
+		<h3>hello</h3>
+	</div>		
+	<div style=""margin-left: 200px; overflow-x:scroll; overflow:auto; width:100%;">
+		<table>
+			<tr>
+			{% for residue in firstseq %}
+				<td>{{forloop.counter}}</td>
+			{% endfor %}
+			</tr>
+	
+			{% for taxon, seq in taxon_aaseq.items %}
+			<tr>
+				{% for residue in seq %}<td>{{residue}}</td>{% endfor %}
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+
+
+{% endblock %}
