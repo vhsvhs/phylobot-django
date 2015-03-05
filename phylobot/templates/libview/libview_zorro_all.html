@@ -1,0 +1,65 @@
+{% extends "libview/libview_base.html" %}
+
+{% block head %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script><script type="text/javascript">
+google.load("visualization", "1.1", {packages:["corechart", "line"]});
+google.setOnLoadCallback(drawChart);
+
+function drawChart() {
+
+	{% for data in zorro_tuples %}
+
+		var data{{data.0}} = google.visualization.arrayToDataTable([
+		['Site', 'ZORRO Score', {role:'style'}],
+		{% for tuple in data.2 %}
+			{% if tuple.0 != data.0 %}	[ {{tuple.0}}, {{tuple.1}}, '#1E90FF'],
+			{% else %} [ {{tuple.0}}, {{tuple.1}}, '#1E90FF']
+			{% endif %}
+		{% endfor %}
+		]);
+		
+		var options{{data.0}} = {
+		  title: '{{data.0}}',
+		  titleTextStyle: {fontSize:18, color: '#444444'},
+		  textStyle:{fontSize: 11},
+		  vAxis: {
+		  	title: 'ZORRO Score',  
+		  	titleTextStyle: {color: 'black', fontName:'Helvetica',fontSize:'12pt'}
+		  	},
+		  orientation: 'horizontal',
+		  backgroundColor: '#f0f0f0',
+		  bar:{groupWidth: '90%'},
+		
+		  hAxis: {
+		      title: 'Sites in {{data.0}}',
+		      textStyle:{fontSize:11}
+		  },
+		  vAxis: {
+		      title: 'ZORRO Score',
+		      textStyle:{fontSize:15}
+		  },
+		  legend: { position: "none" }
+		};
+		
+		var chart{{data.0}} = new google.visualization.BarChart(document.getElementById('chart_div_{{data.0}}'));
+		chart{{data.0}}.draw(data{{data.0}}, options{{data.0}});
+	
+	{% endfor %}
+
+};
+
+</script>
+{% endblock %}
+
+{% block body %}
+
+<h3>Alignment Support Summary</h3>
+<p>ZORRO scores were calculated for every site in each alignment.</p>
+<div align="center">
+	{% for data in zorro_tuples %}
+	<div id="chart_div_{{data.0}}" style="width: 100%; height: 200px;"></div>
+	{% endfor %}
+
+</div>
+
+{% endblock %}
