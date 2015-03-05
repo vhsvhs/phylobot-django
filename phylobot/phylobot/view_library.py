@@ -1455,7 +1455,7 @@ def view_mutations_bybranch(request, alib, con):
     
         """This classifies as 'strong' support"""
         #if count_replicates > ( phylomodelid_name.keys().__len__()-1):
-        if count_replicates > 0:
+        if count_replicates > 2:
             (anc1state, anc1pp) = ancid_site_statepp[ matched_ancestors[0][0] ][site]
             (anc2state, anc2pp) = ancid_site_statepp[ matched_ancestors[0][1] ][site]
             tuple = (site,seed_site, anc1state, anc2state, count_replicates)
