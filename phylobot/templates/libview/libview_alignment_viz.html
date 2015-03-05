@@ -214,34 +214,40 @@ document.addEventListener('readystatechange', function() {
 
 {% block body %}
 
-<div width=100% align="center">
-<form action="">
-	<p>Color by:	
-	<input type="checkbox" id="colH" onclick="colorHydro();">hydrophobicity
-	<input type="checkbox" id="colM" onclick="colorMass();">mass
-	<input type="checkbox" id="colP" onclick="colorPolarity();">polarity
-	</p>
-</form>
-<table>
-	<tr>
-		<td id='colkey0'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey3'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey5'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey6'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey7'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey8'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey9'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkey10'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-	</tr>
-	<tr>
-		<td id='colkeyleftlabel' align='left' class="smalltext">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td id='colkeyunits' colspan=9 align="center" class="smalltext">&nbsp;</td>
-		<td id='colkeyrightlabel' align='right' class="smalltext">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-	</tr>
-</table>
+<div style="width:100%; overflow: hidden;">
+	<div style="float: left; width=20%;">
+		<h3>Sequence Alignment {{msaname}}</h3>
+	</div>
+	<div style="margin-left:20%; width:80%" align="center">
+		<form action="">
+			<p>Color by:	
+			<input type="checkbox" id="colH" onclick="colorHydro();">hydrophobicity
+			<input type="checkbox" id="colM" onclick="colorMass();">mass
+			<input type="checkbox" id="colP" onclick="colorPolarity();">polarity
+			</p>
+		</form>
+		<table>
+			<tr>
+				<td id='colkey0'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey3'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey5'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey6'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey7'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey8'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey9'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkey10'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			</tr>
+			<tr>
+				<td id='colkeyleftlabel' align='left' class="smalltext">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td id='colkeyunits' colspan=9 align="center" class="smalltext">&nbsp;</td>
+				<td id='colkeyrightlabel' align='right' class="smalltext">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			</tr>
+		</table>
+	</div>
+
 </div>
 
 
@@ -249,7 +255,7 @@ document.addEventListener('readystatechange', function() {
 	<div style="float: left; width=20%;">
 	<p class="smalltext">&nbsp;</p>
 		<table class="alignment_table">
-			<tr><td align="left"><button onclick="showAllTaxa()">Show All Sequences</button></td></tr>
+			<tr><td align="center"><button onclick="showAllTaxa()">Show All Sequences</button></td></tr>
 	
 			{% for tuple in taxon_aaseq %}
 			<tr class="leftrowdata" id='{{tuple.0}}'><td align="right"><a onclick="hideTaxon('{{tuple.0}}'); return false;">[hide]</a> {{tuple.0}}</td></tr>

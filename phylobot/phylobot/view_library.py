@@ -490,6 +490,7 @@ def view_single_alignment(request, alib, con, alignment_method, show_these_ances
         else:
             codon_tuples.append( (name, None) )
     context["taxon_codonseq"] = codon_tuples
+    context["msaname"] = alignment_method
     
     return render(request, 'libview/libview_alignment_viz.html', context)
 
