@@ -111,13 +111,35 @@ function drawChart() {
 <hr>
 
 
-<h2>Similarity to Other Alignments</h2>
+<h2>Similarity to Other Alignments <a href="#" class="tooltip">
+			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<span align="left">
+	        	<p class="smalltext">What percentage of the residues at this site
+	        	are inferred to be a single site (i.e. homologous) in the alignments
+	        	produced by other methods? A value of 100% indicates that the existence
+	        	of site {{site}} is robust across multiple methods. Values less than 100%
+	        	indicate that other alignment methods made different homology inferences.</p>
+	    	</span>
+	    	</a></h2>
 
 <table>
 <tr>
 {% for alignment, tuples in msa_similarity_tuples.items %}	
 	<td align="center">
-		<p align="center">Similarity of Site {{site}} in '{{msaname}}'<br>to Sites in '{{alignment}}'</p>
+		<h4 align="center">Similarity of Site {{site}} in '{{msaname}}'<br>to Sites in '{{alignment}}' 
+	    	<a href="#" class="tooltip">
+			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<span align="left">
+	        	<p class="smalltext">What percentage of the residues at this site in {{msaname}}
+	        	are inferred to be a single site (i.e. homologous) in the alignments
+	        	produced by {{alignment}}? A value of 100% indicates that the existence
+	        	of site {{site}} is reproduced using the {{alignment}} method. Values less than 100%
+	        	indicate that {{alignment}} made different homology inferences for the residues at
+	        	this site.</p>
+	    	</span>
+	    	</a>
+			    </h4>
+		
 		<div id="piechart{{alignment}}" style="width: 400px; height: 200px;"></div>
 	</td>
 {% endfor %}
@@ -132,8 +154,14 @@ function drawChart() {
 	{% if forloop.counter0|divisibleby:25 %}
 		<th align="left" class="bluerow">Species</th>
 		<th colspan="3" class="bluerow">Residue at Site {{site}}<br>in '{{msaname}}'</th>
-		{% for msaname in alignment_names %}
-			<th class="bluerow">'{{msaname}}'</th>
+		{% for this_msaname in alignment_names %}
+			<th class="bluerow">{{this_msaname}}<a href="#" class="tooltip">
+			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<span align="left">
+	        	<p class="smalltext">The residue for every species at site {{site}} of the {{msaname}} alignment
+	        	can be found in the {{this_msaname}} alignment, but with a different site number.</p>
+	    	</span>
+	    	</a></th>
 		{% endfor %}		
 	{% endif %}
 
