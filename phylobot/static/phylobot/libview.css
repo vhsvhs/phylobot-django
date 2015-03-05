@@ -178,8 +178,6 @@ div{word-wrap: break-word;}
 	font-size: 200%;
 }
 
-
-
 a.tooltip {outline:none; }
 a.tooltip strong {line-height:30px;}
 a.tooltip:hover {text-decoration:none;} 
@@ -213,67 +211,92 @@ a.tooltip span
 }
 
 
-
 .aaA{
-	background-color: #FF9900;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaR{
-	background-color: #00CCCC;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaN{
-	background-color: #99CCFF;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaD{
-	background-color: #33FF99;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaC{
-	background-color: #FF9900;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaE{
-	background-color: #33FF99;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaQ{
-	background-color: #99CCFF;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaH{
-	background-color: #FFCCFF;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaI{
-	background-color: #FFFF99;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaL{
-	background-color: #FFFF99;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaK{
-	background-color: #00CCCC;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaM{
-	background-color: #FFCC99;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaF{
-	background-color: #FFCCFF;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaP{
-	background-color: #b0c4de;
+	background-color: #FFFFFF;
+	text-align: center;
+}
+.aaG{
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaS{
-	background-color: #FF9900;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaT{
-	background-color: #FF9900;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaW{
-	background-color: #FFCCFF;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaV{
-	backaground-color: #FFFF99;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaY{
-	background-color: #FFCCFF;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aaU{
-	background-color: #b0c4de;
+	background-color: #FFFFFF;
+	text-align: center;
 }
 .aa-{
 	background-color: #FFFFFF;
+	text-align: center;
 }
+

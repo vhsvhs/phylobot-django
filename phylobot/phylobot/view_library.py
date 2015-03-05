@@ -25,12 +25,6 @@ def view_library(request, libid):
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
     
-    
-    if libid == None:
-        """What?"""
-        context = get_base_context(request, None, con)
-        return render(request, 'libview/no_library.html', context)
-
     libid = libid.split("/")[0]
     
     """Does libid exist in our known libraries?"""
@@ -107,10 +101,23 @@ def view_library(request, libid):
         return view_zorro_profiles(request, alib, con)
     
     elif request.path_info.endswith("alignment"):
-        print "110:", request.path_info
         tokens = request.path_info.split("/")
         alignment_method = tokens[   tokens.__len__()-2  ]
-        return view_single_alignment(request, alib, con, alignment_method)
+        
+        """The use may have optionally specified some ancestral sequences to overlay in this alignment view."""
+        cur = con.cursor()
+        show_ancestral_ids = []
+        tk = tokens[ tokens.__len__()-1 ]
+        tks = tk.split(".")
+        if tks.__len__() > 1:
+            for t in range(0, tks.__len__()-1):
+                ancid = int( tks[t] )
+                sql = "select count(*) from Ancestors where id=" + ancid.__str__()
+                cur.execute(sql)
+                x = cur.fetchone()[0]
+                if x > 0:
+                    show_ancestral_ids.append( ancid )
+        return view_single_alignment(request, alib, con, alignment_method, show_these_ancestors=show_ancestral_ids)
     
     elif request.path_info.endswith("supportbysite.xls"):
         return view_ancestor_supportbysitexls(request, alib, con)
@@ -381,8 +388,11 @@ def view_alignments(request, alib, con):
     
     return render(request, 'libview/libview_alignments.html', context)
 
-def view_single_alignment(request, alib, con, alignment_method):
-    """alignment_method can be either the ID or the name of the method"""
+def view_single_alignment(request, alib, con, alignment_method, show_these_ancestors=[]):
+    """alignment_method can be either the ID or the name of the method
+        show_these_ancestors is a list of ancestral IDs that may, optionally, be shown
+        above the alignment.
+    """
     cur = con.cursor()
     
     """Which alignment method?"""
@@ -407,6 +417,14 @@ def view_single_alignment(request, alib, con, alignment_method):
     context = get_base_context(request, alib, con)
     context["firstseq"] = None
     
+    """Get a list of taxon IDs, in order"""
+    sql = "select fullname from Taxa"
+    cur.execute(sql)
+    x = cur.fetchall()
+    taxanames = []
+    for ii in x:
+        taxanames.append( ii[0].__str__() )
+    
     """Fill a.a. taxon_seq"""
     taxon_aaseq = {}    
     sql = "select taxonid, alsequence from AlignedSequences where datatype=1 and almethod=" + alignment_methodid.__str__()       
@@ -420,8 +438,30 @@ def view_single_alignment(request, alib, con, alignment_method):
         sql = "select fullname from Taxa where id=" + taxonid.__str__()
         cur.execute(sql)
         fullname = cur.fetchone()[0]
-        taxon_aaseq[ fullname ] = sequence
-    context["taxon_aaseq"] = taxon_aaseq
+        taxon_aaseq[ fullname ] = sequence  
+
+    aa_tuples = []
+    for ancid in show_these_ancestors:
+        ancseq = get_ml_sequence(con, ancid, skip_indels=False)
+        
+        ancname = ""
+        sql = "select name from Ancestors where id=" + ancid.__str__()
+        cur.execute(sql)
+        x = cur.fetchone()
+        if x!=None:
+            ancname = x[0].__str__()
+        
+        modelname = ""
+        sql = "select name from PhyloModels where modelid in (select phylomodel from Ancestors where id=" + ancid.__str__() + ")"
+        cur.execute(sql)
+        x = cur.fetchone()
+        if x != None:
+            modelname = x[0]
+        
+        aa_tuples.append( ("Ancestor " + ancname + " (" + modelname + ")" , ancseq) )
+    for name in taxanames:
+        aa_tuples.append( (name, taxon_aaseq[name]) )     
+    context["taxon_aaseq"] = aa_tuples
 
 
     """Fill codon taxon_seq (optional)"""
@@ -435,10 +475,21 @@ def view_single_alignment(request, alib, con, alignment_method):
         sql = "select fullname from Taxa where id=" + taxonid.__str__()
         cur.execute(sql)
         fullname = cur.fetchone()[0]
-        taxon_codonseq[ fullname ] = sequence    
-    context["taxon_codonseq"] = taxon_aaseq
-    
-    
+        taxon_codonseq[ fullname ] = sequence   
+    codon_tuples = []
+    for ancid in show_these_ancestors:
+        sql = "select name from Ancestors where id=" + ancid.__str__()
+        cur.execute(sql)
+        x = cur.fetchone()
+        if x!=None:
+            ancname = x[0].__str__()
+            codon_tuples.append( (ancname,None) )
+    for name in taxanames:
+        if name in taxon_codonseq:
+            codon_tuples.append( (name, taxon_codonseq[name]) )   
+        else:
+            codon_tuples.append( (name, None) )
+    context["taxon_codonseq"] = codon_tuples
     
     return render(request, 'libview/libview_alignment_viz.html', context)
 
@@ -626,7 +677,7 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
-def get_ml_sequence(con, ancid):
+def get_ml_sequence(con, ancid, skip_indels=True):
     cur = con.cursor()
     sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
     cur.execute(sql)
@@ -638,16 +689,18 @@ def get_ml_sequence(con, ancid):
     for ii in x:
         site = ii[0]
         state = ii[1]
-        if state == "-":
+        pp = float(ii[2])
+        if state == "-" and skip_indels==True:
             continue
-        pp = ii[2]
-        if site not in site_state:
+        elif state == "-" and skip_indels==False:
+            site_state[site] = "-"
+        elif site not in site_state:
             site_state[site] = state
             site_mlpp[site] = pp
-        if pp > site_mlpp[site]:
+        elif pp > site_mlpp[site]:
             site_state[site] = state
-            site_mlpp[site] = pp
-    
+            site_mlpp[site] = pp            
+
     sites = site_state.keys()
     sites.sort()
     mlseq = ""
