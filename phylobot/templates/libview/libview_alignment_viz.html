@@ -1,32 +1,250 @@
 {% extends "libview/libview_base.html" %}
 
+{% block head %}
+
+<script type="text/javascript">
+var aa_hydro = {};
+aa_hydro["A"] = 1.8;
+aa_hydro["R"] = -4.5;
+aa_hydro["N"] = -3.5;
+aa_hydro["D"] = -3.5;
+aa_hydro["C"] = 2.5;
+aa_hydro["E"] = -3.5;
+aa_hydro["Q"] = -3.5;
+aa_hydro["G"] = -0.4;
+aa_hydro["H"] = -3.2;
+aa_hydro["I"] = 4.5;
+aa_hydro["L"] = 3.8;
+aa_hydro["K"] = -3.9;
+aa_hydro["M"] = 1.9;
+aa_hydro["F"] = 2.8;
+aa_hydro["P"] = -1.6;
+aa_hydro["S"] = -0.8;
+aa_hydro["T"] = -0.7;
+aa_hydro["W"] = -0.9;
+aa_hydro["Y"] = -1.3;
+aa_hydro["V"] = 4.2;
+var max_hydro = 4.5;
+var min_hydro = -4.5
+
+var aa_mass = {};
+aa_mass["A"] = 71;
+aa_mass["R"] = 516;
+aa_mass["N"] = 114;
+aa_mass["D"] = 115;
+aa_mass["C"] = 103;
+aa_mass["E"] = 128;
+aa_mass["Q"] = 129;
+aa_mass["G"] = 57;
+aa_mass["H"] = 137;
+aa_mass["I"] = 113;
+aa_mass["L"] = 113;
+aa_mass["K"] = 128;
+aa_mass["M"] = 131;
+aa_mass["F"] = 147;
+aa_mass["P"] = 97;
+aa_mass["S"] = 87;
+aa_mass["T"] = 101;
+aa_mass["W"] = 186;
+aa_mass["Y"] = 163;
+aa_mass["V"] = 99;
+var max_mass = 147;
+var min_mass = 57;
+
+var aa_pol = {};
+aa_pol["A"] = 9;
+aa_pol["R"] = 15;
+aa_pol["N"] = 16;
+aa_pol["D"] = 19;
+aa_pol["C"] = 7;
+aa_pol["E"] = 17;
+aa_pol["Q"] = 18;
+aa_pol["G"] = 11;
+aa_pol["H"] = 10;
+aa_pol["I"] = 1;
+aa_pol["L"] = 3;
+aa_pol["K"] = 20;
+aa_pol["M"] = 5;
+aa_pol["F"] = 2;
+aa_pol["P"] = 13;
+aa_pol["S"] = 14;
+aa_pol["T"] = 12;
+aa_pol["W"] = 6;
+aa_pol["Y"] = 8;
+aa_pol["V"] = 4;
+var max_pol = 20;
+var min_pol = 1;
+
+function setup_color_key(){
+	document.getElementById('colkey0').style.backgroundColor = get_color_for_pct(0.0);	
+	document.getElementById('colkey1').style.backgroundColor = get_color_for_pct(0.1);
+	document.getElementById('colkey2').style.backgroundColor = get_color_for_pct(0.2);
+	document.getElementById('colkey3').style.backgroundColor = get_color_for_pct(0.3);
+	document.getElementById('colkey4').style.backgroundColor = get_color_for_pct(0.4);
+	document.getElementById('colkey5').style.backgroundColor = get_color_for_pct(0.5);
+	document.getElementById('colkey6').style.backgroundColor = get_color_for_pct(0.6);
+	document.getElementById('colkey7').style.backgroundColor = get_color_for_pct(0.7);
+	document.getElementById('colkey8').style.backgroundColor = get_color_for_pct(0.8);
+	document.getElementById('colkey9').style.backgroundColor = get_color_for_pct(0.9);
+	document.getElementById('colkey10').style.backgroundColor = get_color_for_pct(1.0);
+}
+
+function showTaxon(id) {
+    document.getElementById(id).style.display = '';
+	document.getElementById(id.concat('right')).style.display = '';
+}
+function hideTaxon(id) {
+    document.getElementById(id).style.display = 'none';
+    document.getElementById(id.concat('right')).style.display = 'none';
+    document.getElementById("showAllTaxaButton").style.display = '';
+}
+function showAllTaxa(){
+	var elements = document.getElementsByClassName("leftrowdata");
+	for(var i=0; i<elements.length; i++) {
+    	elements[i].style.display = '';
+	}
+}
+
+function get_color_for_pct(pct){
+	var start = 0;
+	var end = 120;
+    b = end*pct;
+    c = b+start;
+
+    //Return a CSS HSL string
+    return 'hsl('+c+',100%,50%)';
+}
+
+function get_hydrocolor(residue){
+	var pct = (aa_hydro[residue] - min_hydro)/(max_hydro - min_hydro);
+	return get_color_for_pct(pct);
+}
+
+function get_masscolor(residue){
+	var pct = (aa_mass[residue] - min_mass)/(max_mass - min_mass);
+	return get_color_for_pct(pct);	
+}
+
+function get_polaritycolor(residue){
+	var pct = (aa_pol[residue] - min_pol)/(max_pol - min_pol);
+	return get_color_for_pct(pct);
+}
+
+function colorHydro(){
+	
+	for (var aa in aa_hydro){
+		var this_color = get_hydrocolor(aa)
+		var elements = document.getElementsByClassName("aa".concat(aa));
+		for(var i=0; i<elements.length; i++) {
+	    	elements[i].style.backgroundColor = this_color;
+		}
+	}
+	var colM = document.getElementById("colM")
+	colM.checked = false;
+	var colP = document.getElementById("colP")
+	colP.checked = false;
+	
+	document.getElementById('colkeyleftlabel').innerHTML = min_hydro;
+	document.getElementById('colkeyrightlabel').innerHTML = max_hydro;
+	document.getElementById('colkeyunits').innerHTML = "hydropathy index";
+	setup_color_key()
+}
+
+
+function colorMass(){
+	
+	for (var aa in aa_mass){
+		var this_color = get_masscolor(aa)
+		var elements = document.getElementsByClassName("aa".concat(aa));
+		for(var i=0; i<elements.length; i++) {
+	    	elements[i].style.backgroundColor = this_color;
+		}
+	}
+	var colH = document.getElementById("colH")
+	colH.checked = false;
+	var colP = document.getElementById("colP")
+	colP.checked = false;
+
+	document.getElementById('colkeyleftlabel').innerHTML = min_mass;
+	document.getElementById('colkeyrightlabel').innerHTML = max_mass;
+	document.getElementById('colkeyunits').innerHTML = "molecular mass g/mol";
+	setup_color_key()
+}
+
+function colorPolarity(){
+	
+	for (var aa in aa_pol){
+		var this_color = get_polaritycolor(aa)
+		var elements = document.getElementsByClassName("aa".concat(aa));
+		for(var i=0; i<elements.length; i++) {
+	    	elements[i].style.backgroundColor = this_color;
+		}
+	}
+	var colH = document.getElementById("colH")
+	colH.checked = false;
+	var colM = document.getElementById("colM")
+	colM.checked = false;
+	
+	document.getElementById('colkeyleftlabel').innerHTML = min_pol;
+	document.getElementById('colkeyrightlabel').innerHTML = max_pol;
+	document.getElementById('colkeyunits').innerHTML = "rank of polarity";
+	setup_color_key()
+}
+
+</script>
+
+{% endblock %}
+
 {% block body %}
 
+<div width=100% align="center">
+<p>Color by:
+	<form action="">
+		<input type="checkbox" id="colH" onclick="colorHydro();">hydrophobicity
+		<input type="checkbox" id="colM" onclick="colorMass();">mass
+		<input type="checkbox" id="colP" onclick="colorPolarity();">polarity
+	</form>
+</p>
 
-<div style="width: 100%; overflow: hidden;">
-	
+<table>
+	<tr>
+		<td id='colkey0'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey3'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey5'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey6'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey7'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey8'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey9'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkey10'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	</tr>
+	<tr>
+		<td id='colkeyleftlabel' align='left' class="smalltext">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td id='colkeyunits' colspan=9 align="center" class="smalltext">&nbsp;</td>
+		<td id='colkeyrightlabel' align='right' class="smalltext">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	</tr>
+</table>
+</div>
+
+<div style="width:100%; overflow: hidden;">
 
 
 	<div style="float: left; width=40%;">
-		<p>&nbsp;</p>		
-		<div>
-		
+	<p>&nbsp;</p>
 			<table class="alignment_table">
-				<tr><td align="center">Sequence</td></tr>
+				<tr><td align="left"><button onclick="showAllTaxa()">Show All Sequences</button></td></tr>
 		
 				{% for taxon, seq in taxon_aaseq.items %}
-				<tr><td>{{taxon}}</td></tr>
+				<tr class="leftrowdata" id='{{taxon}}'><td align="right"><a onclick="hideTaxon('{{taxon}}'); return false;">[hide]</a> {{taxon}}</td></tr>
 				{% endfor %}
 			</table>
-		</div>
 	</div>		
-	
-	
 
-	<div style=""margin-left: 200px; width:60%">	
+	<div style="margin-left: 200px; width:100%">	
 		<p align="center">Scroll left/right to see more sites.</p>		
 		<div style="overflow-x:scroll; overflow:auto; width="60%; background-color: #FFFFFF;">
-	
 	
 			<table class="alignment_table">
 				<tr>
@@ -36,7 +254,7 @@
 				</tr>
 		
 				{% for taxon, seq in taxon_aaseq.items %}
-				<tr>{% for residue in seq %}<td class="aa{{residue}}">{{residue}}</td>{% endfor %}</tr>
+				<tr class="rightrowdata" id='{{taxon}}right'>{% for residue in seq %}<td class="aa{{residue}}">{{residue}}</td>{% endfor %}</tr>
 				{% endfor %}
 			</table>
 		</div>

@@ -114,7 +114,7 @@ hr {
   	float: right;
 }
 
-p, input, td{
+p, input{
 	font-size: 11pt;
 	line-height: 140%;
 }

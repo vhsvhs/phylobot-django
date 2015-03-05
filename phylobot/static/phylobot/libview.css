@@ -207,9 +207,12 @@ a.tooltip span
     width:100%;
 }
 
-.alignment_table{
-	font-size: 10pt;
+
+.leftrowdata, .rightrowdata{
+	font-size: 8pt;
 }
+
+
 
 .aaA{
 	background-color: #FF9900;
