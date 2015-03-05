@@ -513,6 +513,14 @@ def view_library_trees(request, alib, con):
         else:
             alpha = alpha[0]
         
+        sql = "select pp from TreePP where mltreeid=" + treeid.__str__()
+        cur.execute(sql)
+        pp = cur.fetchone()
+        if pp == None:
+            pp = "n/a"
+        else:
+            pp = float(pp[0])
+        
         """Get sum of branch lengths"""
         sql = "select newick from UnsupportedMlPhylogenies where id=" + treeid.__str__()
         cur.execute(sql)
@@ -521,7 +529,7 @@ def view_library_trees(request, alib, con):
         t.read_from_string(newick, "newick")
         sumbranches = t.length()
         
-        tuple = (almethodname, phylomodelname, likelihood, 0.0, alpha, sumbranches)
+        tuple = (almethodname, phylomodelname, likelihood, pp, alpha, sumbranches)
         
         tree_tuples.append(tuple)
     context["tree_tuples"] = tree_tuples
