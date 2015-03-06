@@ -111,12 +111,14 @@ def view_library(request, libid):
         tks = tk.split(".")
         if tks.__len__() > 1:
             for t in range(0, tks.__len__()-1):
-                ancid = int( tks[t] )
-                sql = "select count(*) from Ancestors where id=" + ancid.__str__()
+                nodenumber = int(tks[t])
+                sql = "select id from Ancestors where name='Node" + nodenumber.__str__() + "'"
                 cur.execute(sql)
-                x = cur.fetchone()[0]
-                if x > 0:
-                    show_ancestral_ids.append( ancid )
+                x = cur.fetchone()
+                if x == None:
+                    continue
+                ancid = int( x[0] )
+                show_ancestral_ids.append( ancid )
         return view_single_alignment(request, alib, con, alignment_method, show_these_ancestors=show_ancestral_ids)
     
     elif request.path_info.endswith("supportbysite.xls"):

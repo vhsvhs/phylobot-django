@@ -75,12 +75,39 @@ aa_pol["V"] = 4;
 var max_pol = 20;
 var min_pol = 1;
 
-var HYDRO_START = 220;
-var HYDRO_END = 360;
-var MASS_START = 106;
-var MASS_END = 287;
+
+var aa_volume = {};
+aa_volume["A"] = 88.6;
+aa_volume["R"] = 173.4;
+aa_volume["N"] = 114.1;
+aa_volume["D"] = 111.1;
+aa_volume["C"] = 108.5;
+aa_volume["E"] = 138.4;
+aa_volume["Q"] = 143.8;
+aa_volume["G"] = 60.1;
+aa_volume["H"] = 153.2;
+aa_volume["I"] = 166.7;
+aa_volume["L"] = 166.7;
+aa_volume["K"] = 168.6;
+aa_volume["M"] = 162.9;
+aa_volume["F"] = 189.9;
+aa_volume["P"] = 112.7;
+aa_volume["S"] = 89.0;
+aa_volume["T"] = 116.1;
+aa_volume["W"] = 227.8;
+aa_volume["Y"] = 193.6;
+aa_volume["V"] = 140.0;
+var max_volume = 227.8;
+var min_volume = 60.1;
+
+var HYDRO_START = 247;
+var HYDRO_END = 346;
+var MASS_START = 166;
+var MASS_END = 229;
 var POLARITY_START = 43; 
-var POLARITY_END = 193;
+var POLARITY_END = 97;
+var VOLUME_START = 32;
+var VOLUME_END = 59;
 
 function setup_color_key(start, stop){
 	document.getElementById('colkey0').style.backgroundColor = get_color_for_pct(0.0, start, stop);	
@@ -138,6 +165,11 @@ function get_polaritycolor(residue){
 	return get_color_for_pct(pct, POLARITY_START, POLARITY_END);	
 }
 
+function get_volumecolor(residue){
+	var pct = (aa_volume[residue] - min_volume)/(max_volume - min_volume);
+	return get_color_for_pct(pct, VOLUME_START, VOLUME_END);	
+}
+
 function colorHydro(){
 	
 	for (var aa in aa_hydro){
@@ -153,6 +185,8 @@ function colorHydro(){
 	colM.checked = false;
 	var colP = document.getElementById("colP")
 	colP.checked = false;
+	var colV = document.getElementById("colV")
+	colV.checked = false;
 	
 	document.getElementById('colkeyleftlabel').innerHTML = min_hydro;
 	document.getElementById('colkeyrightlabel').innerHTML = max_hydro;
@@ -176,6 +210,8 @@ function colorMass(){
 	colH.checked = false;
 	var colP = document.getElementById("colP")
 	colP.checked = false;
+	var colV = document.getElementById("colV")
+	colV.checked = false;
 
 	document.getElementById('colkeyleftlabel').innerHTML = min_mass;
 	document.getElementById('colkeyrightlabel').innerHTML = max_mass;
@@ -198,6 +234,8 @@ function colorPolarity(){
 	colH.checked = false;
 	var colM = document.getElementById("colM")
 	colM.checked = false;
+	var colV = document.getElementById("colV")
+	colV.checked = false;
 
 	document.getElementById('colkeyleftlabel').innerHTML = min_pol;
 	document.getElementById('colkeyrightlabel').innerHTML = max_pol;
@@ -205,6 +243,29 @@ function colorPolarity(){
 	setup_color_key(POLARITY_START, POLARITY_END);
 }
 
+function colorVolume(){
+	
+	for (var aa in aa_pol){
+		var this_color = get_volumecolor(aa)
+		var elements = document.getElementsByClassName("aa".concat(aa));
+		for(var i=0; i<elements.length; i++) {
+	    	elements[i].style.backgroundColor = this_color;
+		}
+	}
+	var colV = document.getElementById("colV")
+	colV.checked = true;
+	var colH = document.getElementById("colH")
+	colH.checked = false;
+	var colM = document.getElementById("colM")
+	colM.checked = false;
+	var colP = document.getElementById("colP")
+	colP.checked = false;
+
+	document.getElementById('colkeyleftlabel').innerHTML = min_volume;
+	document.getElementById('colkeyrightlabel').innerHTML = max_volume;
+	document.getElementById('colkeyunits').innerHTML = "cubic angstroms";
+	setup_color_key(VOLUME_START, VOLUME_END);
+}
 
 document.addEventListener('readystatechange', function() {
     if (document.readyState === "complete") {
@@ -228,6 +289,7 @@ document.addEventListener('readystatechange', function() {
 			<input type="checkbox" id="colH" onclick="colorHydro();">hydrophobicity
 			<input type="checkbox" id="colM" onclick="colorMass();">mass
 			<input type="checkbox" id="colP" onclick="colorPolarity();">polarity
+			<input type="checkbox" id="colV" onclick="colorVolume();">volume
 			</p>
 		</form>
 		<table>

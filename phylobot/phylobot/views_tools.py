@@ -41,8 +41,6 @@ def get_msamodel_from_url(request, con, msaonly=False):
     datatoken = tokens[  tokens.__len__()-2  ]
     tokens = datatoken.split(".")
 
-    print >> sys.stderr, "44: " + tokens.__str__()
-
     if msaonly == False and tokens.__len__() < 2:
         """Then this token doesn't contain an msa.model"""
         return None
