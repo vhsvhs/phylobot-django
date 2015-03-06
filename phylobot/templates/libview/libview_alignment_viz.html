@@ -75,18 +75,25 @@ aa_pol["V"] = 4;
 var max_pol = 20;
 var min_pol = 1;
 
-function setup_color_key(){
-	document.getElementById('colkey0').style.backgroundColor = get_color_for_pct(0.0);	
-	document.getElementById('colkey1').style.backgroundColor = get_color_for_pct(0.1);
-	document.getElementById('colkey2').style.backgroundColor = get_color_for_pct(0.2);
-	document.getElementById('colkey3').style.backgroundColor = get_color_for_pct(0.3);
-	document.getElementById('colkey4').style.backgroundColor = get_color_for_pct(0.4);
-	document.getElementById('colkey5').style.backgroundColor = get_color_for_pct(0.5);
-	document.getElementById('colkey6').style.backgroundColor = get_color_for_pct(0.6);
-	document.getElementById('colkey7').style.backgroundColor = get_color_for_pct(0.7);
-	document.getElementById('colkey8').style.backgroundColor = get_color_for_pct(0.8);
-	document.getElementById('colkey9').style.backgroundColor = get_color_for_pct(0.9);
-	document.getElementById('colkey10').style.backgroundColor = get_color_for_pct(1.0);
+var HYDRO_START = 220;
+var HYDRO_END = 360;
+var MASS_START = 106;
+var MASS_END = 287;
+var POLARITY_START = 43; 
+var POLARITY_END = 193;
+
+function setup_color_key(start, stop){
+	document.getElementById('colkey0').style.backgroundColor = get_color_for_pct(0.0, start, stop);	
+	document.getElementById('colkey1').style.backgroundColor = get_color_for_pct(0.1, start, stop);
+	document.getElementById('colkey2').style.backgroundColor = get_color_for_pct(0.2, start, stop);
+	document.getElementById('colkey3').style.backgroundColor = get_color_for_pct(0.3, start, stop);
+	document.getElementById('colkey4').style.backgroundColor = get_color_for_pct(0.4, start, stop);
+	document.getElementById('colkey5').style.backgroundColor = get_color_for_pct(0.5, start, stop);
+	document.getElementById('colkey6').style.backgroundColor = get_color_for_pct(0.6, start, stop);
+	document.getElementById('colkey7').style.backgroundColor = get_color_for_pct(0.7, start, stop);
+	document.getElementById('colkey8').style.backgroundColor = get_color_for_pct(0.8, start, stop);
+	document.getElementById('colkey9').style.backgroundColor = get_color_for_pct(0.9, start, stop);
+	document.getElementById('colkey10').style.backgroundColor = get_color_for_pct(1.0, start, stop);
 }
 
 function showTaxon(id) {
@@ -96,7 +103,7 @@ function showTaxon(id) {
 function hideTaxon(id) {
     document.getElementById(id).style.display = 'none';
     document.getElementById(id.concat('right')).style.display = 'none';
-    document.getElementById("showAllTaxaButton").style.display = '';
+    document.getElementById("showAllSequencesButton").style.display = '';
 }
 function showAllTaxa(){
 	var elements = document.getElementsByClassName("leftrowdata");
@@ -109,29 +116,26 @@ function showAllTaxa(){
 	}
 }
 
-function get_color_for_pct(pct){
-	var start = 0;
-	var end = 120;
-    b = end*pct;
-    c = b+start;
+function get_color_for_pct(pct, start, stop){
+    c = start+(stop-start)*pct;
 
     //Return a CSS HSL string
-    return 'hsl('+c+',100%,50%)';
+    return 'hsl('+c+',100%,68%)';
 }
 
 function get_hydrocolor(residue){
 	var pct = (aa_hydro[residue] - min_hydro)/(max_hydro - min_hydro);
-	return get_color_for_pct(pct);
+	return get_color_for_pct(pct, HYDRO_START, HYDRO_END);
 }
 
 function get_masscolor(residue){
 	var pct = (aa_mass[residue] - min_mass)/(max_mass - min_mass);
-	return get_color_for_pct(pct);	
+	return get_color_for_pct(pct, MASS_START, MASS_END);	
 }
 
 function get_polaritycolor(residue){
 	var pct = (aa_pol[residue] - min_pol)/(max_pol - min_pol);
-	return get_color_for_pct(pct);
+	return get_color_for_pct(pct, POLARITY_START, POLARITY_END);	
 }
 
 function colorHydro(){
@@ -153,7 +157,7 @@ function colorHydro(){
 	document.getElementById('colkeyleftlabel').innerHTML = min_hydro;
 	document.getElementById('colkeyrightlabel').innerHTML = max_hydro;
 	document.getElementById('colkeyunits').innerHTML = "hydropathy index";
-	setup_color_key()
+	setup_color_key(HYDRO_START, HYDRO_END);
 }
 
 
@@ -175,8 +179,8 @@ function colorMass(){
 
 	document.getElementById('colkeyleftlabel').innerHTML = min_mass;
 	document.getElementById('colkeyrightlabel').innerHTML = max_mass;
-	document.getElementById('colkeyunits').innerHTML = "molecular mass g/mol";
-	setup_color_key()
+	document.getElementById('colkeyunits').nnerHTML = "molecular mass g/mol";
+	setup_color_key(MASS_START, MASS_END);
 }
 
 function colorPolarity(){
@@ -198,7 +202,7 @@ function colorPolarity(){
 	document.getElementById('colkeyleftlabel').innerHTML = min_pol;
 	document.getElementById('colkeyrightlabel').innerHTML = max_pol;
 	document.getElementById('colkeyunits').innerHTML = "rank of polarity";
-	setup_color_key()
+	setup_color_key(POLARITY_START, POLARITY_END);
 }
 
 
@@ -255,7 +259,7 @@ document.addEventListener('readystatechange', function() {
 	<div style="float: left; width=20%;">
 	<p class="smalltext">&nbsp;</p>
 		<table class="alignment_table">
-			<tr><td align="center"><button onclick="showAllTaxa()">Show All Sequences</button></td></tr>
+			<tr class="smalltext"><td align="center">&nbsp;<button onclick="showAllTaxa()" style="display:none;" id="showAllSequencesButton">Show All Sequences</button></td></tr>
 	
 			{% for tuple in taxon_aaseq %}
 			<tr class="leftrowdata" id='{{tuple.0}}'><td align="right"><a onclick="hideTaxon('{{tuple.0}}'); return false;" style="color: #0066ff;">[hide]</a> {{tuple.0}}</td></tr>
@@ -263,14 +267,14 @@ document.addEventListener('readystatechange', function() {
 		</table>
 	</div>		
 
-	<div style="margin-left:20%; width:80%">	
-		<p align="right" class="smalltext" style="color: #0066ff;">&#10140; Scroll to see more sites &#10140;</p>		
+	<div style="margin-left:20%; width:80%">
+		<p align="right" class="smalltext">&#10140; Scroll over alignment to see more sites &#10140;</p>		
 		<div style="overflow-x:scroll; overflow:auto; width="60%; background-color: #FFFFFF;">
 	
 			<table class="alignment_table">
-				<tr>
+				<tr class="smalltext">
 				{% for residue in firstseq %}
-					<td>{{forloop.counter}}</td>
+					<td><a href="/{{alid}}/{{msaname}}/site{{forloop.counter}}">{{forloop.counter}}</a></td>
 				{% endfor %}
 				</tr>
 		
