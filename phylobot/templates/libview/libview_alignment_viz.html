@@ -48,7 +48,7 @@ aa_mass["T"] = 101;
 aa_mass["W"] = 186;
 aa_mass["Y"] = 163;
 aa_mass["V"] = 99;
-var max_mass = 186;
+var max_mass = 516;
 var min_mass = 57;
 
 var aa_pol = {};
@@ -179,7 +179,7 @@ function colorMass(){
 
 	document.getElementById('colkeyleftlabel').innerHTML = min_mass;
 	document.getElementById('colkeyrightlabel').innerHTML = max_mass;
-	document.getElementById('colkeyunits').nnerHTML = "molecular mass g/mol";
+	document.getElementById('colkeyunits').innerHTML = "molecular mass g/mol";
 	setup_color_key(MASS_START, MASS_END);
 }
 
