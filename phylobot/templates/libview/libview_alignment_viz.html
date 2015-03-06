@@ -258,7 +258,7 @@ document.addEventListener('readystatechange', function() {
 			<tr><td align="center"><button onclick="showAllTaxa()">Show All Sequences</button></td></tr>
 	
 			{% for tuple in taxon_aaseq %}
-			<tr class="leftrowdata" id='{{tuple.0}}'><td align="right"><a onclick="hideTaxon('{{tuple.0}}'); return false;">[hide]</a> {{tuple.0}}</td></tr>
+			<tr class="leftrowdata" id='{{tuple.0}}'><td align="right"><a onclick="hideTaxon('{{tuple.0}}'); return false;" style="color: #0066ff;">[hide]</a> {{tuple.0}}</td></tr>
 			{% endfor %}
 		</table>
 	</div>		
