@@ -17,11 +17,7 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
-    os.path.join(BASE_DIR, 'allauth/templates'),
-    '/phylobot/allauth/templates'
-    '/phylobot-django/phylobot/allauth/templates'
 )
-
 
 """ stuff for django-allauth"""
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -49,12 +45,6 @@ ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = True
 ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
-# SOCIALACCOUNT_PROVIDERS = {
-#     'facebook': {
-#         'SCOPE': ['email', 'publish_stream'],
-#         'METHOD': 'js_sdk'  # instead of 'oauth2'
-#     }
-# }
 
 
 """This is a hack -- it will print authentication emails to the console,

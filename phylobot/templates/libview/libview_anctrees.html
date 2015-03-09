@@ -1,5 +1,5 @@
 {% extends "libview/libview_base.html" %}
-
+{% load staticfiles %}
 {% block head %}
 {% load staticfiles %}
 <script type="text/javascript" src="{% static "phylobot/cladogram_support/raphael-min.js" %}" ></script>
@@ -21,7 +21,7 @@
 		<h3>Select a tree:</h3>
 		<div width="100%" align="center">
 			<a href="#" class="tooltip">
-			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="20px">
+			<img src="{% static "phylobot/question_icon.png" %}" height="20px">
 			<span align="center">
 	        	<p class="smalltext">Select a maximum likelihood phylogeny (i.e. a tree) by choosing a combination of one alignment method and one evolutionary Markov model.</p>
 	    	</span>

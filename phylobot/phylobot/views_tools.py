@@ -1,6 +1,7 @@
 import os, re, sys
 from phylobot.models import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render
 
 def get_modelnames(con):
     cur = con.cursor()

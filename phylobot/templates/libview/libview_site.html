@@ -1,6 +1,7 @@
 {% extends "libview/libview_base.html" %}
-
+{% load staticfiles %}
 {% block head %}
+
 <script type="text/javascript" src="https://www.google.com/jsapi"></script><script type="text/javascript">
 google.load("visualization", "1.1", {packages:["corechart", "line"]});
 google.setOnLoadCallback(drawChart);
@@ -112,7 +113,7 @@ function drawChart() {
 
 
 <h2>Similarity to Other Alignments <a href="#" class="tooltip">
-			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span align="left">
 	        	<p class="smalltext">What percentage of the residues at this site
 	        	are inferred to be a single site (i.e. homologous) in the alignments
@@ -128,7 +129,7 @@ function drawChart() {
 	<td align="center">
 		<h4 align="center">Similarity of Site {{site}} in '{{msaname}}'<br>to Sites in '{{alignment}}' 
 	    	<a href="#" class="tooltip">
-			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span align="left">
 	        	<p class="smalltext">What percentage of the residues at this site in {{msaname}}
 	        	are inferred to be a single site (i.e. homologous) in the alignments
@@ -156,7 +157,7 @@ function drawChart() {
 		<th colspan="3" class="bluerow">Residue at Site {{site}}<br>in '{{msaname}}'</th>
 		{% for this_msaname in alignment_names %}
 			<th class="bluerow">{{this_msaname}}<a href="#" class="tooltip">
-			<img src="{{STATIC_URL}}/phylobot/question_icon.png" height="15px">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span align="left">
 	        	<p class="smalltext">The residue for every species at site {{site}} of the {{msaname}} alignment
 	        	can be found in the {{this_msaname}} alignment, but with a different site number.</p>
