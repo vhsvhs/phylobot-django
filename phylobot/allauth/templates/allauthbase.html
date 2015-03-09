@@ -4,11 +4,22 @@
   <head>
     <title>{% block head_title %}{% endblock %}</title>
     {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static "phylobot/phylobot.css" %}">  
     <link rel="stylesheet" type="text/css" href="{% static "phylobot/basic.css" %}">    
     {% block extra_head %}
     {% endblock %}
   </head>
   <body>
+
+  <header>
+    {% load staticfiles %}
+    <div align="center">
+  	<a href="../"><img src="{% static 'phylobot/phylobot_bot.png' %}" width="150px" style="padding-top:30px"></a>
+	</div>
+  </header>
+
+
+
     {% block body %}
 
     {% if messages %}
@@ -22,18 +33,7 @@
     </div>
     {% endif %}
 
-    <div>
-      <strong>Menu:</strong>
-      <ul>
-	{% if user.is_authenticated %}
-	<li><a href="{% url 'account_email' %}">Change E-mail</a></li>
-	<li><a href="{% url 'account_logout' %}">Sign Out</a></li>
-	{% else %}
-	<li><a href="{% url 'account_login' %}">Sign In</a></li>
-	<li><a href="{% url 'account_signup' %}">Sign Up</a></li>
-	{% endif %}
-      </ul>
-    </div>
+    
     {% block content %}
     {% endblock %}
     {% endblock %}
