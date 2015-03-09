@@ -124,6 +124,7 @@ def perform_login(request, user, email_verification,
     if not user.is_active:
         return HttpResponseRedirect(reverse('account_inactive'))
     get_adapter().login(request, user)
+        
     response = HttpResponseRedirect(
         get_login_redirect_url(request, redirect_url))
 

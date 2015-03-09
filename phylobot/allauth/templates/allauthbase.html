@@ -3,6 +3,8 @@
 <html>
   <head>
     <title>{% block head_title %}{% endblock %}</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static "phylobot/basic.css" %}">    
     {% block extra_head %}
     {% endblock %}
   </head>

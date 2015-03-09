@@ -38,8 +38,13 @@ AUTHENTICATION_BACKENDS = (
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 )
-LOGIN_REDIRECT_URL = '/'
+ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_EMAIL_REQUIRED = True
+LOGIN_REDIRECT_URL = '/portal/'
 SOCIALACCOUNT_QUERY_EMAIL = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAY = 3
 # SOCIALACCOUNT_PROVIDERS = {
 #     'facebook': {
 #         'SCOPE': ['email', 'publish_stream'],
@@ -47,6 +52,10 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 #     }
 # }
 
+
+"""This is a hack -- it will print authentication emails to the console,
+    rather than actually sending emaiils."""
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #DJANGO_SETTINGS_MODULE = 'phylobot.settings'
 

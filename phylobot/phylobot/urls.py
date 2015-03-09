@@ -16,19 +16,19 @@ urlpatterns = patterns('',
  	(r'^admin/', include(admin.site.urls)),
 # 	(r'^login/$', 'django.contrib.auth.views.login'),
 #   (r'^logout/$', views.logout_page),
-# 	(r'^contact/$', views.contact),
+ 	(r'^contact/$', views.contact),
 # 	(r'^blog/$', views.blog),
-# 	(r'^abou	t/$', views.about),
+ 	(r'^about/$', views.about),
 # 	(r'^register/$', views.register), # ADD NEW PATTERN!
-# 	(r'^examples/$', views.examples),
-# 	(r'^overview/$', views.overview),
+ 	(r'^examples/$', views.examples),
+ 	(r'^overview/$', views.overview),
 #  	
-# 	(r'^portal/', include('portal.urls')),
-# 	(r'^status*', include('portal.urls')),	
+ 	(r'^portal/', include('portal.urls')),
+ 	(r'^status*', include('portal.urls')),	
 #  
 # 	#Note: the method named 'view_library' performs further URL dispatching.
 # 	#	In the future, that code should be moved to this urls.py file."""
-# 	(r'^(.*)/.*$', view_library),	
-# 	(r'^(.*)$', view_library),
+ 	(r'^(.*)/.*$', view_library),	
+ 	(r'^(.*)$', view_library),
 
 )

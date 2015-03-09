@@ -101,6 +101,8 @@ class DefaultAccountAdapter(object):
         msg.send()
 
     def get_login_redirect_url(self, request):
+        print "104 - login_redirect"
+        
         """
         Returns the default URL to redirect to after logging in.  Note
         that URLs passed explicitly (e.g. by passing along a `next`

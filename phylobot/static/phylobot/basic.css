@@ -2,7 +2,7 @@ body{
     font-family: sans-serif;
 }
 
-.button {
+.button1 {
    border-top: 1px solid #a6d8ff;
    background: #439dd1;
    background: -webkit-gradient(linear, left top, left bottom, from(#05bcff), to(#439dd1));
@@ -25,12 +25,12 @@ body{
    vertical-align: middle;
    border:none;
    }
-.button:hover {
+.button1:hover {
    border-top-color: #00eb00;
    background: #00eb00;
    color: #ffffff;
    }
-.button:active {
+.button1:active {
    border-top-color: #1b435e;
    background: #1b435e;
    }
