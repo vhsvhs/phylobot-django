@@ -17,14 +17,42 @@ PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
+    os.path.join(BASE_DIR, 'allauth/templates'),
+    '/phylobot/allauth/templates'
+    '/phylobot-django/phylobot/allauth/templates'
 )
 
-DJANGO_SETTINGS_MODULE = 'phylobot.settings'
+
+""" stuff for django-allauth"""
+TEMPLATE_CONTEXT_PROCESSORS = (
+    # Required by allauth template tags
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+    # allauth specific context processors
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+)
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+LOGIN_REDIRECT_URL = '/'
+SOCIALACCOUNT_QUERY_EMAIL = True
+# SOCIALACCOUNT_PROVIDERS = {
+#     'facebook': {
+#         'SCOPE': ['email', 'publish_stream'],
+#         'METHOD': 'js_sdk'  # instead of 'oauth2'
+#     }
+# }
+
+
+#DJANGO_SETTINGS_MODULE = 'phylobot.settings'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-#STATIC_PATH = os.path.join(BASE_DIR,'static')
 STATIC_PATH = os.path.join(PROJECT_PATH,'static')
 STATIC_URL = '/static/'
 STATICFILES_DIRS= (STATIC_PATH,)
@@ -58,13 +86,26 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sites',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #'django.contrib.humanize' # this app "humanizes" dates, and some nuimbers: https://docs.djangoproject.com/en/1.7/ref/contrib/humanize/
     'phylobot',
     'portal',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+#     'allauth.socialaccount.providers.facebook',
+#     'allauth.socialaccount.providers.linkedin',
+#     'allauth.socialaccount.providers.linkedin_oauth2',
+#     'allauth.socialaccount.providers.openid',
+#     'allauth.socialaccount.providers.github',
 )
+SITE_ID = 1
+
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_AUTO_LOGIN = True
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
