@@ -1454,7 +1454,9 @@ def view_mutations_bybranch(request, alib, con):
             seed_site += 1
         
         count_replicates = 0 # how many of the columns support this mutation?
-         
+        focus_state1 = None
+        focus_state2 = None
+        
         """For each ancestor"""
         for match in matched_ancestors:
             #print "988:", match
@@ -1512,13 +1514,19 @@ def view_mutations_bybranch(request, alib, con):
                     count_replicates += 1
                     
                 this_column = ( anc1state, anc1pp.__str__(), anc2state, anc2pp.__str__(), mutation_flag, site2)
+            
+                if ancid1 == this_anc1 and ancid2 == this_anc2:
+                    focus_state1 = anc1state
+                    focus_state2 = anc2state
+            
             this_row.append(  this_column  )
         if found_content == True:
             mutation_rows.append( (site, seed_site, seedsequence[site-1], this_row) )
     
         """This classifies as 'strong' support"""
         #if count_replicates > ( phylomodelid_name.keys().__len__()-1):
-        if count_replicates > 2:
+        #if count_replicates > 2:
+        if focus_state1 != focus_state2 and count_replicates > 2:
             (anc1state, anc1pp) = ancid_site_statepp[ matched_ancestors[0][0] ][site]
             (anc2state, anc2pp) = ancid_site_statepp[ matched_ancestors[0][1] ][site]
             tuple = (site,seed_site, anc1state, anc2state, count_replicates)

@@ -65,7 +65,8 @@ MEDIA_ROOT = os.path.join(STATIC_PATH, "media")
 STATIC_MEDIA_URL = STATIC_URL + MEDIA_URL
 
 # URL of the login page.
-LOGIN_URL = '/login/'
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = 'allauth.account.login'
 
 AUTH_PROFILE_MODULE = 'phylobot.UserProfile'
 
