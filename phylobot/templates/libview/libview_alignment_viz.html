@@ -318,8 +318,17 @@ document.addEventListener('readystatechange', function() {
 
 
 <div style="width:100%; overflow: hidden;">
+
+	{# Sequence Names #}
 	<div style="float: left; width=20%;">
-	<p class="smalltext">&nbsp;</p>
+		
+		{# This <p> is empty, to match the <p> showing site numbers in the sequence content div #}
+		<p class="smalltext">&nbsp;</p>
+		
+		{% for tuple in scorerows %}
+			<p class="smalltext">{{tuple.0}}</p>
+		{% endfor %}
+		
 		<table class="alignment_table">
 			<tr class="smalltext"><td align="center">&nbsp;<button onclick="showAllTaxa()" style="display:none;" id="showAllSequencesButton">Show All Sequences</button></td></tr>
 	
@@ -329,6 +338,8 @@ document.addEventListener('readystatechange', function() {
 		</table>
 	</div>		
 
+
+	{# Sequence Content #}
 	<div style="margin-left:20%; width:80%">
 		<p align="right" class="smalltext">&#10140; Scroll over alignment to see more sites &#10140;</p>		
 		<div style="overflow-x:scroll; overflow:auto; width="60%; background-color: #FFFFFF;">
@@ -339,6 +350,15 @@ document.addEventListener('readystatechange', function() {
 					<td><a href="/{{alid}}/{{msaname}}/site{{forloop.counter}}">{{forloop.counter}}</a></td>
 				{% endfor %}
 				</tr>
+		
+
+				{% for tuple in scorerows %}
+				<tr class="smalltext">
+					{% for score in tuple.1 %}
+						<td>{[score}}</td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
 		
 				{% for tuple in taxon_aaseq %}
 				<tr class="rightrowdata" id='{{tuple.0}}right'>{% for residue in tuple.1 %}<td class="aa{{residue}}">{{residue}}</td>{% endfor %}</tr>

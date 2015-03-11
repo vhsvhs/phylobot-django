@@ -390,10 +390,15 @@ def view_alignments(request, alib, con):
     
     return render(request, 'libview/libview_alignments.html', context)
 
-def view_single_alignment(request, alib, con, alignment_method, show_these_ancestors=[]):
+def view_single_alignment(request, alib, con, alignment_method, show_these_ancestors=[], show_these_test_scores=[]):
     """alignment_method can be either the ID or the name of the method
+        
         show_these_ancestors is a list of ancestral IDs that may, optionally, be shown
         above the alignment.
+        
+        show_these_test_scores is a list of test IDs, whose scores will be displayed above
+        the alignment. The test IDs can correspond to either dN/dS tests, or dF tests.
+        
     """
     cur = con.cursor()
     
@@ -466,6 +471,27 @@ def view_single_alignment(request, alib, con, alignment_method, show_these_ances
     context["taxon_aaseq"] = aa_tuples
 
 
+    score_tuples = {}
+    for testid in show_these_test_scores:
+        sql = "select count(*) from FScore_Tests where id=" + testid.__str__()
+        cur.execute(sql)
+        x = cur.fetchone()[0]
+        if x > 0:
+            sql = "select site, df from FScore_Sites where testid=" + testid.__str__() + " order by site ASC"
+            cur.execute(sql)
+            yy = cur.fetchall()
+        else:
+            sql = "select count(*) from DNDS_Tests where id=" + testid.__str__()
+            cur.execute(sql)
+            x = cur.fetchone()[0]
+            if x > 0:
+                sql = "select site, max(pclass3, pclass4) from DNDS_params where testid=" + testid.__str__() + " order by site ASC"
+                cur.execute(sql)
+                yy = cur.fetchall()
+        score_tuples[testid] = []
+        for tuple in yy:
+            score_tuples[testid].append( tuple[1] )
+            
     """Fill codon taxon_seq (optional)"""
     taxon_codonseq = {}    
     sql = "select taxonid, alsequence from AlignedSequences where datatype=0 and almethod=" + alignment_methodid.__str__()       
@@ -493,6 +519,7 @@ def view_single_alignment(request, alib, con, alignment_method, show_these_ances
             codon_tuples.append( (name, None) )
     context["taxon_codonseq"] = codon_tuples
     context["msaname"] = alignment_method
+    context["scorerows"] = score_tuples
     return render(request, 'libview/libview_alignment_viz.html', context)
 
 
@@ -601,6 +628,7 @@ def view_library_trees(request, alib, con):
 
 def reset_all_biopython_branchlengths(root, length):
     print >> sys.stderr, "435: setting al BLs to 1.0"
+    print >> sys.stderr, "436: ", root.branch_length
     root.branch_length = length
     for child in root.clades:
         print >> sys.stderr, "437 found a child: " + child.name.__str__()
@@ -632,25 +660,26 @@ def view_library_ancestortree(request, alib, con):
         string directly from the Phylo class. In the meantime, the messy way is to write
         an XML phylogeny to the /tmp folder, and then read the contents of the file to
         get the XML string."""
-    print >> sys.stderr, "458: " + msaid.__str__() + " " + phylomodelid.__str__()
+    #print >> sys.stderr, "458: " + msaid.__str__() + " " + phylomodelid.__str__()
     handle = StringIO(newick)
-    print >> sys.stderr, "458b"
+    #print >> sys.stderr, "458b"
     tree = Phylo.read(handle, "newick")
     
     """This is a small hack to make new versions of BioPython behave with our javascript
         tree visuazliation."""
+    
     tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
     
-    print >> sys.stderr, "464:" + dir(tree).__str__()
+    #print >> sys.stderr, "464:" + dir(tree).__str__()
     
-    print >> sys.stderr, "459: " + tree.__str__()   
+    #print >> sys.stderr, "459: " + tree.__str__()   
     
     
     #
     # continue here
     #
     xmltree = tree.as_phyloxml()
-    print >> sys.stderr, "470: XMLtree=" + xmltree.__str__()
+    #print >> sys.stderr, "470: XMLtree=" + xmltree.__str__()
     Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
     fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
     xmltreelines = fin.readlines()
