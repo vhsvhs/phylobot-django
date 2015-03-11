@@ -64,11 +64,11 @@ class TaxaGroupForm(forms.ModelForm):
         super(forms.ModelForm, self).__init__(*args, **kwargs)
         self.fields["taxa"].widget = CheckboxSelectMultiple()
         self.fields["taxa"].help_text = ''
-        self.fields["taxa"].label = "Select one or more taxon"
-        self.fields["name"].label = "Create a name for this group"
+        self.fields["taxa"].label = "Select one or more sequences"
+        #self.fields["name"].label = "Create a name for this group"
     class Meta:
         model = TaxaGroup
-        fields = ('taxa','name',)
+        fields = ('taxa',)
 
 class OutgroupForm(forms.ModelForm):        
     def __init__(self, *args, **kwargs):  

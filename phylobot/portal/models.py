@@ -56,6 +56,10 @@ class TaxaGroup(models.Model):
             r += t.__str__() + ","
         r = r[0:-1]
         return r
+    
+    def clear_all(self):
+        for t in self.taxa.all():
+            self.taxa.remove(t)
 
 class Ancestor(models.Model):
     ancname = models.CharField(max_length=30)

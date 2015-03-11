@@ -1,5 +1,10 @@
 """This file contains methods that are used to compare ancestors."""
 
+import math
+
+AA_ALPHABET = ["A", "R",    "N"  , "D" ,  "C"   , "Q"   , "E"  ,  "G"    ,"H"  ,  "I"  , "L"  ,  "K"  ,  "M"   , "F"  ,  "P"  ,  "S" ,   "T" ,  "W" ,  "Y" , "V"]
+TINY = 0.001
+
 def d(ancx, ancy, method="Df"):
     """Compares a single site in ancestor x to a single site in ancestor Y.
     ancx and ancy are hashtables, with key = amino acid, value = probability of that a.a.

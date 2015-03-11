@@ -199,194 +199,202 @@ def compose2(request):
     """
     Here's the pieces needed to build the taxa setup page.
     """
-    new_taxagroup_form = []
-    anccomp_form = []
-    list_of_anccomps = []
-    newanc_form = []
-    outgroup_form = []
+#     new_taxagroup_form = []
+#     anccomp_form = []
+#     list_of_anccomps = []
+#     newanc_form = []
+#     outgroup_form = []
+    
     
     this_job = get_mr_job(request)
-    
     context = RequestContext(request)
-    
-    if request.method == 'POST':
-        
-        #
-        # This page has multiple submit forms.
-        # Here, we determine which action to take based on
-        # which 'submit' button was clicked.
-        #        
-        
-        #
-        # Add new taxa group
-        #
-        if request.POST['action'] == 'creategroup':
-            checked_taxa = request.POST.getlist('taxa')
-            new_group_name = request.POST.get('name')
-            matching_groups = this_job.settings.taxa_groups.filter(name=new_group_name)
-            if not matching_groups:
-                newgroup = TaxaGroup.objects.create(name=new_group_name, owner=request.user)
-                for taxa in this_job.settings.original_aa_file.contents.filter(id__in=checked_taxa): # for each checked taxon
-                    newgroup.taxa.add(taxa)
-                newgroup.save()
-                this_job.settings.taxa_groups.add( newgroup )
-                this_job.settings.save()
 
-        #
-        # Delete a taxagroup
-        #
-        if request.POST['action'] == 'deletegroup':
-            name_of_taxagroup = request.POST.get('taxagroup')
-            this_tg = this_job.settings.taxa_groups.get(name=name_of_taxagroup)
-            if this_job.settings.outgroup == this_tg:
-                this_job.settings.outgroup = None
-                this_job.settings.save()
-            if this_job.settings.taxa_groups.filter(id=this_tg.id).exists():
-                this_job.settings.taxa_groups.remove( this_tg )
-                this_job.settings.save()
-            if this_tg:
-                this_tg.delete()
+    outgroup_name = "outgroup"
+    matching_groups = this_job.settings.taxa_groups.filter(name=outgroup_name)
+    if not matching_groups:
+        """If this job is lacking an outgroup, then create it."""
+        newgroup = TaxaGroup.objects.create(name=outgroup_name, owner=request.user)
+        newgroup.save()
+        this_job.settings.taxa_groups.add( newgroup )
+        this_job.settings.save()
+
+    if request.method == 'POST':
+        if request.POST['action'] == 'setoutgroup':
+            checked_taxa = request.POST.getlist('taxa')
+            
+            """Remove any previously-saved taxa in the outgroup"""
+            outgroup = this_job.settings.taxa_groups.filter(name=outgroup_name)[0] 
+            outgroup.clear_all()
+            outgroup.save()
+            
+            """Save the currently-checked taxa into the outgroup"""
+            for taxa in this_job.settings.original_aa_file.contents.filter(id__in=checked_taxa): # for each checked taxon
+                outgroup.taxa.add(taxa)
+            outgroup.save()
+
+            """Save the outgroup to the Job Setting"""
+            this_job.settings.outgroup = outgroup
+            this_job.settings.save()
+
+#         #
+#         # Delete a taxagroup
+#         #
+#         if request.POST['action'] == 'deletegroup':
+#             name_of_taxagroup = request.POST.get('taxagroup')
+#             this_tg = this_job.settings.taxa_groups.get(name=name_of_taxagroup)
+#             if this_job.settings.outgroup == this_tg:
+#                 this_job.settings.outgroup = None
+#                 this_job.settings.save()
+#             if this_job.settings.taxa_groups.filter(id=this_tg.id).exists():
+#                 this_job.settings.taxa_groups.remove( this_tg )
+#                 this_job.settings.save()
+#             if this_tg:
+#                 this_tg.delete()
 
         #
         # Set the outgroup
         #
-        if request.POST['action'] == 'setoutgroup':
-            selected_taxagroup = request.POST.get('outgroup')
-            query_results = this_job.settings.taxa_groups.filter(id__in=selected_taxagroup)
-            if query_results:
-                desired_outgroup = query_results[0]
-            else:
-                desired_outgroup = None
-                                                                                
-            this_job.settings.outgroup = desired_outgroup
-            this_job.settings.save()
+#         if request.POST['action'] == 'setoutgroup':
+#             selected_taxagroup = request.POST.get('outgroup')
+#             query_results = this_job.settings.taxa_groups.filter(id__in=selected_taxagroup)
+#             if query_results:
+#                 desired_outgroup = query_results[0]
+#             else:
+#                 desired_outgroup = None
+#                                                                                 
+#             this_job.settings.outgroup = desired_outgroup
+#             this_job.settings.save()
 
-        #
-        # Create an ancestor
-        #
-        if request.POST['action'] == 'addanc':
-            new_anc_name = request.POST.get('ancname')
-            
-            selected_seed_taxon = request.POST.get('seedtaxa')
-            query_results = this_job.settings.original_aa_file.contents.filter(id=selected_seed_taxon)
-            if query_results:
-                this_seed = query_results[0]
-            else:
-                this_seed = None
-            
-            selected_ingroup = request.POST.get('ingroup')
-            query_results = this_job.settings.taxa_groups.filter(id__in=selected_ingroup)
-            if query_results:
-                this_ingroup = query_results[0]
-            else:
-                this_ingroup = None
-            
-            if this_seed != None and this_ingroup != None:
-                newanc = Ancestor.objects.get_or_create(id__in=this_job.settings.ancestors.all(),
-                                                    ancname=new_anc_name,
-                                                    seedtaxa = this_seed,
-                                                    ingroup=this_ingroup,
-                                                    outgroup=this_job.settings.outgroup)[0]
-                newanc.save()
-                this_job.settings.ancestors.add( newanc )
-                this_job.settings.save()
+#         #
+#         # Create an ancestor
+#         #
+#         if request.POST['action'] == 'addanc':
+#             new_anc_name = request.POST.get('ancname')
+#             
+#             selected_seed_taxon = request.POST.get('seedtaxa')
+#             query_results = this_job.settings.original_aa_file.contents.filter(id=selected_seed_taxon)
+#             if query_results:
+#                 this_seed = query_results[0]
+#             else:
+#                 this_seed = None
+#             
+#             selected_ingroup = request.POST.get('ingroup')
+#             query_results = this_job.settings.taxa_groups.filter(id__in=selected_ingroup)
+#             if query_results:
+#                 this_ingroup = query_results[0]
+#             else:
+#                 this_ingroup = None
+#             
+#             if this_seed != None and this_ingroup != None:
+#                 newanc = Ancestor.objects.get_or_create(id__in=this_job.settings.ancestors.all(),
+#                                                     ancname=new_anc_name,
+#                                                     seedtaxa = this_seed,
+#                                                     ingroup=this_ingroup,
+#                                                     outgroup=this_job.settings.outgroup)[0]
+#                 newanc.save()
+#                 this_job.settings.ancestors.add( newanc )
+#                 this_job.settings.save()
+#         
+#         #
+#         # Remove an ancestor
+#         #
+#         if request.POST['action'] == 'deleteancestor':
+#             name_of_ancestor = request.POST.get('ancname')
+#             this_a = this_job.settings.ancestors.get(ancname=name_of_ancestor)
+#             if this_job.settings.ancestors.filter(id=this_a.id).exists():
+#                 this_job.settings.ancestors.remove( this_a )
+#                 this_job.settings.save()
+#             if this_a:
+#                 this_a.delete()
+#         
+#         #
+#         # Add an ancestral comparison
+#         #
+#         if request.POST['action'] == 'addcomp':
+#             old_anc_id = request.POST.get('oldanc')
+#             new_anc_id = request.POST.get('newanc')
+#             
+#             this_oldanc = this_job.settings.ancestors.get(id__in=old_anc_id)
+#             this_newanc = this_job.settings.ancestors.get(id__in=new_anc_id)
+#            
+#             if this_oldanc and this_newanc:
+#                 newcomp = AncComp.objects.get_or_create(oldanc=this_oldanc, newanc=this_newanc)[0]
+#                 newcomp.save()
+#                 this_job.settings.anc_comparisons.add( newcomp )
+#                 this_job.settings.save()
+# 
+#             
+#         #
+#         # Remove an ancestral comparison
+#         #
+#         if request.POST['action'] == 'deletecomp':
+#             old_anc_id = request.POST.get('oldancid')
+#             this_olda = this_job.settings.ancestors.get(id__in=old_anc_id)
+#             new_anc_id = request.POST.get('newancid')
+#             this_newa = this_job.settings.ancestors.get(id__in=new_anc_id)
+#             if this_olda and this_newa:
+#                 this_comp = this_job.settings.anc_comparisons.filter(oldanc=this_olda, newanc=this_newa)
+#                 if this_comp:
+#                     this_job.settings.anc_comparisons.remove( this_comp )
+#                     this_comp.delete()
         
-        #
-        # Remove an ancestor
-        #
-        if request.POST['action'] == 'deleteancestor':
-            name_of_ancestor = request.POST.get('ancname')
-            this_a = this_job.settings.ancestors.get(ancname=name_of_ancestor)
-            if this_job.settings.ancestors.filter(id=this_a.id).exists():
-                this_job.settings.ancestors.remove( this_a )
-                this_job.settings.save()
-            if this_a:
-                this_a.delete()
         
-        #
-        # Add an ancestral comparison
-        #
-        if request.POST['action'] == 'addcomp':
-            old_anc_id = request.POST.get('oldanc')
-            new_anc_id = request.POST.get('newanc')
-            
-            this_oldanc = this_job.settings.ancestors.get(id__in=old_anc_id)
-            this_newanc = this_job.settings.ancestors.get(id__in=new_anc_id)
-           
-            if this_oldanc and this_newanc:
-                newcomp = AncComp.objects.get_or_create(oldanc=this_oldanc, newanc=this_newanc)[0]
-                newcomp.save()
-                this_job.settings.anc_comparisons.add( newcomp )
-                this_job.settings.save()
-
-            
-        #
-        # Remove an ancestral comparison
-        #
-        if request.POST['action'] == 'deletecomp':
-            old_anc_id = request.POST.get('oldancid')
-            this_olda = this_job.settings.ancestors.get(id__in=old_anc_id)
-            new_anc_id = request.POST.get('newancid')
-            this_newa = this_job.settings.ancestors.get(id__in=new_anc_id)
-            if this_olda and this_newa:
-                this_comp = this_job.settings.anc_comparisons.filter(oldanc=this_olda, newanc=this_newa)
-                if this_comp:
-                    this_job.settings.anc_comparisons.remove( this_comp )
-                    this_comp.delete()
-        
+     
         if request.POST['action'] == 'done':
-            #
-            # Launch the job!
-            #
             if this_job.validate():
                 """enqueue_job launches the job!"""
                 enqueue_job(request, this_job)
                 return HttpResponseRedirect('/portal/status/' + this_job.id.__str__())
             else:
                 return HttpResponseRedirect('/portal/compose2')
-    
-    """
-    Do the following stuff, regardless if it was a post or not.
-    """
+   
+    outgroup_ids = []
+    for taxon in this_job.settings.taxa_groups.filter(name=outgroup_name)[0].taxa.all():
+        outgroup_ids.append( taxon.id )
+        
+    taxon_tuples = []
+    for taxon in this_job.settings.original_aa_file.contents.all():
+        checked = False
+        if taxon.id in outgroup_ids:
+            checked = True
+        taxon_tuples.append( (taxon.name, taxon.id, checked) )
+        
 
-    list_of_taxagroups = []
-    for tg in this_job.settings.taxa_groups.all():
-        list_of_taxagroups.append( (tg.name, tg.taxa.all().__len__()) )
-
-    new_taxagroup_form = TaxaGroupForm()
-    new_taxagroup_form.fields["taxa"].queryset = this_job.settings.original_aa_file.contents.all()
+    #outgroup_taxon_form = TaxaGroupForm()
+    #outgroup_taxon_form.fields["taxa"].queryset = this_job.settings.original_aa_file.contents.all()
     
-    list_of_ancestors = []
-    for aa in this_job.settings.ancestors.all():
-        list_of_ancestors.append( aa.ancname )
+    #list_of_ancestors = []
+    #for aa in this_job.settings.ancestors.all():
+    #    list_of_ancestors.append( aa.ancname )
     
-    newanc_form = AncestorForm()
-    newanc_form.fields['ingroup'].queryset = this_job.settings.taxa_groups
-    newanc_form.fields['seedtaxa'].queryset = this_job.settings.original_aa_file.contents.all()
+    #newanc_form = AncestorForm()
+    #newanc_form.fields['ingroup'].queryset = this_job.settings.taxa_groups
+    #newanc_form.fields['seedtaxa'].queryset = this_job.settings.original_aa_file.contents.all()
     
-    anccomp_form = AncCompForm()
-    anccomp_form.fields["oldanc"].queryset = this_job.settings.ancestors.all()
-    anccomp_form.fields["newanc"].queryset = this_job.settings.ancestors.all()
+    #anccomp_form = AncCompForm()
+    #anccomp_form.fields["oldanc"].queryset = this_job.settings.ancestors.all()
+    #anccomp_form.fields["newanc"].queryset = this_job.settings.ancestors.all()
     
-    outgroup_form = OutgroupForm()
-    outgroup_form.fields['outgroup'].queryset = this_job.settings.taxa_groups
-    if this_job.settings.outgroup:
-        outgroup_form.fields['outgroup'].initial = this_job.settings.outgroup
+    #outgroup_form = OutgroupForm()
+    #outgroup_form.fields['outgroup'].queryset = this_job.settings.taxa_groups
+    #if this_job.settings.outgroup:
+    #    outgroup_form.fields['outgroup'].initial = this_job.settings.outgroup
      
-    list_of_anccomps = []
-    for ac in this_job.settings.anc_comparisons.all():
-        list_of_anccomps.append( (ac.oldanc.ancname, ac.oldanc.id, ac.newanc.ancname, ac.newanc.id) )
+    #list_of_anccomps = []
+    #for ac in this_job.settings.anc_comparisons.all():
+    #    list_of_anccomps.append( (ac.oldanc.ancname, ac.oldanc.id, ac.newanc.ancname, ac.newanc.id) )
 
     context_dict = {'forward_unlock': True,
                     'jobname': this_job.settings.name,
-                    'new_taxagroup_form':new_taxagroup_form,
-                    'list_of_taxagroups':list_of_taxagroups,
-                    'outgroup_form':outgroup_form,
-                    'outgroup':this_job.settings.outgroup,
-                    'list_of_ancestors': list_of_ancestors,
-                    'newanc_form':newanc_form,
-                    'list_of_anccomps':list_of_anccomps,
-                    'anccomp_form':anccomp_form,
+                    #'outgroup_form':outgroup_taxon_form,
+                    'taxon_tuples': taxon_tuples,
+                    #'list_of_taxagroups':list_of_taxagroups,
+                    #'outgroup_form':outgroup_form,
+                    #'outgroup':this_job.settings.outgroup,
+                    #'list_of_ancestors': list_of_ancestors,
+                    #'newanc_form':newanc_form,
+                    #'list_of_anccomps':list_of_anccomps,
+                    #'anccomp_form':anccomp_form,
                     'current_step':2}
 
     return render(request, 'portal/compose2.html', context_dict)
