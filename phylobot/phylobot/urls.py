@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 	(r'^accounts/', include('allauth.urls') ),
 
  	(r'^contact/$', views.contact),
+ 	(r'^notice/$', views.beta_notice),
  	(r'^about/$', views.about),
  	(r'^examples/$', views.examples),
  	(r'^overview/$', views.overview),

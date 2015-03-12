@@ -197,7 +197,8 @@ class Job(RandomPrimaryIdModel):
             os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_aa_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.aa.fasta")            
 
             """codon file (optional)"""
-            os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_codon_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.codon.fasta")  
+            if self.settings.has_codon_data == True:
+                os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_codon_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.codon.fasta")  
         return True
 
     def generate_configfile(self):
@@ -205,7 +206,8 @@ class Job(RandomPrimaryIdModel):
         cout = "GENE_ID = " + self.settings.name + "\n"
         cout += "PROJECT_TITLE = " + self.settings.name + "\n" 
         cout += "SEQUENCES = " + self.settings.name.__str__() + ".erg.aa.fasta\n" 
-        cout += "NTFASTA = " + self.settings.name.__str__() + ".erg.codon.fasta\n"
+        if self.settings.has_codon_data == True:
+            cout += "NTFASTA = " + self.settings.name.__str__() + ".erg.codon.fasta\n"
         cout += "MSAPROBS = " + SoftwarePaths.objects.get(softwarename="msaprobs").__str__() + "\n"
         cout += "MUSCLE = " + SoftwarePaths.objects.get(softwarename="muscle").__str__() + "\n"
         cout += "RAXML = " + SoftwarePaths.objects.get(softwarename="raxml").__str__() + "\n" 

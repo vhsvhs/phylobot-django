@@ -239,7 +239,9 @@ while(True):
     messages = queue.get_messages()
     if messages.__len__() > 0:
         print "\n. Daemon Status: There are ", messages.__len__().__str__(), "pending messages in the SQS queue."
+    
     for msg in messages:
+        """For each queue message:"""
         body = msg.get_body()
                 
         """
