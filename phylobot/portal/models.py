@@ -5,7 +5,7 @@ from django.conf import settings
 import os, random, string
 from random_primary import *
 
-from fields import *
+from django.forms.fields import *
 
 class SoftwarePaths(models.Model):
     """This model holds executable paths to various software tools, including RAxML, PhyML, clustal, etc."""
