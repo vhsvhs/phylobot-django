@@ -1,7 +1,7 @@
 from portal import aws_tools
 from portal.aws_tools import *
 import sqlite3 as lite
-import time
+import os, sys, time
 
 SQLDBPATH = "job_daemon.db"
 MAX_MSG_ATTEMPTS = 3
@@ -113,7 +113,7 @@ def start_job(jobid, dbconn):
     known_instances = get_instances_for_job(dbconn, jobid)
     if known_instances.__len__() > 0:
         print "\n. It appears that jobid " + jobid.__str__() + " is already mapped to instance(s): " + known_instances.__str__()
-        return known_instances[0]
+        return (True, known_instances[0])
     
         #
         # continue here -- check that the instance is OK.
@@ -135,15 +135,16 @@ def start_job(jobid, dbconn):
         
         """Wait for AWS to catchup"""
         time_count = 0
+        MAX_WAIT = 120
         print "\n. Waiting for AWS to catchup"
         while (instance.state != "running"):
             time_count += 3
             time.sleep(3)
             instance.update()
-            if time_count > 120:
+            if time_count > MAX_WAIT:
                 print "\n. Error 25 - The instance hasn't reach 'running' state after too long. jobid=" + jobid.__str__()
                 set_job_status(jobid, "Error activating cloud resources")
-                return None
+                return (False, None)
         
         write_log(dbconn, "OK. Instance " + instance.id + " is running at " + instance.ip_address, code=0)
         add_job(dbconn, jobid)
@@ -155,8 +156,13 @@ def start_job(jobid, dbconn):
         
         set_job_status(jobid, "Starting, cloud resources activated")
         
-        remote_command = "aws s3 cp s3://phylobot.jobfiles/" + jobid.__str__() + " ./"
-        os.system("ssh -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'")
+        remote_command = "aws s3 cp s3://phylobot-jobfiles/" + jobid.__str__() + " ./ --recursive --region " + ZONE
+        print "159", remote_command
+        ssh_command = "ssh -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        print "162:", ssh_command
+        os.system(ssh_command)
+        
+        print "165"
         
         """Run the startup script"""
         
@@ -176,6 +182,8 @@ def start_job(jobid, dbconn):
         if instance != None:
             """Then kill the instance."""
             conn.terminate_instances(instance_ids=[instance.id])
+            """And remove the mapping between this job and this instance"""
+            remove_instance(dbconn, instance.id)
 
         return (False, retid)
 
@@ -183,7 +191,9 @@ def start_job(jobid, dbconn):
 def stop_job(jobid, dbconn):
     """dbconn is a connection to the job_daemon database."""
     
-    """Does this job exist on any known instances?"""
+    """Does this job exist on any known instances?
+        known_instances will be a list of instance IDs that, according to our database,
+        may be running the job with id = jobid"""
     known_instances = get_instances_for_job(dbconn, jobid)
     if known_instances.__len__() == 0:
         print "\n. It appears that jobid " + jobid.__str__() + " has not been mapped to any instances."
@@ -194,13 +204,13 @@ def stop_job(jobid, dbconn):
         """Stop each of the known AWS EC2 instances. If the execution state has been saved,
             then it can be recovered from S3, but otherwise the execution state is lost forever."""
         logmsg = "Terminating the following instances for jobid=" + jobid.__str__() + ":" + known_instances.__str__()
-        print "\n. " + logmsg
         write_log(dbconn, logmsg, code=0)
+        set_job_status(jobid, "Stopping cloud resources")
         conn = boto.ec2.connect_to_region(ZONE)   
-        conn.terminate_instances(instance_ids=known_instances)
         
-        """Wait for AWS to catchup"""
+        """Wait for AWS to catchup. Max wait is MAX_WAIT seconds"""
         time_count = 0
+        MAX_WAIT = 120
         print "\n. Waiting for AWS to catchup"
         while(known_instances.__len__() > 0):
             """While our list of instances known to be assocated with this jobid
@@ -213,21 +223,23 @@ def stop_job(jobid, dbconn):
                 if ai.state != "terminated":
                     """If the instance isn't terminated, then it's on our list."""
                     alive_instanceids.append( ai.id )
-            print "158:", alive_instanceids, all_instances
             
-            
-            for instanceid in known_instances:
-                if instanceid not in alive_instanceids:
-                    print "\n. 161 - instance " + instanceid.__str__() + " is terminated."
-                    known_instances.remove( instanceid )
-                    remove_instance(dbconn, instanceid )
-            
-            if known_instances.__len__() == 0:
+            """If putative instance IDs aren't running, then remove the instance from the list"""
+            for id in known_instances:
+                if id not in alive_instanceids:
+                    known_instances.remove( id )
+                    remove_instance(dbconn, id )
+                    
+            if known_instances.__len__() > 0:
+                """Now try to terminate all of the remaining known_instances"""
+                conn.terminate_instances(instance_ids=known_instances)        
+            elif known_instances.__len__() == 0:
+                """We're done!"""
                 set_job_status(jobid, "Stopped.")
                 remove_job(dbconn, jobid)
                 return True
             
-            if time_count > 120:
+            if time_count > MAX_WAIT:
                 write_error(dbconn, "\n. Error 25 - The instance hasn't reach 'terminated' state after too long. jobid=" + jobid.__str__() )
                 set_job_status(jobid, "Error evaporating clouds resources")
                 return False
@@ -236,3 +248,4 @@ def stop_job(jobid, dbconn):
             time.sleep(3)
     
     return True
+    

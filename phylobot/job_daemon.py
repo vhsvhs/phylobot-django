@@ -19,6 +19,25 @@ while(True):
     if messages.__len__() > 0:
         print "\n. Daemon Status: There are ", messages.__len__().__str__(), "pending messages in the SQS queue."
     
+    
+    """
+        Build a dictionary of jobs, actions, and their order in the queue.
+        We'll use this later on when we need to maintain queue state.
+    """
+    jobid_action_order = {}
+    for ii in range(0, messages.__len__() ):
+        msg = messages[ii]
+        body = msg.get_body()
+        tokens = body.split()
+        if tokens.__len__() < 2:
+            continue
+        msg_action = tokens[0]
+        msg_jobid = tokens[1]
+        if msg_jobid not in jobid_action_order:
+            jobid_action_order[msg_jobid] = {}
+        jobid_action_order[msg_jobid][msg_action] = ii
+    
+    
     for msg in messages:
         """For each queue message:"""
         body = msg.get_body()
@@ -45,7 +64,7 @@ while(True):
         
         """If the msg has been attempted too many times, delete it, skip to next."""
         if msg_attempts > MAX_MSG_ATTEMPTS:
-            print "\n. This message reached the maximum number of attempts without success, delete it."
+            print "\n. This message reached the maximum number of attempts without success. I'm deleting it forever."
             print body
             queue.delete_message( msg )
             continue
@@ -58,17 +77,28 @@ while(True):
             
             """Did the 'start' action fail?"""
             if success_flag == False:
-                write_log(con, "aws_id is None after starting job " + msg_jobid.__str__() + ". I'm re-queing the job to try again next cycle.")
+                write_log(dbconn, "I couldn't start the job " + msg_jobid.__str__() + ". I'm re-queing the job to try again next cycle.")
                 
                 """Here we delete the msg from the queue, increment the attempts counter,
                     then add the message back onto the queue."""
                 queue.delete_message( msg )
+                """If there are no future calls to stop the job, then let's
+                    re-queue this failed job and increment its attempt counter."""
+                requeue = False
+                if "stop" in jobid_action_order[msg_jobid]:
+                    stoporder = jobid_action_order[msg_jobid]["stop"]
+                    startoder = jobid_action_order[msg_jobid]["start"]
+                    if stoporder < startoder: # if the stop was before the start request
+                        requeue = True
+                else:
+                    requeue = True
                 
-                """Re-queue the msg with attempts += 1"""
-                sqs_start(msg_jobid, attempts=msg_attempts+1 )                
+                if requeue:
+                    """Re-queue the msg with attempts += 1"""
+                    sqs_start(msg_jobid, attempts=msg_attempts+1 )                
                 continue
             else:
-                """It didn't fail. Everything is OK. We can delte this queue message"""
+                """It didn't fail. Everything is OK. We can delete this queue message"""
                 queue.delete_message( msg )
                 continue
   
@@ -76,9 +106,13 @@ while(True):
             flag = stop_job(msg_jobid, dbconn)
             queue.delete_message( msg )
             if flag == False:
-                """It didn't successfully stop, so let's try again later"""
+                """It didn't successfully stop, so let's requeue this message and try again later"""
+                set_job_status(jobid, "Re-trying the stop attempt.")
                 sqs_stop(jobid, attempts=msg_attempts+1 )
+            if flag == True:
+                set_job_status(msg_jobid, "Stopped.")
             continue
+        
 
     # outside the for loop, but inside the while loop:
     time.sleep(5)

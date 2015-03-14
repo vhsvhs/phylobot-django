@@ -262,7 +262,7 @@ class Job(RandomPrimaryIdModel):
         if stoppoint != None:
             self.exe += " --stop " + stoppoint.__str__()
         self.exe += " --enable_aws True"
-        self.exe += " --s3_bucket phylobot.jobfiles"
+        self.exe += " --s3_bucket phylobot-jobfiles"
         self.exe += " --s3_keybase " + self.id.__str__()
         if self.checkpoint:
             self.exe += " --jump " + self.checkpoint.__str__()

@@ -24,4 +24,4 @@ for msg in messages:
     """For each queue message:"""
     body = msg.get_body()
     
-    print msg, body
+    print "Message:", body

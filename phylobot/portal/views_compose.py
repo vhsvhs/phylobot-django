@@ -235,6 +235,7 @@ def compose2(request):
             """Save the outgroup to the Job Setting"""
             this_job.settings.outgroup = outgroup
             this_job.settings.save()
+            this_job.save()
 
 #         #
 #         # Delete a taxagroup
@@ -423,6 +424,10 @@ def jobstatus(request, jobid):
             jobid = request.POST.get('jobid')
             this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
             trash_job(request, this_job)            
+        if action == "reset":
+            jobid = request.POST.get( 'jobid' )
+            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
+            reset_job( request, this_job ) 
         if action == "stop":
             jobid = request.POST.get( 'jobid' )
             this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
@@ -434,6 +439,9 @@ def jobstatus(request, jobid):
                 enqueue_job( request, this_job )
             else:
                 print >> sys.stderr, "I couldn't validate the job: " + this_job.name + " " + this_job.id.__str__()
+        if action == "refresh":
+            """Default, the rest of this method will do the status refresh"""
+            pass
     
     list_of_aa = []
     for aa in this_job.settings.alignment_algorithms.all():
@@ -443,24 +451,24 @@ def jobstatus(request, jobid):
         list_of_rm.append( rm.name )
     
     job_status = get_job_status(jobid)
+    checkpoint = int( get_aws_checkpoint(jobid) )
     
     checkpoints = []
-    checkpoints.append( (-1,    "Reading sequences") )
-    checkpoints.append( (0,     "Aligning sequences") )
-    checkpoints.append( (2,     "Inferring ML phylogenies with RAxML") )
-    checkpoints.append( (3,     "Calculating aLRT branch support values with PhyML") )
-    checkpoints.append( (4,     "Reconstructing ancestral sequences, using Lazarus") )
-    checkpoints.append( (5,     "Rooting tree and extracting ancestors.") )
-    checkpoints.append( (5.2,   "Screening for functional loci") )
-    checkpoints.append( (6,     "Writing an HTML report") )
-    checkpoints.append( (7,     "Final Check") )
+    checkpoints.append( (1.1,     "Sequence Alignment") )
+    checkpoints.append( (2.7,     "Calculate Alignment Support with ZORRO") )
+    checkpoints.append( (3.1,     "ML Phylogeny Inference") )
+    checkpoints.append( (5,     "Phylogenetic Support") )
+    checkpoints.append( (5.11,     "Ancestral Sequence Reconstruction") )
+    checkpoints.append( (6.8,   "Screening for Functional Loci") )
+    checkpoints.append( (8,     "Done") )
     
     context_dict = {'job': this_job, 
                     'job_status': job_status,
                     'nseqs':this_job.settings.original_aa_file.contents.count(),
                     'list_of_aa':list_of_aa,
                     'list_of_rm':list_of_rm,
-                    'checkpoints':checkpoints
+                    'checkpoints':checkpoints,
+                    'current_checkpoint':checkpoint
                     }
     
     return render(request, 'portal/status.html', context_dict)

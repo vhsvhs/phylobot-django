@@ -124,7 +124,7 @@
 		  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
 		  		<form method="post" action="." enctype="multipart/form-data">
 		  		{% csrf_token %}
-		  		<input type="hidden" name="action" value="stop" />
+		  		<input type="hidden" name="action" value="reset" />
 		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
 		  		<input type="image" src="{% static "portal/flash.png"%}" width=30 height=30>Reset
 		  		</form>
@@ -146,6 +146,9 @@
 	<div class="rounded_div_medium" style="background:#dedede;">
 		
 		
+		<table width="95%">
+		<tr>
+		<td width="90%">
 		<h2>Status: 
 			
 			{% if job.status.short == "error"%}
@@ -162,7 +165,16 @@
 			</font>
 			{% endif %}
 		</h2>
-
+		</td>
+		<td align="center">	<form method="post" action="." enctype="multipart/form-data">
+		  		{% csrf_token %}
+		  		<input type="hidden" name="action" value="refresh" />
+		  		<input type="hidden" name="jobid" value="{{ job.id }}" />
+		  		<input type="image" src="{% static "portal/refresh2.png"%}" width=30 height=30><br>Refresh
+		  		</form>
+		</td>
+		</tr>
+		</table>
 			
 		<p>{{job_status}}</p>
 		
@@ -206,18 +218,18 @@
 			{% for cp in checkpoints %}
 			<tr>
 				<td align="center">				
-				{% if job.checkpoint >= cp.0 %}
+				{% if current_checkpoint >= cp.0 %}
 					<img src="{% static "portal/check_green.png"%}" width=20>
-					{% elif job.status.short == "error" and job.checkpoint == cp.0 %}
+					{% elif job.status.short == "error" and current_checkpoint == cp.0 %}
 					<img src="{% static "portal/x_red.png"%}" width=25>
 					{% else %}			
 					&nbsp;
 				{% endif %}
 				</td>
 				<td>
-				{% if job.checkpoint >= cp.0 %}
+				{% if current_checkpoint >= cp.0 %}
 					<font class="green">{{cp.1}}</font>
-					{% elif job.status.short == "error" and job.checkpoint == cp.0 %}
+					{% elif job.status.short == "error" and current_checkpoint == cp.0 %}
 					<font class="red">{{cp.1}}</font>
 					{% else %}
 					<font class="grey">{{cp.1}}</font>				
