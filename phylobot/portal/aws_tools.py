@@ -46,6 +46,9 @@ def get_jobfile_from_s3(jobid, filepath):
     for l in bucket.list( jobid.__str__() + "/"):
         if l.__contains__(filepath):
             get_contents_to_file(filename_short)
+            #
+            # continue here - we need to actually save the file
+            #
             
 def get_job_status(jobid):
     print "46:", jobid
@@ -140,7 +143,6 @@ def get_job_exe(jobid):
  
     return key.get_contents_as_string(exe)
 
-    
 def sqs_start(jobid, attempts=0):
     conn = boto.sqs.connect_to_region(ZONE)
     queue = conn.get_queue("phylobot-jobs")
@@ -159,6 +161,15 @@ def sqs_stop(jobid, attempts=0):
     m = Message()
     m.set_body('stop ' + jobid.__str__() + " " + attempts.__str__())
     queue.write(m)   
+    
+def sqs_release(jobid, attempts=0):
+    conn = boto.sqs.connect_to_region(ZONE)
+    queue = conn.get_queue("phylobot-jobs")
+    if queue == None:
+        queue = conn.create_queue("phylobot-jobs")
+    m = Message()
+    m.set_body('release ' + jobid.__str__() + " " + attempts.__str__())
+    queue.write(m)     
     
 def setup_slave_startup_script(jobid): 
     s3 = S3Connection()

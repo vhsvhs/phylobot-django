@@ -1,6 +1,8 @@
 from portal.view_tools import *
 from portal.view_queue import *
 
+from phylobot import models as phylobotmodels
+
 @login_required
 def composenew(request):
     """Creates a new Job object, then redirects to compose1"""
@@ -237,109 +239,6 @@ def compose2(request):
             this_job.settings.save()
             this_job.save()
 
-#         #
-#         # Delete a taxagroup
-#         #
-#         if request.POST['action'] == 'deletegroup':
-#             name_of_taxagroup = request.POST.get('taxagroup')
-#             this_tg = this_job.settings.taxa_groups.get(name=name_of_taxagroup)
-#             if this_job.settings.outgroup == this_tg:
-#                 this_job.settings.outgroup = None
-#                 this_job.settings.save()
-#             if this_job.settings.taxa_groups.filter(id=this_tg.id).exists():
-#                 this_job.settings.taxa_groups.remove( this_tg )
-#                 this_job.settings.save()
-#             if this_tg:
-#                 this_tg.delete()
-
-        #
-        # Set the outgroup
-        #
-#         if request.POST['action'] == 'setoutgroup':
-#             selected_taxagroup = request.POST.get('outgroup')
-#             query_results = this_job.settings.taxa_groups.filter(id__in=selected_taxagroup)
-#             if query_results:
-#                 desired_outgroup = query_results[0]
-#             else:
-#                 desired_outgroup = None
-#                                                                                 
-#             this_job.settings.outgroup = desired_outgroup
-#             this_job.settings.save()
-
-#         #
-#         # Create an ancestor
-#         #
-#         if request.POST['action'] == 'addanc':
-#             new_anc_name = request.POST.get('ancname')
-#             
-#             selected_seed_taxon = request.POST.get('seedtaxa')
-#             query_results = this_job.settings.original_aa_file.contents.filter(id=selected_seed_taxon)
-#             if query_results:
-#                 this_seed = query_results[0]
-#             else:
-#                 this_seed = None
-#             
-#             selected_ingroup = request.POST.get('ingroup')
-#             query_results = this_job.settings.taxa_groups.filter(id__in=selected_ingroup)
-#             if query_results:
-#                 this_ingroup = query_results[0]
-#             else:
-#                 this_ingroup = None
-#             
-#             if this_seed != None and this_ingroup != None:
-#                 newanc = Ancestor.objects.get_or_create(id__in=this_job.settings.ancestors.all(),
-#                                                     ancname=new_anc_name,
-#                                                     seedtaxa = this_seed,
-#                                                     ingroup=this_ingroup,
-#                                                     outgroup=this_job.settings.outgroup)[0]
-#                 newanc.save()
-#                 this_job.settings.ancestors.add( newanc )
-#                 this_job.settings.save()
-#         
-#         #
-#         # Remove an ancestor
-#         #
-#         if request.POST['action'] == 'deleteancestor':
-#             name_of_ancestor = request.POST.get('ancname')
-#             this_a = this_job.settings.ancestors.get(ancname=name_of_ancestor)
-#             if this_job.settings.ancestors.filter(id=this_a.id).exists():
-#                 this_job.settings.ancestors.remove( this_a )
-#                 this_job.settings.save()
-#             if this_a:
-#                 this_a.delete()
-#         
-#         #
-#         # Add an ancestral comparison
-#         #
-#         if request.POST['action'] == 'addcomp':
-#             old_anc_id = request.POST.get('oldanc')
-#             new_anc_id = request.POST.get('newanc')
-#             
-#             this_oldanc = this_job.settings.ancestors.get(id__in=old_anc_id)
-#             this_newanc = this_job.settings.ancestors.get(id__in=new_anc_id)
-#            
-#             if this_oldanc and this_newanc:
-#                 newcomp = AncComp.objects.get_or_create(oldanc=this_oldanc, newanc=this_newanc)[0]
-#                 newcomp.save()
-#                 this_job.settings.anc_comparisons.add( newcomp )
-#                 this_job.settings.save()
-# 
-#             
-#         #
-#         # Remove an ancestral comparison
-#         #
-#         if request.POST['action'] == 'deletecomp':
-#             old_anc_id = request.POST.get('oldancid')
-#             this_olda = this_job.settings.ancestors.get(id__in=old_anc_id)
-#             new_anc_id = request.POST.get('newancid')
-#             this_newa = this_job.settings.ancestors.get(id__in=new_anc_id)
-#             if this_olda and this_newa:
-#                 this_comp = this_job.settings.anc_comparisons.filter(oldanc=this_olda, newanc=this_newa)
-#                 if this_comp:
-#                     this_job.settings.anc_comparisons.remove( this_comp )
-#                     this_comp.delete()
-        
-        
      
         if request.POST['action'] == 'done':
             if this_job.validate():
@@ -413,11 +312,11 @@ def jobstatus(request, jobid):
     if job == None:
         job = get_mr_job(request)
         jobid = job.id
-    
-    print "416:", job.id
-    
+        
     context = RequestContext(request)
     
+    """this_jobid and this_job are parsed from the POST. They may be None,
+        in which case, we'll stick with job and job from the previous lines."""
     this_jobid = None
     this_job = None
     if request.method == 'POST':
@@ -462,9 +361,7 @@ def jobstatus(request, jobid):
     
     if job.id == None:
         print >> sys.stderr, "I couldn't process the status request for an unknown job ID"
-    
-    print "\n. 464:", job.id
-    
+        
     job_status = get_job_status(job.id)
     checkpoint = float( get_aws_checkpoint(job.id) )
     
@@ -478,6 +375,20 @@ def jobstatus(request, jobid):
     
     job.p_done = 100.0 * float(checkpoint)/8.0
     job.save()
+    
+    if checkpoint == 8 and job_status == "Finished":
+        """Import the finished job into the phylobot database of AncestralLibraries"""
+        alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
+    
+        alib_dbdir = os.path.join(settings.MEDIA_ROOT, "anclibs")  
+    
+        #
+        # continue here
+        #
+        
+        #1. download asr.db from S3
+        #2. build the AncestralLibrary
+        #3. SQS - release resources
     
     context_dict = {'job': job, 
                     'job_status': job_status,

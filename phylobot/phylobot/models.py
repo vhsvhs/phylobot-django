@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class UserProfile(models.Model):
     # This line is required. Links UserProfile to a User model instance.
     user = models.OneToOneField(User)
@@ -23,7 +22,6 @@ class ViewingPrefs(models.Model):
     user = models.ForeignKey(User)    
     
     
-
 class AncestralLibrary(models.Model):
     """This class stores paths to sqlite3 DBs that were computed by the asrpipeline.
         All PhyloBot jobs, upon completion, will get an entry in this table."""
@@ -32,6 +30,7 @@ class AncestralLibrary(models.Model):
     contact_authors_profile = models.ManyToManyField(UserProfile) # these users will be listed on the frontpage of the public library view
     dbpath = models.FileField(upload_to='anclibs')
     last_modified = models.DateTimeField(auto_now=True)
+    source_job_id = models.CharField(max_length=30)
     
     def __unicode__(self):
         return unicode(self.shortname)  

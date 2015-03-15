@@ -55,6 +55,12 @@ def dequeue_job(request, job):
     sqs_stop(job.id)
     return
 
+def finish_job(request, job):
+    """This is a post-success finish state, different from a hard 'stop'.
+        Here we request to release the EC2 resources, and leave the job in a "finished" state."""
+    sqs_release(job.id)
+    return
+
 
 def trash_job(request, job):
     if job.settings:

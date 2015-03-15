@@ -262,4 +262,57 @@ def stop_job(jobid, dbconn):
             time.sleep(3)
     
     return True
+
+def release_job(jobid, dbconn):
+    known_instances = get_instances_for_job(dbconn, jobid)
+    if known_instances.__len__() == 0:
+        print "\n. It appears that jobid " + jobid.__str__() + " has not been mapped to any instances."
+        remove_job(dbconn, jobid)
+        return True
     
+    else:
+        """Stop each of the known AWS EC2 instances. If the execution state has been saved,
+            then it can be recovered from S3, but otherwise the execution state is lost forever."""
+        logmsg = "Release cloud resources for jobid=" + jobid.__str__() + ":" + known_instances.__str__()
+        write_log(dbconn, logmsg, code=0)
+        conn = boto.ec2.connect_to_region(ZONE)   
+        
+        """Wait for AWS to catchup. Max wait is MAX_WAIT seconds"""
+        time_count = 0
+        MAX_WAIT = 120
+        print "\n. Waiting for AWS to catchup"
+        while(known_instances.__len__() > 0):
+            """While our list of instances known to be assocated with this jobid
+                contains at least one non-terminated instance, then keep waiting for
+                AWS to terminate."""
+            all_instances = conn.get_all_instances()
+            alive_instanceids = []
+            for reservation in all_instances:
+                ai = reservation.instances[0]
+                if ai.state != "terminated":
+                    """If the instance isn't terminated, then it's on our list."""
+                    alive_instanceids.append( ai.id )
+            
+            """If putative instance IDs aren't running, then remove the instance from the list"""
+            for id in known_instances:
+                if id not in alive_instanceids:
+                    known_instances.remove( id )
+                    remove_instance(dbconn, id )
+                    
+            if known_instances.__len__() > 0:
+                """Now try to terminate all of the remaining known_instances"""
+                conn.terminate_instances(instance_ids=known_instances)        
+            elif known_instances.__len__() == 0:
+                """We're done!"""
+                remove_job(dbconn, jobid)
+                return True
+            
+            if time_count > MAX_WAIT:
+                write_error(dbconn, "\n. Error 311 - The instance hasn't reach 'terminated' state after too long. jobid=" + jobid.__str__() )
+                set_job_status(jobid, "Error evaporating clouds resources")
+                return False
+        
+            time_count += 3
+            time.sleep(3)
+    
+    return True

@@ -169,8 +169,8 @@ class Job(RandomPrimaryIdModel):
     
     note = models.TextField(null=True) # notes about the job, in addition to its status, can be written here.
     checkpoint = models.FloatField(null=True)
-    p_done = models.FloatField(null=True)
-        
+    p_done = models.FloatField(null=True) # percentage done. THis is used for display purposes only, dynamically calculated based on the S3 'checkpoint' key
+            
     def __unicode__(self):
         if self.settings != None:
             if self.settings.name != None:
