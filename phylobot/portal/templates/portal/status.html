@@ -64,28 +64,6 @@
 		{% endfor %}
 		</p>
 		
-		<h3>Ancestors</h3>
-		{% if job.settings.ancestors %}
-			<ul>
-			{% for anc in job.settings.ancestors.all %}
-				<li>{{anc}}</li>
-			{% endfor %}
-			</ul>
-		{% else %}
-			<p>No ancestors were defined for this project.</p>
-		{% endif %}
-	
-		<h3>Functional Loci Analysis</h3>
-		{% if job.settings.anc_comparisons %}
-			<ul>
-			{% for ac in job.settings.anc_comparisons.all %}
-				<li>{{ac.oldanc}} &#65515; {{ac.newanc}}</li>
-			{% endfor %}
-			</ul>
-		{% else %}
-		<p>No branches were setup for functional loci analysis.</p>	
-		{% endif %}
-		
 		</div>
 	</div>
 

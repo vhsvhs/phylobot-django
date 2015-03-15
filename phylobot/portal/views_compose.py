@@ -403,38 +403,44 @@ def compose2(request):
 
 @login_required
 def jobstatus(request, jobid):
-    this_job = None
+    job = None
     if jobid:
         try:
-            this_job = Job.objects.get(id=jobid)
+            job = Job.objects.get(id=jobid)
         except Job.DoesNotExist:
+            print "411: job doesn't exist"
             pass
-    if this_job == None:
-        this_job = get_mr_job(request)
+    if job == None:
+        job = get_mr_job(request)
+        jobid = job.id
+    
+    print "416:", job.id
     
     context = RequestContext(request)
     
+    this_jobid = None
+    this_job = None
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == "edit":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)            
-            return HttpResponseRedirect('/portal/compose/' + jobid)
+            this_jobid = request.POST.get('jobid')
+            this_job = Job.objects.filter(owner=request.user, id=this_jobid)            
+            return HttpResponseRedirect('/portal/compose/' + this_jobid)
         if action == "remove":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
+            this_jobid = request.POST.get('jobid')
+            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             trash_job(request, this_job)            
         if action == "reset":
-            jobid = request.POST.get( 'jobid' )
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
+            this_jobid = request.POST.get( 'jobid' )
+            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             reset_job( request, this_job ) 
         if action == "stop":
-            jobid = request.POST.get( 'jobid' )
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
+            this_jobid = request.POST.get( 'jobid' )
+            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             dequeue_job( request, this_job ) 
         if action == "start":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
+            this_jobid = request.POST.get('jobid')
+            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             if this_job.validate():
                 enqueue_job( request, this_job )
             else:
@@ -444,14 +450,23 @@ def jobstatus(request, jobid):
             pass
     
     list_of_aa = []
-    for aa in this_job.settings.alignment_algorithms.all():
+    for aa in job.settings.alignment_algorithms.all():
         list_of_aa.append( aa.name )
     list_of_rm = []
-    for rm in this_job.settings.raxml_models.all():
+    for rm in job.settings.raxml_models.all():
         list_of_rm.append( rm.name )
     
-    job_status = get_job_status(jobid)
-    checkpoint = int( get_aws_checkpoint(jobid) )
+    if jobid == None:
+        if this_jobid != None:
+            job = this_job
+    
+    if job.id == None:
+        print >> sys.stderr, "I couldn't process the status request for an unknown job ID"
+    
+    print "\n. 464:", job.id
+    
+    job_status = get_job_status(job.id)
+    checkpoint = float( get_aws_checkpoint(job.id) )
     
     checkpoints = []
     checkpoints.append( (1.1,     "Sequence Alignment") )
@@ -459,12 +474,14 @@ def jobstatus(request, jobid):
     checkpoints.append( (3.1,     "ML Phylogeny Inference") )
     checkpoints.append( (5,     "Phylogenetic Support") )
     checkpoints.append( (5.11,     "Ancestral Sequence Reconstruction") )
-    checkpoints.append( (6.8,   "Screening for Functional Loci") )
     checkpoints.append( (8,     "Done") )
     
-    context_dict = {'job': this_job, 
+    job.p_done = 100.0 * float(checkpoint)/8.0
+    job.save()
+    
+    context_dict = {'job': job, 
                     'job_status': job_status,
-                    'nseqs':this_job.settings.original_aa_file.contents.count(),
+                    'nseqs':job.settings.original_aa_file.contents.count(),
                     'list_of_aa':list_of_aa,
                     'list_of_rm':list_of_rm,
                     'checkpoints':checkpoints,

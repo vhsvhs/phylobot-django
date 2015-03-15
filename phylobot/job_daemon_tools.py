@@ -158,16 +158,30 @@ def start_job(jobid, dbconn):
         
         remote_command = "aws s3 cp s3://phylobot-jobfiles/" + jobid.__str__() + " ./ --recursive --region " + ZONE
         print "159", remote_command
-        ssh_command = "ssh -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         print "162:", ssh_command
         os.system(ssh_command)
         
         print "165"
+        set_job_status(jobid, "Starting, building a replicate node")
         
         """Run the startup script"""
         
-        """Run the job"""
+        remote_command = "bash slave_startup_script"
+        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        os.system( ssh_command )
         
+        print "173"
+        set_job_status(jobid, "Starting, launching the replicate node")
+        
+        """Run the job"""
+        remote_command = "bash exe"
+        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        os.system( ssh_command )
+
+        print "180"
+        set_job_status(jobid, "The replicate node returned.")
+                
         return (True, instance.id)
     except:
         e = sys.exc_info()[0]

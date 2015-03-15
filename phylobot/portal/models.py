@@ -205,15 +205,20 @@ class Job(RandomPrimaryIdModel):
         """This script generates the config file, necessary for the ASR pipeline."""
         cout = "GENE_ID = " + self.settings.name + "\n"
         cout += "PROJECT_TITLE = " + self.settings.name + "\n" 
-        cout += "SEQUENCES = " + self.settings.name.__str__() + ".erg.aa.fasta\n" 
+        
+        aapath = self.settings.original_aa_file.aaseq_path._get_path().split("/")[  self.settings.original_aa_file.aaseq_path._get_path().split("/").__len__()-1 ]
+        cout += "SEQUENCES = " + aapath + "\n" 
         if self.settings.has_codon_data == True:
-            cout += "NTFASTA = " + self.settings.name.__str__() + ".erg.codon.fasta\n"
+            codonpath = self.settings.original_codon_file.aaseq_path._get_path().split("/")[  self.settings.original_codon_file.aaseq_path._get_path().split("/").__len__()-1 ]
+            cout += "NTFASTA = " + codonpath + "\n"
         cout += "MSAPROBS = " + SoftwarePaths.objects.get(softwarename="msaprobs").__str__() + "\n"
         cout += "MUSCLE = " + SoftwarePaths.objects.get(softwarename="muscle").__str__() + "\n"
         cout += "RAXML = " + SoftwarePaths.objects.get(softwarename="raxml").__str__() + "\n" 
         cout += "PHYML = " + SoftwarePaths.objects.get(softwarename="phyml").__str__() + "\n"
         cout += "LAZARUS = " + SoftwarePaths.objects.get(softwarename="lazarus").__str__() + "\n"
         cout += "ANCCOMP = " + SoftwarePaths.objects.get(softwarename="anccomp").__str__() + "\n"
+        cout += "ZORRO = " + SoftwarePaths.objects.get(softwarename="zorro").__str__() + "\n"
+        cout += "FASTTREE = " + SoftwarePaths.objects.get(softwarename="fasttree").__str__() + "\n"
         cout += "MARKOV_MODEL_FOLDER = " + SoftwarePaths.objects.get(softwarename="markov_models").__str__() + "\n"
         cout += "USE_MPI = False\n"
         cout += "RUN = sh\n"
@@ -229,7 +234,7 @@ class Job(RandomPrimaryIdModel):
             cout += "START_MOTIF = " + self.settings.start_motif + "\n"
         if self.settings.end_motif:
             cout += "END_MOTIF = " + self.settings.end_motif + "\n"
-        cout += "N_BAYES_SAMPLES = " + self.settings.n_bayes_samples.__str__() + "\n"
+        cout += "N_BAYES_SAMPLES = 0\n"
         cout += "OUTGROUP = [" + (TaxaGroup.objects.get(id=self.settings.outgroup.id)).listall() + "]\n"
         cout += "ANCESTORS ="
         for a in self.settings.ancestors.all():
@@ -255,7 +260,9 @@ class Job(RandomPrimaryIdModel):
         """Generates a shell-executable command that will invoke the job.
         NOTE: this method assumes that validate() was called, and returned True."""
         configpath = self.generate_configfile()
-        self.exe = SoftwarePaths.objects.get(softwarename="asrpipeline").__str__()
+        self.exe = ""
+                
+        self.exe += SoftwarePaths.objects.get(softwarename="asrpipeline").__str__()
         self.exe += " --configpath " + self.id.__str__() + ".config"
         if jumppoint != None:
             self.exe += " --jump " + jumppoint.__str__()

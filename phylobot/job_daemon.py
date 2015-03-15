@@ -110,6 +110,7 @@ while(True):
                 set_job_status(jobid, "Re-trying the stop attempt.")
                 sqs_stop(jobid, attempts=msg_attempts+1 )
             if flag == True:
+                print "113"
                 set_job_status(msg_jobid, "Stopped.")
             continue
         

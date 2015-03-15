@@ -35,22 +35,26 @@ def populate_known():
     add_seqtype(3, "codons", "codon")
 
 def build_software_paths():
-    sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python $HOME/repository/asr-pipeline/runme.py")
+    sp = SoftwarePaths.objects.get_or_create(softwarename="asrpipeline", path="python /home/ubuntu/repository/asr-pipeline/runme.py")
     sp = sp[0]
     sp.save()
     sp = SoftwarePaths.objects.get_or_create(softwarename="phyml", path="phyml")[0]
     sp.save()
-    sp = SoftwarePaths.objects.get_or_create(softwarename="raxml", path="raxml")[0]
+    sp = SoftwarePaths.objects.get_or_create(softwarename="raxml", path="raxml -T 2")[0]
     sp.save()
-    sp = SoftwarePaths.objects.get_or_create(softwarename="lazarus", path="python /common/lazarus/lazarus.py")[0]
+    sp = SoftwarePaths.objects.get_or_create(softwarename="lazarus", path="python /home/ubuntu/repository/lazarus/lazarus.py")[0]
     sp.save()   
-    sp = SoftwarePaths.objects.get_or_create(softwarename="markov_models", path="/common/lazarus/paml/dat/")[0]
+    sp = SoftwarePaths.objects.get_or_create(softwarename="markov_models", path="/home/ubuntu/repository/lazarus/paml/dat/")[0]
     sp.save()
     sp = SoftwarePaths.objects.get_or_create(softwarename="msaprobs", path="msaprobs")[0]
     sp.save()
     sp = SoftwarePaths.objects.get_or_create(softwarename="muscle", path="muscle")[0]
     sp.save()
-    sp = SoftwarePaths.objects.get_or_create(softwarename="anccomp", path="python ~/Documents/SourceCode/anccomp/compare_ancs.py")[0]
+    sp = SoftwarePaths.objects.get_or_create(softwarename="anccomp", path="python /home/ubuntu/repository/anccomp/compare_ancs.py")[0]
+    sp.save()
+    sp = SoftwarePaths.objects.get_or_create(softwarename="zorro", path="zorro")[0]
+    sp.save()
+    sp = SoftwarePaths.objects.get_or_create(softwarename="fasttree", path="/home/ubuntu/repository/FastTree/FastTree")[0]
     sp.save()
 
 def add_aa(name, exe):

@@ -8,13 +8,13 @@ from boto.sqs.message import Message
 import sys, time
 
 ZONE = "us-west-1"
-AMI_SLAVE_MOTHER = "ami-03ab4d47" # march 13, 2015
+AMI_SLAVE_MOTHER = "ami-6fb3552b" # march 13, 2015
 INSTANCE_TYPE = "t2.micro"
 INSTANCE_KEY_NAME = "phylobot-ec2-key"
 INSTANCE_SECURITY_GROUP = 'phylobot-security'
 S3LOCATION = Location.USWest
 
-def push_jobfile_to_s3(jobid, filepath):
+def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     """Pushes the startup files for a job to S3.
         jobid is the ID of the Job object,
         filepath is the path on this server to the file."""
@@ -26,11 +26,16 @@ def push_jobfile_to_s3(jobid, filepath):
     bucket = s3.lookup('phylobot-jobfiles')  # bucket names must be unique                                                                     
     if bucket == None:
         bucket = s3.create_bucket('phylobot-jobfiles', location=S3LOCATION)
+        bucket.set_acl('public-read')
     #bucket = s3.lookup('phylobot-jobfiles') 
     filename_short = filepath.split("/")[  filepath.split("/").__len__()-1 ]
     keyname = jobid.__str__() + "/" + filename_short
     k = bucket.new_key(keyname)
-    k.set_contents_from_filename(filepath)
+    
+    if new_filepath == None:
+        new_filepath = filepath
+    k.set_contents_from_filename(new_filepath)
+    k.set_acl('public-read')
     k.make_public()
     
 def get_jobfile_from_s3(jobid, filepath):
@@ -43,17 +48,20 @@ def get_jobfile_from_s3(jobid, filepath):
             get_contents_to_file(filename_short)
             
 def get_job_status(jobid):
+    print "46:", jobid
+    
     """Returns the value of the status key for the job"""
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
-        s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket = s3.lookup("phylobot-jobfiles")
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
     
     STATUS_KEY = jobid.__str__() + "/status"
     key = bucket.get_key(STATUS_KEY)
     if key == None:
-        return "Waiting to Launch"   
+        set_job_status(jobid, "Stopped")
+        return "Stopped"   
     else:
         return key.get_contents_as_string()    
 
@@ -61,34 +69,36 @@ def set_job_status(jobid, message):
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
-        s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket = s3.lookup("phylobot-jobfiles")
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
 
     STATUS_KEY = jobid.__str__() + "/status"
     key = bucket.get_key(STATUS_KEY)
     if key == None:
         key = bucket.new_key(STATUS_KEY) 
-    key.set_contents_from_string(message) 
+    key.set_contents_from_string(message)
+    key.set_acl('public-read')
 
 def set_aws_checkpoint(jobid, checkpoint):
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
-        s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket = s3.lookup("phylobot-jobfiles")
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
 
     CHECKPOINT_KEY = jobid.__str__() + "/checkpoint"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
         key = bucket.new_key(CHECKPOINT_KEY) 
     key.set_contents_from_string(checkpoint.__str__()) 
+    key.set_acl('public-read')
 
 def get_aws_checkpoint(jobid):
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
-        s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket = s3.lookup("phylobot-jobfiles")
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
 
     CHECKPOINT_KEY = jobid.__str__() + "/checkpoint"
     key = bucket.get_key(CHECKPOINT_KEY)
@@ -102,18 +112,34 @@ def set_job_exe(jobid, exe):
     
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
-        s3.create_bucket(S3_BUCKET, location=S3LOCATION)
-        bucket = s3.lookup(S3_BUCKET)    
+        bucket = s3.create_bucket(S3_BUCKET, location=S3LOCATION)  
     EXE_KEY = jobid.__str__() + "/exe"
     print "attempting to get key", EXE_KEY
     key = bucket.get_key(EXE_KEY)
     if key == None:
         key = bucket.new_key(EXE_KEY)
+
         #key = bucket.get_key(STATUS_KEY) 
     if key == None:
         print "\n. Error 39 - the key is None"
         exit()   
     key.set_contents_from_string(exe)
+    key.set_acl('public-read')
+
+def get_job_exe(jobid):
+    s3 = S3Connection()
+    
+    bucket = s3.lookup("phylobot-jobfiles")
+    if bucket == None:
+        return None  
+    EXE_KEY = jobid.__str__() + "/exe"
+    print "attempting to get key", EXE_KEY
+    key = bucket.get_key(EXE_KEY)
+    if key == None:
+        return None
+ 
+    return key.get_contents_as_string(exe)
+
     
 def sqs_start(jobid, attempts=0):
     conn = boto.sqs.connect_to_region(ZONE)
@@ -140,7 +166,7 @@ def setup_slave_startup_script(jobid):
     SLAVE_STARTUP_SCRIPT_KEY = jobid.__str__() + "/slave_startup_script"
     key = bucket.get_key(SLAVE_STARTUP_SCRIPT_KEY)
     if key == None:
-        key = bucket.new_key(SLAVE_STARTUP_SCRIPT_KEY) 
+        key = bucket.new_key(SLAVE_STARTUP_SCRIPT_KEY)
     if key == None:
         print "\n. Error 115 - the key is None"
         exit()   
@@ -150,7 +176,11 @@ def setup_slave_startup_script(jobid):
     l += "cd ~/\n"
     l += "sudo rm -rf repository/asr-pipeline\n"
     l += "cd repository\n"
+    l += "cd lazarus\n"
+    l += "sudo git pull\n"
+    l += "cd .."
     l += "git clone https://github.com/vhsvhs/asr-pipeline\n"
     l += "cd ~/\n"
-    key.set_contents_from_string(l)    
+    key.set_contents_from_string(l) 
+    key.set_acl('public-read')    
        
