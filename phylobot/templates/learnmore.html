@@ -1,7 +1,27 @@
 {% extends "phylobot_base.html" %}
 
 {% block content %}
+{% load static %}
+
+<h3>Overview</h3>
   
-<h3>Learn More </h3>
+<p>PhyloBot automates the multi-step software protocol to reconstruct ancestral proteins,
+and provides interactive web tools to explore the evolutionary trajectories of those proteins.</p>
+
+<p>
+PhyloBot begins with a collection of orthologous protein sequences that you've already curated. PhyloBot then
+aligns the sequences, find the best-fitting phylogenetic model, infers the best tree, performs statistical tests
+of phylogenetic branch support, and finally reconstructs ancestors at all internal nodes on the ML tree.</p>
+  
+<img align="Center" src="{% static 'phylobot/pipeline.png' %}" width="350px" style="padding-top:30px">
+
+<h3>Architecture</h3>
+
+<p>PhyloBot is engineered using the Django web framework and runs on supercomputing resources in the Amazon cloud.
+After you compose and launch your analysis, PhyloBot creates a temporary replica node (i.e., an Amazon EC2 instance)
+to compute the ancestral library for your family of orthologs. Upon completion, ancestral libraries are archived
+in a longterm database.</p>
+
+<img align="Center" src="{% static 'phylobot/aws_architecture.png' %}" width="400px" style="padding-top:30px">
   
 {% endblock %}

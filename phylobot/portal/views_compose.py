@@ -376,11 +376,14 @@ def jobstatus(request, jobid):
     job.p_done = 100.0 * float(checkpoint)/8.0
     job.save()
     
-    if checkpoint == 8 and job_status == "Finished":
-        """Import the finished job into the phylobot database of AncestralLibraries"""
-        alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
+    #if checkpoint == 8 and job_status == "Finished":
+        #"""Import the finished job into the phylobot database of AncestralLibraries"""
+        #x = phylobotmodels.AncestralLibrary.objects.all()
+        #print x
+        
+        #alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
     
-        alib_dbdir = os.path.join(settings.MEDIA_ROOT, "anclibs")  
+        #alib_dbdir = os.path.join(settings.MEDIA_ROOT, "anclibs")  
     
         #
         # continue here
