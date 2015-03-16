@@ -376,7 +376,9 @@ def jobstatus(request, jobid):
     job.p_done = 100.0 * float(checkpoint)/8.0
     job.save()
     
-    #if checkpoint == 8 and job_status == "Finished":
+    if checkpoint == 8 and job_status == "Finished":
+        print "views_compose.py 380 - let's import", job.id
+        
         #"""Import the finished job into the phylobot database of AncestralLibraries"""
         #x = phylobotmodels.AncestralLibrary.objects.all()
         #print x
