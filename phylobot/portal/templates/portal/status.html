@@ -127,7 +127,7 @@
 		<table width="95%">
 		<tr>
 		<td width="90%">
-		<h2>Status: 
+		<h2>Status:
 			
 			{% if job.status.short == "error"%}
 			<font style="color:red;">
@@ -142,6 +142,7 @@
 			{{ job.status.short }}
 			</font>
 			{% endif %}
+			
 		</h2>
 		</td>
 		<td align="center">	<form method="post" action="." enctype="multipart/form-data">
@@ -154,7 +155,11 @@
 		</tr>
 		</table>
 			
-		<p>{{job_status}}</p>
+		<p>{{job_status}}
+			{% if current_checkpoint > 8.0 %}
+			<a href="/{{ finished_library_id }}/">Click here to view the completed library</a>
+			{% endif %}
+		</p>
 		
 		<div width="100%" style="height:6px;background-color:lightgrey; margin-right:40px">
 		<div style="height:7px; width:{{job.p_done}}%;background-color:

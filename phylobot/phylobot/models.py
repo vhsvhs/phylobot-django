@@ -30,7 +30,6 @@ class AncestralLibrary(models.Model):
     contact_authors_profile = models.ManyToManyField(UserProfile) # these users will be listed on the frontpage of the public library view
     dbpath = models.FileField(upload_to='anclibs')
     last_modified = models.DateTimeField(auto_now=True)
-    source_job_id = models.CharField(max_length=30)
     
     def __unicode__(self):
         return unicode(self.shortname)  
@@ -40,3 +39,7 @@ class AncestralLibraryPermissions(models.Model):
     user = models.ForeignKey(User)
     permission = models.IntegerField() # 0 = no access, 1 = edit access, 2 = re-run and admin access
     
+class AncestralLibrarySourceJob(models.Model):
+    """This class maps PhyloBot jobs to imported Ancestral Libraries"""
+    libid = models.IntegerField() # the ancestral library ID
+    jobid = models.CharField(max_length=30) # the job ID

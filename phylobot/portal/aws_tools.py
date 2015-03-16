@@ -38,21 +38,18 @@ def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     k.set_acl('public-read')
     k.make_public()
     
-def get_jobfile_from_s3(jobid, filepath):
+def get_asrdb(jobid, save_to_path):
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
-    filename_short = filepath.split("/")[  filepath.split("/").__len__()-1 ]
-    key = jobid.__str__() + "/" + filename_short
-    for l in bucket.list( jobid.__str__() + "/"):
-        if l.__contains__(filepath):
-            get_contents_to_file(filename_short)
-            #
-            # continue here - we need to actually save the file
-            #
+    DBKEY = jobid.__str__() + "/sqldb"
+    print DBKEY
+    key = bucket.get_key(DBKEY)
+    print "46:", key, save_to_path
+    if key == None:
+        return None
+    key.get_contents_to_filename(save_to_path)
             
-def get_job_status(jobid):
-    print "46:", jobid
-    
+def get_job_status(jobid):    
     """Returns the value of the status key for the job"""
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")

@@ -6,6 +6,7 @@ page, or raising an exception such as Http404. The rest is up to you."
 """
 from portal.view_tools import *
 from portal.view_queue import *
+from phylobot import models as phylobotmodels
 
 def portal_process_request(request, library=None):    
     for j in Job.objects.all():
@@ -71,17 +72,19 @@ def portal_main_page(request):
             continue
         elif not job.settings.name:
             continue
-        my_jobs.append( job )
         
-    #
-    # Generate a list of jobs that are complete for user
-    #
-    my_libraries = []
+        checkpoint = float( get_aws_checkpoint(job.id) )
+        job.p_done = 100.0 * float(checkpoint)/9.0
+        print "77:", job.p_done
+        job.save()
+        
+        finished_library_id = None
+        if checkpoint > 8:
+            alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
+            finished_library_id = alib.id.__str__()
+        my_jobs.append( (job, finished_library_id ) )    
 
-    
-    context_dict = {'jobs':my_jobs,
-                    'libraries':my_libraries
-                    }
+    context_dict = {'jobs':my_jobs}
     
     # Another, better, method:
     return render(request, 'portal/index.html', context_dict)

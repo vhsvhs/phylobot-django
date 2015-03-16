@@ -19,7 +19,7 @@
 	{% if jobs %}
 		<p><a href="."><a href="."><img src="{% static "portal/refresh_0066ff.png"%}" width=20 height=20 valign="top"> Refresh</a></p>
 		<table width="100%">
-	  	{% for j in jobs %}
+	  	{% for j,alibid in jobs %}
 	  	<tr>
 	  	<td><h3>{{j.settings.name}}</h3></td>
 		<td width="400px" style="padding-right:40px">
@@ -39,8 +39,8 @@
 			<!--<font class="smalltext">(since {{j.last_modified}})-->
 			</font>
 		<div width="100%" style="height:6px;background-color:lightgrey;">
-			<div style="height:7px; width:{{job.p_done}}%;background-color:
-				{% if job.status.short == "error"%}
+			<div style="height:7px; width:{{j.p_done}}%;background-color:
+				{% if j.status.short == "error"%}
 				red;
 				{% else %}
 				#66CC66;
@@ -48,7 +48,7 @@
 				height:5px;float:left;">
 			</div>
 			<font style="color:
-			{% if job.status.short == "error"%}
+			{% if j.status.short == "error"%}
 			red;
 			{% elif j.status.short == "stopped" %}
 			black;
@@ -56,8 +56,12 @@
 			green;
 			{% endif %}
 			">
-			{{job.p_done}}% complete
+			{{j.p_done}}% complete
 			</font>
+			{% if alibid != None %}
+			<br><a href="/{{ finished_library_id }}/">Click here to view the completed library</a>
+			{% endif %}
+			
 			</div>
 			
 
@@ -98,6 +102,7 @@
 	  		</form>
 	  		</div>
 	  	</td>
+	  	<!--
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
 	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
@@ -107,6 +112,7 @@
 	  		</form>
 	  		</div>
 	  	</td>
+	  	-->
 	  	<td><div class="rounded_div_small" style="width:30px;" id="div_button_danger">
 	  		<form method="post" action="/portal/" enctype="multipart/form-data">
 	  		{% csrf_token %}
@@ -125,6 +131,7 @@
   </div>
   
   
+  <!--
   <div class="rounded_div_medium" style="background-color:#a9e2ff;">
   	<h3>My Libraries</h3>
   	<p>Listed here are web reports for your jobs that are complete.</p>
@@ -136,5 +143,6 @@
   		<p>You don't have any finished libraries. Create a job and launch it. When the job is complete, its library will appear here.</p>
   	{% endif %}
   </div>
+  -->
   
 {% endblock %}
