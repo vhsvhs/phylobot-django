@@ -29,6 +29,7 @@ def compose1(request):
     
     context = RequestContext(request)    
     this_job = get_mr_job(request)
+    error_messages = []
     
     if this_job.settings == None:
         this_js = JobSetting()
@@ -55,6 +56,8 @@ def compose1(request):
                 continue
             filepath = request.FILES[inputname]
             
+            print "59:", filepath
+            
             seqfile = None
             this_type = None
             if ii == 0: 
@@ -80,7 +83,10 @@ def compose1(request):
             this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
 
             # note: taxa_seq[taxon name] = sequence
-            if is_valid_fasta(fullpath):
+            (validflag, msg) = is_valid_fasta(fullpath)
+            
+            if validflag:
+                print "87 - the file is valid"
                 taxa_seq = get_taxa(fullpath, this_format)      
                 for taxa in taxa_seq:
                     t = Taxon.objects.get_or_create(name=taxa,
@@ -100,16 +106,19 @@ def compose1(request):
                 this_job.save()
                           
             else:
+                error_messages.append( msg )
                 if ii == 0:
                     this_job.settings.original_aa_file = None
                 if ii == 1:
                     this_job.settings.original_codon_file = None
                 this_job.settings.save()
                 seqfile.delete()
-                if is_aa:
+                if ii == 0:
                     aa_seqfileform.fields['aaseq_path'].errors = "Please select a FASTA-formatted file of amino acid sequences."
-                if is_codon:
+                    #error_messages.append("Please select a FASTA-formatted file of amino acid sequences.")
+                if ii == 1:
                     codon_seqfileform.fields['codonseq_path'].errors = "Please select a FASTA-formatted file of codon sequences."
+                    #error_messages.append("Please select a FASTA-formatted file of codon sequences.")
                 this_job.settings.save()
                 this_job.save()
                  
@@ -144,6 +153,9 @@ def compose1(request):
         if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
 
+    if this_job.settings.name == None or this_job.settings.name == "":
+        error_messages.append("Please choose a name for this job.")
+
     """
         Finally render the page
     """
@@ -152,6 +164,7 @@ def compose1(request):
         forward_unlock = True
     else:
         forward_unlock = False
+        
 
     aa_seqfileform = AASeqFileForm()
     selected_aaseqfile = None
@@ -184,12 +197,15 @@ def compose1(request):
     js_form.fields["end_motif"].initial = this_job.settings.end_motif
     js_form.fields["n_bayes_samples"].initial = this_job.settings.n_bayes_samples
 
+    print "193: error messages", error_messages
+
     context_dict = {'aa_seqfileform':       aa_seqfileform,
                     'aa_seqfile_url':       selected_aaseqfile,
                     'aa_seqfile_short':     selected_aaseqfile_short,
                     'codon_seqfileform':    codon_seqfileform,
                     'codon_seqfile_url':    selected_codonseqfile,
                     'codon_seqfile_short':  selected_codonseqfile_short,
+                    'error_messages':       error_messages,
                     'js_form':js_form,
                     'forward_unlock':forward_unlock,
                     'current_step':1}

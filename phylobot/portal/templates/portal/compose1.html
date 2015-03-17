@@ -12,6 +12,15 @@
 
 <h2>Step 1: Setup the Basics</h2>
 
+{% for msg in error_messages %}
+{% if msg != None %}
+<div class="rounded_div_medium" style="background-color:pink;">
+<p>{{msg}}</p>
+</div>
+{% endif %}
+
+{% endfor %}
+
 <div style="float:left; width:49%">
 	<div class="rounded_div_medium" style="background-color:#dedede;">
 	    <h3>Protein Sequences</h3>

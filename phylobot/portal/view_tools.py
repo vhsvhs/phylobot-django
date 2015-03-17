@@ -70,16 +70,36 @@ def kill_orphan_jobs(request):
             o.delete()
 
 def is_valid_fasta(path):
-    if os.path.exists(path) == False:
-        return False
+    """Returns (flag, message), where flag can be True/False and message is an error
+        message if False."""
+
+
+    msg = None    
+    if os.path.exists(path) == False or path == None:
+        msg = "An error occurred when uploading your file. Please try again."
+        return (False, msg)
+    
     fin = open(path, "r")
     firstchar = None
-    for l in fin.xreadlines():
-        if l.__len__() > 1:
-            if firstchar == None:
-                if l[0] == ">":
-                    return True
-                firstchar = l[0]
-    return False
+
+    display_path = path.split("/")[ path.split("/").__len__()-1 ]
+    
+    """Check for correct line breaks -- problems can occur in the FASTA file
+        if it was created in Word, or rich text."""
+    
+    lines = fin.readlines()
+    if lines.__len__() < 3:
+        msg = "Something is wrong with your FASTA file '" + display_path + "'. It doesn't appear to contain enough lines. Check your line breaks. Did you create this FASTA file in Word, or some other rich text editor?"
+        return (False, msg)
+    
+    count_seqs = 0
+    for l in lines:
+        if l.startswith(">"):
+            count_seqs += 1
+    if count_seqs < 3:
+        msg = "Your FASTA file appears to contain two or fewer sequences, and PhyloBot needs at least three sequences. If you think your file contains more sequences, please check the line breaks. If you saved your FASTA file from Microsoft Word, for example, the line breaks may be incorrect."
+        return (False, msg)
+
+    return (True, None)
 
     
