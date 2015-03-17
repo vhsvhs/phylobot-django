@@ -131,7 +131,7 @@ def start_job(jobid, dbconn):
     
     try:
         write_log(dbconn, "Created the instance " + instance.id.__str__() )
-        conn.create_tags( [instance.id], {"Name":"Instance built by PhyloBot Job Daemon from AMI " + AMI_SLAVE_MOTHER + " on " + time.ctime()} )
+        conn.create_tags( [instance.id], {"Name":"Instance built by PhyloBot Job Daemon from AMI " + AMI_SLAVE_MOTHER + " on " + time.ctime() + " for jobid " + jobid.__str__()} )
         
         """Wait for AWS to catchup"""
         time_count = 0
@@ -175,7 +175,7 @@ def start_job(jobid, dbconn):
         set_job_status(jobid, "Starting, launching the replicate node")
         
         """Run the job"""
-        remote_command = "bash exe"
+        remote_command = "bash exe &"
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
 

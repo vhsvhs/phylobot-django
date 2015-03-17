@@ -185,9 +185,8 @@ def setup_slave_startup_script(jobid):
     l += "sudo rm -rf repository/asr-pipeline\n"
     l += "cd repository\n"
     l += "sudo git clone https://github.com/vhsvhs/asr-pipeline\n"
-    l += "cd lazarus\n"
-    l += "sudo git pull\n"
-    l += "cd ..\n"
+    l += "sudo rm -rf lazarus\n"
+    l += "sudo git clone https://code.google.com/p/project-lazarus/ lazarus\n"
     l += "cd ~/\n"
     key.set_contents_from_string(l) 
     key.set_acl('public-read')    
