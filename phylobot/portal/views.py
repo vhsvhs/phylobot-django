@@ -75,7 +75,6 @@ def portal_main_page(request):
         
         checkpoint = float( get_aws_checkpoint(job.id) )
         job.p_done = 100.0 * float(checkpoint)/9.0
-        print "77:", job.p_done
         job.save()
         
         finished_library_id = None

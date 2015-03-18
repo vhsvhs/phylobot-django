@@ -17,7 +17,7 @@
 		<td><h2>Job Settings</h2></td>
 		<td align="right">
 				<div class="rounded_div_small" style="width:40px; margin-right:15px;" id="div_button" align="center">
-		  		<form method="post" action="." enctype="multipart/form-data">
+		  		<form method="get" action="/portal/compose/{{j.id}}/" enctype="multipart/form-data">
 		  		{% csrf_token %}
 		  		<input type="hidden" name="action" value="edit" />
 		  		<input type="hidden" name="jobid" value="{{ job.id }}" />

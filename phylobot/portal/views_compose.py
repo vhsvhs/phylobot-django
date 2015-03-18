@@ -17,6 +17,7 @@ def edit_job(request, jobid):
         this_job = this_job[0]
         this_job.last_modified = datetime.datetime.now()
         this_job.save()
+    print "20:", request.method
     return HttpResponseRedirect('/portal/compose1')
 
 @login_required
@@ -36,12 +37,11 @@ def compose1(request):
         this_js.save()
         this_job.settings = this_js
         this_job.save()
-    
+        
     if request.method == 'POST':                
         aa_seqfileform = AASeqFileForm(request.POST, request.FILES)
         codon_seqfileform = CodonSeqFileForm(request.POST, request.FILES)
         js_form = JobSettingForm(request.POST)
-      
       
         #
         # Deal with the sequence file itself
