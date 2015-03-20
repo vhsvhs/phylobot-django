@@ -36,20 +36,25 @@ AUTHENTICATION_BACKENDS = (
 )
 ACCOUNT_AUTHENTICATION_METHOD = "username"
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = False
 LOGIN_REDIRECT_URL = '/portal/'
 SOCIALACCOUNT_QUERY_EMAIL = True
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAY = 3
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = True
-ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
+# 
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'phylobotmail@gmail.com'
+# EMAIL_HOST_PASSWORD = 'iforgotit2015'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
 
 """This is a hack -- it will print authentication emails to the console,
     rather than actually sending emaiils."""
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 #DJANGO_SETTINGS_MODULE = 'phylobot.settings'
 

@@ -1,0 +1,25 @@
+#
+# How to setup a PhyloBot server on EC2
+#
+
+Instructions:
+
+1a. In the AWS console, launch an instance from the AMI 'ami-33bc5877'.
+1b. After the instance is running, find its public IP address (usually found in the Description tab).
+
+2a. Login into the server:
+	$> ssh -i ~/.ssh/phylobot-ec2-key.pem ubuntu@PUBLICIP
+		. . .where PUBLICIP is the IP address of the instance launched in #1.
+
+2b. Update PhyloBot:
+	$> cd phylbot-django
+	$> sudo git pull
+	$> cd ~/
+	$> sudo bash phylobot-django/aws_setup/setup_phylobot_server_on_aws.sh
+
+3. Copy a .boto file to the server. On your local machine (not remote PhyloBot):
+	$> cd ~/
+	$> scp -i ~/.ssh/phylobot-ec2-key.pem ~/.boto ubuntu@PUBLICIP:~/
+	
+
+4. If no errors were reported, PhyloBot should be running at the PUBLICIP.
