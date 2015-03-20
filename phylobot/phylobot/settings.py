@@ -54,7 +54,7 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
 """This is a hack -- it will print authentication emails to the console,
     rather than actually sending emaiils."""
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #DJANGO_SETTINGS_MODULE = 'phylobot.settings'
 

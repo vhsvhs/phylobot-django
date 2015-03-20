@@ -32,7 +32,10 @@ def compose1(request):
     this_job = get_mr_job(request)
     error_messages = []
     
+    first_time_composing = False
+    
     if this_job.settings == None:
+        first_time_composing = True
         this_js = JobSetting()
         this_js.save()
         this_job.settings = this_js
@@ -153,8 +156,9 @@ def compose1(request):
         if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
 
-    if this_job.settings.name == None or this_job.settings.name == "":
-        error_messages.append("Please choose a name for this job.")
+    if False == first_time_composing:
+        if this_job.settings.name == None or this_job.settings.name == "":
+            error_messages.append("Please choose a name for this job.")
 
     """
         Finally render the page
@@ -196,8 +200,6 @@ def compose1(request):
     js_form.fields["start_motif"].initial = this_job.settings.start_motif
     js_form.fields["end_motif"].initial = this_job.settings.end_motif
     js_form.fields["n_bayes_samples"].initial = this_job.settings.n_bayes_samples
-
-    print "193: error messages", error_messages
 
     context_dict = {'aa_seqfileform':       aa_seqfileform,
                     'aa_seqfile_url':       selected_aaseqfile,
