@@ -21,5 +21,9 @@ Instructions:
 	$> cd ~/
 	$> scp -i ~/.ssh/phylobot-ec2-key.pem ~/.boto ubuntu@PUBLICIP:~/
 	
+	
+4. Launch the Job Daemon (using the terminal logged into the server)
+	$> screen
+	$> 
 
 4. If no errors were reported, PhyloBot should be running at the PUBLICIP.

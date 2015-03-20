@@ -22,6 +22,11 @@ def parse_asr_log_line(line):
 
 def enqueue_job(request, job, jumppoint = None, stoppoint = None):    
 
+    if job.checkpoint == -1:
+        job.checkpoint = 0
+    job.save()
+
+
     """ Update S3 """
     job.generate_exe(jumppoint=jumppoint, stoppoint=stoppoint)
     set_job_exe(job.id, job.exe)

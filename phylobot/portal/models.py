@@ -26,6 +26,7 @@ class SeqType(models.Model):
 class Taxon(models.Model):
     name = models.CharField(max_length=100)
     seqtype = models.ForeignKey(SeqType)
+    nsites = models.IntegerField()
     
     def __unicode__(self):
         return unicode(self.name)

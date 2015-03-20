@@ -30,6 +30,7 @@ def get_taxa(seqpath, format):
                     currseq = ""
                 currtaxa = this_taxa
             else:
+                l = re.sub(" ", "", l)
                 currseq += l.strip()
         taxa_seq[currtaxa] = currseq
     elif format == "phylip":

@@ -6,6 +6,7 @@ from phylobot import models as phylobotmodels
 def composenew(request):
     """Creates a new Job object, then redirects to compose1"""
     newjob = Job.objects.create(owner=request.user)
+    newjob.checkpoint = -1
     newjob.save()
     return HttpResponseRedirect('/portal/compose1')
 
@@ -93,7 +94,8 @@ def compose1(request):
                 taxa_seq = get_taxa(fullpath, this_format)      
                 for taxa in taxa_seq:
                     t = Taxon.objects.get_or_create(name=taxa,
-                                                seqtype=this_seqtype)[0]
+                                                seqtype=this_seqtype,
+                                                nsites = taxa_seq[taxa].__len__() )[0]
                     t.save()
                     seqfile.contents.add(t)
                     seqfile.save()    
@@ -256,8 +258,6 @@ def compose2(request):
             this_job.settings.save()
             this_job.save()
 
-     
-        if request.POST['action'] == 'done':
             if this_job.validate():
                 """enqueue_job launches the job!"""
                 enqueue_job(request, this_job)
@@ -274,7 +274,9 @@ def compose2(request):
         checked = False
         if taxon.id in outgroup_ids:
             checked = True
-        taxon_tuples.append( (taxon.name, taxon.id, checked) )
+        nsites = 0
+        this_job
+        taxon_tuples.append( (taxon.name, taxon.id, checked, taxon.nsites) )
         
 
     #outgroup_taxon_form = TaxaGroupForm()
