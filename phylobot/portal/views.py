@@ -34,6 +34,7 @@ def portal_main_page(request):
     #
     # Process Input
     #
+    
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == "status":
@@ -61,11 +62,14 @@ def portal_main_page(request):
                 print >> sys.stderr, "I couldn't launch the job:" + this_job.name + " " + this_job.id.__str__()
     context_dict = {}
     
+
+    
     #
     # Generate a list of jobs that belong to user
     #
     my_jobs = []
     for job in Job.objects.filter(owner=request.user):
+
         # The idea of these if blocks is to prevent malformed/orphaned
         # jobs from getting displayed.
         if not job.settings:
@@ -73,7 +77,9 @@ def portal_main_page(request):
         elif not job.settings.name:
             continue
         
+
         checkpoint = float( get_aws_checkpoint(job.id) )
+
         job.p_done = 100.0 * float(checkpoint)/9.0
         job.save()
         

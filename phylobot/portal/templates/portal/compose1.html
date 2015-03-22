@@ -23,30 +23,62 @@
 
 <div style="float:left; width:49%">
 	<div class="rounded_div_medium" style="background-color:#dedede;">
-	    <h3>Protein Sequences</h3>
+	    <table width="100%">
+	    <tr>
+	    <td>
+	    <h3>Protein Sequences
+	     	<a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">Select a FASTA-formatted file containing orthologous amino acid sequences
+	        	for your protein family of interest. These sequences do not need to be aligned.</p>
+	    	</span>
+			</a>
+	    </h3>
+	    </td>
+
+	    <td class="smalltext" align="right">
+	    <a href="/faq_fasta">FASTA Help</a>
+	    </td>
+	    </tr>
+	    </table>
 	    {% if aa_seqfile_url %}
 	    	<p>Current File: <a href="{% static aa_seqfile_url %}">{{aa_seqfile_short}}</a></p>
 	    {% endif %}
-	    {{ aa_seqfileform.as_p }}	
+	    {{ aa_seqfileform.as_p }}
+	
 	</div>
 
 	<div class="rounded_div_medium" style="background-color:#dedede;">
-	    <h3>Codon Sequences (optional)</h3>
+	    <table width="100%">
+	    <tr>
+	    <td>
+	    <h3>Codon Sequences (optional)
+	     <a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">Select a FASTA-formatted file containing orthologous codon sequences
+	        	for your protein family of interest. These sequences do not need to be aligned.</p>
+	    	</span>
+		</a>
+	    </h3>
+	    </td>
+
+	    <td class="smalltext" align="right">
+	    <a href="/faq_fasta">FASTA Help</a>
+	    </td>
+	    </tr>
+	    </table>
+
 	    {% if codon_seqfile_url %}
 	    	<p>Current File: <a href="{% static codon_seqfile_url %}">{{codon_seqfile_short}}</a></p>
 	    {% endif %}
 	    {{ codon_seqfileform.as_p }}	
 	</div>
-
-	<!--
-	<div class="rounded_div_medium" style="background-color:#dedede;">    
-	    {{ aa_seqfileform.seq_path.errors }}
-	</div>
-	-->
 	
 	<div class="rounded_div_medium" style="background-color:#dedede;">
 		    <h3>Job Name</h3>
-		<p>Choose a name:{{ js_form.name }}
+		<p>Choose a Short Name:{{ js_form.name }}
 		<p>
 		Describe this project (optional):
 		{{ js_form.project_description }}</p>
@@ -57,22 +89,59 @@
 <div style="margin-left:50%; width:50%">
 
 	<div class="rounded_div_medium" style="background-color:#dedede;">
-		<h3>Sequence Alignment Algorithms</h3>
+		<h3>Sequence Alignment Algorithms
+	     <a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">The selected algorithms will be used to align your orthologous sequences. 
+	        	Select one, many, or all of these algorithms.</p>
+	    	</span>
+		</a>
+		</h3>
 		{{ js_form.alignment_algorithms }}
 		<p>
-		<h3>Phylogenetic Models</h3>
+		<h3>Phylogenetic Models
+	     <a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">The selected phylogenetic models will be used to infer maximum likelihood
+	        		phylogenies for your orthologous sequences. Select one, many, or all of these models.</p>
+	    	</span>
+		</a>
+		</h3>
 		{{ js_form.raxml_models }}
 		<p>
 	</div>
-
-	<!--
+	
 	<div class="rounded_div_medium" style="background-color:#dedede;">
-		<h3>Sequence Uncertainty</h3>
-		<p>How many Bayesian-sampled alternate ancestral sequences do you want?</p>
-		{{ js_form.n_bayes_samples }}
-		<p>
+	   	<table width="100%">
+	    <tr>
+	    <td>
+	    <h3>Constraint Tree (optional)
+	     	<a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">You can constrain the phylogenetic inference to always include certain
+	        	branching relationships that you know <em>a priori</em> to be true. The constraint tree
+	        	is a Newick-formatted file that describes the relationship between three or more of your
+	        	protein sequences. The constraint tree does not need to include a reference for all
+	        	sequences.</p>
+	    	</span>
+			</a>
+	    </h3>
+	    </td>
+	    <td class="smalltext" align="right">
+	    <a href="/faq_newick">Trees Help</a>
+	    </td>
+	    </tr>
+	    </table>
+
+	    {% if constrainttree_seqfile_url %}
+	    	<p>Current File: <a href="{% static constrainttree_seqfile_url %}">{{constrainttree_seqfile_short}}</a></p>
+	    {% endif %}
+	    {{ constrainttree_seqfileform.as_p }}	
 	</div>
-	-->
+
 	<div align="center">
 	<button class="button1"  type="submit" name="submit" align="center">Save and Continue</button>
 	</div>

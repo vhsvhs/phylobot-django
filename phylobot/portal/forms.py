@@ -53,55 +53,65 @@ class CodonSeqFileForm(forms.ModelForm):
     class Meta:
         model = CodonSeqFile
         fields = ('codonseq_path',)
-
-class TaxaGroupForm(forms.ModelForm):
-    """This form displays a TaxaGroup, which includes a list of taxon names,
-    and a name for this group."""    
-    #taxa = forms.CheckboxSelectMultiple()
-    #name = forms.CharField(max_length=30)
-    
-    def __init__(self, *args, **kwargs):
-        super(forms.ModelForm, self).__init__(*args, **kwargs)
-        self.fields["taxa"].widget = CheckboxSelectMultiple()
-        self.fields["taxa"].help_text = ''
-        self.fields["taxa"].label = "Select one or more sequences"
-        #self.fields["name"].label = "Create a name for this group"
-    class Meta:
-        model = TaxaGroup
-        fields = ('taxa',)
-
-class OutgroupForm(forms.ModelForm):        
-    def __init__(self, *args, **kwargs):  
-        super(forms.ModelForm, self).__init__(*args, **kwargs)
-        self.fields['outgroup'].label = "Select an outgroup"
-        self.fields['outgroup'].widget = Select()
-    class Meta:
-        model = JobSetting
-        fields = ('outgroup',)
-    
-class AncestorForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(forms.ModelForm, self).__init__(*args, **kwargs)
-        self.fields["ingroup"].label = "Select an 'in' group"
-        self.fields["ancname"].label = "Name"
-        self.fields["ancname"].help_label = "Create a name for this ancestor"
-        self.fields["seedtaxa"].label = "Seed Taxon"
-        self.fields["seedtaxa"].help_label = "Select an extant 'seed' sequence for this ancestor"
         
-    class Meta:
-        model = Ancestor
-        fields = ('ancname',
-                  'seedtaxa',
-                  'ingroup',)
-
-class AncCompForm(forms.ModelForm):
+class ConstraintTreeFileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(forms.ModelForm, self).__init__(*args, **kwargs)
-        self.fields["oldanc"].label = "Old Ancestor"
-        self.fields["newanc"].label = "Descendant Ancestor"
+        self.fields["constrainttree_path"].label = "Select a Newick-formatted tree file"
     
-    """A form to create new ancestral comparisons"""
     class Meta:
-        model = AncComp
-        fields = ('oldanc', 'newanc')
+        model = ConstraintTreeFile
+        fields = ('constrainttree_path',)
+        
+
+# class TaxaGroupForm(forms.ModelForm):
+#     """This form displays a TaxaGroup, which includes a list of taxon names,
+#     and a name for this group."""    
+#     #taxa = forms.CheckboxSelectMultiple()
+#     #name = forms.CharField(max_length=30)
+#     
+#     def __init__(self, *args, **kwargs):
+#         super(forms.ModelForm, self).__init__(*args, **kwargs)
+#         self.fields["taxa"].widget = CheckboxSelectMultiple()
+#         self.fields["taxa"].help_text = ''
+#         self.fields["taxa"].label = "Select one or more sequences"
+#         #self.fields["name"].label = "Create a name for this group"
+#     class Meta:
+#         model = TaxaGroup
+#         fields = ('taxa',)
+
+# class OutgroupForm(forms.ModelForm):        
+#     def __init__(self, *args, **kwargs):  
+#         super(forms.ModelForm, self).__init__(*args, **kwargs)
+#         self.fields['outgroup'].label = "Select an outgroup"
+#         self.fields['outgroup'].widget = Select()
+#     class Meta:
+#         model = JobSetting
+#         fields = ('outgroup',)
+    
+# class AncestorForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         super(forms.ModelForm, self).__init__(*args, **kwargs)
+#         self.fields["ingroup"].label = "Select an 'in' group"
+#         self.fields["ancname"].label = "Name"
+#         self.fields["ancname"].help_label = "Create a name for this ancestor"
+#         self.fields["seedtaxa"].label = "Seed Taxon"
+#         self.fields["seedtaxa"].help_label = "Select an extant 'seed' sequence for this ancestor"
+#         
+#     class Meta:
+#         model = Ancestor
+#         fields = ('ancname',
+#                   'seedtaxa',
+#                   'ingroup',)
+
+# class AncCompForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         super(forms.ModelForm, self).__init__(*args, **kwargs)
+#         self.fields["oldanc"].label = "Old Ancestor"
+#         self.fields["newanc"].label = "Descendant Ancestor"
+#     
+#     """A form to create new ancestral comparisons"""
+#     class Meta:
+#         model = AncComp
+#         fields = ('oldanc', 'newanc')
         

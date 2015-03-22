@@ -108,8 +108,6 @@ INSTALLED_APPS = (
 #     'allauth.socialaccount.providers.facebook',
 #     'allauth.socialaccount.providers.linkedin',
 #     'allauth.socialaccount.providers.linkedin_oauth2',
-#     'allauth.socialaccount.providers.openid',
-#     'allauth.socialaccount.providers.github',
 )
 SITE_ID = 1
 

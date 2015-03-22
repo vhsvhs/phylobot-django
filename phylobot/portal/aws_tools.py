@@ -94,6 +94,7 @@ def set_aws_checkpoint(jobid, checkpoint):
     key.set_acl('public-read')
 
 def get_aws_checkpoint(jobid):
+
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:

@@ -108,6 +108,14 @@ class CodonSeqFile(models.Model):
     def __unicode__(self):
         return unicode(self.codonseq_path) 
 
+class ConstraintTreeFile(models.Model):
+    constrainttree_path = models.FileField(upload_to='uploaded_sequences')
+    owner = models.ForeignKey(User)
+    timestamp_uploaded = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return unicode(self.constrainttree_path) 
+
 class JobSetting(models.Model):
     """Defines the settings for an ASR pipeline job."""
     outgroup = models.ForeignKey(TaxaGroup, related_name="outgroup",null=True)
@@ -116,6 +124,7 @@ class JobSetting(models.Model):
     original_aa_file = models.ForeignKey( AASeqFile,null=True,related_name="aa_file" )
     has_codon_data = models.BooleanField(default=False)
     original_codon_file = models.ForeignKey( CodonSeqFile,null=True,related_name="codon_file" )
+    constraint_tree_file = models.ForeignKey( ConstraintTreeFile, null=True )
     alignment_algorithms = models.ManyToManyField(AlignmentAlgorithm,null=True)
     alignment_algorithms.help_text = ''
     raxml_run = models.TextField(null=True)
@@ -183,16 +192,18 @@ class Job(RandomPrimaryIdModel):
         then this method returns True. If there are errors, this method returns False.
         If the job is okay, then the output folder for the job will be created."""
         allokay = True
-        #
-        # to-do: write this method!
-        #
+
+        """Does this job have valid settings?"""
+        if False == self.settings.is_valid():
+            allokay = False
+
         if allokay:
             
             """Working directory for the project"""
             self.path = settings.MEDIA_ROOT + "/" + self.id.__str__()
             if False == os.path.exists( self.path ):
                 """Make it"""
-                os.system("mkdir + " + self.path)
+                os.system("mkdir " + self.path)
             
             """amino acid file"""
             os.system("cp " + settings.MEDIA_ROOT.__str__() + "/" + self.settings.original_aa_file.__str__() + " " + self.path.__str__() + "/" + self.settings.name.__str__() + ".erg.aa.fasta")            
@@ -250,6 +261,8 @@ class Job(RandomPrimaryIdModel):
             cout += a.seedtaxa.__str__() + "\n"
         for c in self.settings.anc_comparisons.all():
             cout += "COMPARE " + c.oldanc.ancname.__str__() + " " + c.newanc.ancname.__str__() + "\n"
+        if self.settings.constraint_tree_file:
+            cout += "CONSTRAINT_TREE = " + self.settings.constraint_tree_file.constrainttree_path._get_path().split("/")[  self.settings.constraint_tree_file.constrainttree_path._get_path().split("/").__len__()-1 ]
         
         configpath = self.path + "/" + self.id.__str__() + ".config"
         fout = open(configpath, "w")

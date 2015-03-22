@@ -5,6 +5,7 @@ admin.autodiscover()
 
 from phylobot import views
 from phylobot.view_library import view_library
+from phylobot.view_faqs import *
 
 urlpatterns = patterns('', 
 	(r'^$', views.main_page),
@@ -19,6 +20,14 @@ urlpatterns = patterns('',
  	(r'^overview/$', views.overview),
  	(r'^portal/', include('portal.urls')),
  	(r'^status*', include('portal.urls')),	
+ 	(r'^faq_fasta*', faq_fasta),
+ 	(r'^faq_newick*', faq_newick),
+	
+	#
+	# continue here!
+	#
+	
+		
 
 # 	These patterns are depricated, because we're not using the allauth package.
 # 	(r'^login/$', 'django.contrib.auth.views.login'),

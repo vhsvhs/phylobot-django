@@ -60,8 +60,6 @@ def compose1(request):
                 continue
             filepath = request.FILES[inputname]
             
-            print "59:", filepath
-            
             seqfile = None
             this_type = None
             if ii == 0: 
@@ -90,7 +88,6 @@ def compose1(request):
             (validflag, msg) = is_valid_fasta(fullpath)
             
             if validflag:
-                print "87 - the file is valid"
                 taxa_seq = get_taxa(fullpath, this_format)      
                 for taxa in taxa_seq:
                     t = Taxon.objects.get_or_create(name=taxa,
@@ -188,6 +185,14 @@ def compose1(request):
         selected_codonseqfile = settings.STATIC_MEDIA_URL +  this_job.settings.original_codon_file.codonseq_path.__str__()
         selected_codonseqfile_short = selected_codonseqfile.split("/")[ selected_codonseqfile.split("/").__len__()-1 ]
         
+    constrainttree_fileform = ConstraintTreeFileForm()
+    selected_constrainttreefile = None
+    selected_constrainttreefile_short = None
+    if this_job.settings.constraint_tree_file:
+        constrainttree_fileform.fields["constrainttree_path"].default = this_job.settings.constraint_tree_file.constrainttree_path
+        selected_constrainttreefile = settings.STATIC_MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
+        selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
+        
     js_form = JobSettingForm()
     js_form.fields["name"].initial = this_job.settings.name
     js_form.fields["project_description"].initial = this_job.settings.project_description
@@ -209,6 +214,9 @@ def compose1(request):
                     'codon_seqfileform':    codon_seqfileform,
                     'codon_seqfile_url':    selected_codonseqfile,
                     'codon_seqfile_short':  selected_codonseqfile_short,
+                    'constrainttree_seqfileform':    constrainttree_fileform,
+                    'constrainttree_seqfile_url':    selected_constrainttreefile,
+                    'constrainttree_seqfile_short':  selected_constrainttreefile_short,
                     'error_messages':       error_messages,
                     'js_form':js_form,
                     'forward_unlock':forward_unlock,
@@ -216,17 +224,7 @@ def compose1(request):
     return render(request, 'portal/compose1.html', context_dict)
 
 @login_required
-def compose2(request):    
-    """
-    Here's the pieces needed to build the taxa setup page.
-    """
-#     new_taxagroup_form = []
-#     anccomp_form = []
-#     list_of_anccomps = []
-#     newanc_form = []
-#     outgroup_form = []
-    
-    
+def compose2(request):        
     this_job = get_mr_job(request)
     context = RequestContext(request)
 
@@ -243,6 +241,8 @@ def compose2(request):
         if request.POST['action'] == 'setoutgroup':
             checked_taxa = request.POST.getlist('taxa')
             
+            print "236:", checked_taxa
+            
             """Remove any previously-saved taxa in the outgroup"""
             outgroup = this_job.settings.taxa_groups.filter(name=outgroup_name)[0] 
             outgroup.clear_all()
@@ -251,6 +251,7 @@ def compose2(request):
             """Save the currently-checked taxa into the outgroup"""
             for taxa in this_job.settings.original_aa_file.contents.filter(id__in=checked_taxa): # for each checked taxon
                 outgroup.taxa.add(taxa)
+                print "246:", taxa
             outgroup.save()
 
             """Save the outgroup to the Job Setting"""
@@ -268,12 +269,14 @@ def compose2(request):
     outgroup_ids = []
     for taxon in this_job.settings.taxa_groups.filter(name=outgroup_name)[0].taxa.all():
         outgroup_ids.append( taxon.id )
+        print "264:", taxon.id
         
     taxon_tuples = []
     for taxon in this_job.settings.original_aa_file.contents.all():
         checked = False
         if taxon.id in outgroup_ids:
             checked = True
+            print "271:", taxon.id
         nsites = 0
         this_job
         taxon_tuples.append( (taxon.name, taxon.id, checked, taxon.nsites) )
@@ -380,6 +383,14 @@ def jobstatus(request, jobid):
     
     if job.id == None:
         print >> sys.stderr, "I couldn't process the status request for an unknown job ID"
+    
+    
+    selected_aaseqfile = None
+    selected_aaseqfile_short = None
+    if job.settings.original_aa_file:
+        selected_aaseqfile =  settings.STATIC_MEDIA_URL + job.settings.original_aa_file.aaseq_path.__str__()
+        selected_aaseqfile_short = selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ]
+    
         
     job_status = get_job_status(job.id)
     checkpoint = float( get_aws_checkpoint(job.id) )
@@ -440,7 +451,9 @@ def jobstatus(request, jobid):
                     'list_of_rm':list_of_rm,
                     'checkpoints':checkpoints,
                     'current_checkpoint':checkpoint,
-                    'finished_library_id':finished_library_id
+                    'finished_library_id':finished_library_id,
+                    'selected_aaseqfile_short':selected_aaseqfile_short,
+                    'selected_aa_seqfile_url':selected_aaseqfile,
                     }
     
     return render(request, 'portal/status.html', context_dict)

@@ -11,7 +11,5 @@ urlpatterns = patterns('',
 	(r'^cancelcompose', cancelcompose),
 	(r'^compose/(.*)/$', edit_job),
 	(r'^status/(.*)$', jobstatus),
-	#(r'^/(.*)$', portal_process_request),
-	#(r'^(.*)$', portal_process_request),
 	(r'^$', portal_main_page),
 )

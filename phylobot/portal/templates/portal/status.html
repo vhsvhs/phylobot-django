@@ -31,8 +31,13 @@
 		
 		<ul>
 		<li>Job Name: {{ job.settings.name }}</li>
-		<li>Input File: {{ job.settings.rawseqfile }}</li>
-		<li>N sequences: {{ nseqs }}</li>
+		<li>Input File: 
+		{% if selected_aa_seqfile_url %}
+	    	<a href="{% static selected_aa_seqfile_url %}">{{selected_aaseqfile_short}}</a>
+		{% else %} None Specified
+	    {% endif %}
+		</li>
+		<li>{{ nseqs }} Sequences</li>
 		<li>Job Description:
 		{% if job.settings.project_description %}
 			 {{ job.settings.project_description }}
@@ -60,8 +65,17 @@
 		<h3>Outgroup:</h3>
 		<p>
 		{% for t in job.settings.outgroup.taxa.all %}
-		{{ t }}, 
+			{% if forloop.counter == job.settings.outgroup.taxa.all|length %}
+				{{ t }}
+			{% else %}
+				{{ t }}, 
+			{% endif %}
 		{% endfor %}
+		
+		{% if job.settings.outgroup.taxa.all|length == 0 %}
+		None Specified
+		{% endif %}
+		
 		</p>
 		
 		</div>

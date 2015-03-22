@@ -20,27 +20,35 @@ function clearAll(){
 
 <h2>Step 2: Define the Outgroup</h2>
 	
-{#<div style="background:lightgreen" class="rounded_div_medium">#}
-	<p>Select one or more sequences that can be used to root the tree. <em>If the list below looks incorrect or malformed, then your FASTA file may have errors.</em></p>
-	
-	<button onclick="clearAll()" id="clearAllButton">Uncheck All</button>
-	
-	<form id="new_taxagroup_form" method="post" action="/portal/compose2"
-	        enctype="multipart/form-data">
-	    {% csrf_token %}
-	    <table>
-	    {% for tuple in taxon_tuples %}
-	    <tr>
-	    <td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2%}checked{%endif%}/> {{tuple.0}}</label></td>
-	    <td>({{tuple.3}} sites)</td>
-	    </tr>
-	    {% endfor %}
-	    </table>
-	    <br>
-	    <input type="hidden" name="action" value="setoutgroup">
-	    <input type="submit" class="button1" name="submit_newgroup" value="Save Outgroup, then Launch" />
-	</form>
-{#</div>#}
+
+<p>Select one or more sequences that can be used to root the trees.<br>
+<em>Note: If the list below looks incorrect, then your FASTA file may have errors. Return to Step 1 and try a different FASTA file.</em></p>
+
+<button onclick="clearAll()" id="clearAllButton">Uncheck All</button>
+
+<form id="new_taxagroup_form" method="post" action="/portal/compose2"
+        enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <table>
+    <tr>
+   		<th align="left">Sequence Name</th>
+   		<th>Amino Acid Sites</th>
+   	</tr>
+    {% for tuple in taxon_tuples %}
+    <tr>
+	    <td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2%}checked{%endif%}/> {{tuple.0|slice:":50"}}</label></td>
+	    <td align="center">{{tuple.3}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    <br>
+    <div align="center">
+    	<input type="hidden" name="action" value="setoutgroup">
+    	<input type="submit" class="button1" name="submit_newgroup" value="Save Outgroup, then Launch" />
+	</div>
+</form>
+
 
 
 {% endblock %}
