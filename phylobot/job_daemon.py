@@ -59,7 +59,7 @@ while(True):
         if tokens.__len__() > 2:
             msg_attempts = int( tokens[2] )
         
-        print "\n. SQS message:", body
+        print "\n. ", msg.attributes.__str__(), " SQS message:", body
         
         """If the message has been attempted too many times, delete it and skip to the next."""
         if msg_attempts > MAX_MSG_ATTEMPTS:
