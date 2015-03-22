@@ -147,6 +147,7 @@ def start_job(jobid, dbconn):
             time_count += 3
             time.sleep(3)
             instance.update()
+            print "150: instance state = ", instance.state
             if time_count > MAX_WAIT:
                 print "\n. Error 25 - The instance hasn't reach 'running' state after too long. jobid=" + jobid.__str__()
                 set_job_status(jobid, "Error activating cloud resources")
@@ -154,21 +155,17 @@ def start_job(jobid, dbconn):
         
         write_log(dbconn, "OK. Instance " + instance.id + " is running at " + instance.ip_address, code=0)
         add_job(dbconn, jobid)
-        print "145"
         add_instance(dbconn, instance.id, instance.ip_address)
-        print "147"
         map_job_on_instance(dbconn, jobid, instance.id)
-        print "149"
         
         set_job_status(jobid, "Starting, cloud resources activated")
         
         remote_command = "aws s3 cp s3://phylobot-jobfiles/" + jobid.__str__() + " ./ --recursive --region " + ZONE
-        print "159", remote_command
+        print "AWS command:", remote_command
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
-        print "162:", ssh_command
+        print "SSH command:", ssh_command
         os.system(ssh_command)
         
-        print "165"
         set_job_status(jobid, "Starting, building a replicate node")
         
         """Run the startup script"""
@@ -177,15 +174,13 @@ def start_job(jobid, dbconn):
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
         
-        print "173"
         set_job_status(jobid, "Starting, launching the replicate node")
         
-        """Run the job"""
+        """Launch the job, using & to put it in the background"""
         remote_command = "bash exe &"
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
 
-        print "180"
         set_job_status(jobid, "The replicate node returned.")
                 
         return (True, instance.id)
