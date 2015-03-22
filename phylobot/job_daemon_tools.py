@@ -2,6 +2,7 @@ from portal import aws_tools
 from portal.aws_tools import *
 import sqlite3 as lite
 import os, sys, time
+import socket
 
 SQLDBPATH = "job_daemon.db"
 MAX_MSG_ATTEMPTS = 3
@@ -150,9 +151,26 @@ def start_job(jobid, dbconn):
             print "150: instance state = ", instance.state
             if time_count > MAX_WAIT:
                 print "\n. Error 25 - The instance hasn't reach 'running' state after too long. jobid=" + jobid.__str__()
-                set_job_status(jobid, "Error activating cloud resources")
+                set_job_status(jobid, "Error activating cloud resources: the instance failed to start.")
                 return (False, None)
         
+        print "\n. Waiting for port 22 to open on the instance"
+        time_count = 0
+        portopen = False
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        while (portopen == False):
+            try:
+                s.connect((instance.ip_address, 22))
+                """If we arrive here, then the port 22 is open"""
+                portopen = True
+            except socket.error:
+                """It's not open yet"""
+                time_count += 3
+            if time_count > MAX_WAIT:
+                print "\n. Error 168 - The instance hasn't opened its port 22 after " + MAX_WAIT + " seconds. jobid=" + jobid.__str__()
+                set_job_status(jobid, "Error activating cloud resources: the SSH port didn't open.")
+                return (False, None)
+                
         write_log(dbconn, "OK. Instance " + instance.id + " is running at " + instance.ip_address, code=0)
         add_job(dbconn, jobid)
         add_instance(dbconn, instance.id, instance.ip_address)
