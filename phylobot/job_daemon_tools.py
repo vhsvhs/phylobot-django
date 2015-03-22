@@ -17,8 +17,14 @@ def print_splash():
 def build_db(dbpath):
     """Initializes all the tables. Returns the DB connection object.
     If tables already exist, they will NOT be overwritten."""
-    con = lite.connect(dbpath)
-    cur = con.cursor()
+    try:
+        con = lite.connect(dbpath)
+        cur = con.cursor()
+    except sqlite3.OperationalError:
+        print "\n. Error, I couldn't open a connection with boto to AWS."
+        print ". Try running this script as sudo."
+        exit()
+        
     cur.execute("CREATE TABLE IF NOT EXISTS Instances(aws_id TEXT primary key unique, ip TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS PhyloBotJobs(jobid TEXT primary key unique)")
     cur.execute("CREATE TABLE IF NOT EXISTS JobInstance(jobid TEXT, aws_id TEXT)")
