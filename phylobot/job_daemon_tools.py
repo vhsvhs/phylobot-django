@@ -148,7 +148,6 @@ def start_job(jobid, dbconn):
             time_count += 3
             time.sleep(3)
             instance.update()
-            print "150: instance state = ", instance.state
             if time_count > MAX_WAIT:
                 print "\n. Error 25 - The instance hasn't reach 'running' state after too long. jobid=" + jobid.__str__()
                 set_job_status(jobid, "Error activating cloud resources: the instance failed to start.")

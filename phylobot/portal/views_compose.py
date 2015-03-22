@@ -47,9 +47,9 @@ def compose1(request):
         codon_seqfileform = CodonSeqFileForm(request.POST, request.FILES)
         js_form = JobSettingForm(request.POST)
       
-        #
-        # Deal with the sequence file itself
-        #
+        """
+        Read sequence input
+        """
         aaseqfile = None
         codonseqfile = None
         inputnames = ["aaseq_path", "codonseq_path"]
@@ -73,7 +73,7 @@ def compose1(request):
             seqfile.owner = request.user
             
             #
-            # to-do: change these values based on parsing the actual file.
+            # to-do: asses the file format by parsing the file
             #
             this_format = "fasta"
             if this_format == "fasta":
@@ -124,8 +124,22 @@ def compose1(request):
                 this_job.settings.save()
                 this_job.save()
                  
-             
-             
+        """
+            Read the constraint tree
+        """ 
+        inputname = "constrainttree_path"
+        if inputname in request.FILES:
+            filepath = request.FILES[inputname]
+            print "133:", filepath
+            ctfile = ConstraintTreeFile(constrainttree_path=filepath)
+            print "135:", ctfile
+            fullpath = os.path.join(settings.MEDIA_ROOT, ctfile.__str__())  
+            print "137:", fullpath
+            this_job.settings.constraint_tree_file = ctfile
+            this_job.settings.save()
+            this_job.save() 
+            print "141"
+            
         """
             Now update the JobSettings object
         """
