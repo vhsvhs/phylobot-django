@@ -73,6 +73,12 @@ def finish_job(request, job):
 
 
 def trash_job(request, job):
+    """ Release any EC2 resources"""
+    dequeue_job(request, job)
+    
+    """Release any S3 resources"""
+    clear_all_s3(job.id)
+    
     if job.settings:
         #
         # Remove anc. comparisons
@@ -98,7 +104,7 @@ def trash_job(request, job):
         if job.path:
             if os.path.exists(job.path):
                 os.system("rm -rf " + job.path)
-            
+        
     job.delete()
 
     

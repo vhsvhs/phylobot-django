@@ -14,6 +14,20 @@ INSTANCE_KEY_NAME = "phylobot-ec2-key"
 INSTANCE_SECURITY_GROUP = 'phylobot-security'
 S3LOCATION = Location.USWest
 
+def clear_all_s3(jobid):
+    s3 = boto.connect_s3()
+    print "16:", s3.aws_access_key_id
+    
+    bucket = s3.lookup('phylobot-jobfiles')  # bucket names must be unique                                                                     
+    if bucket == None:
+        bucket = s3.create_bucket('phylobot-jobfiles', location=S3LOCATION)
+        bucket.set_acl('public-read')
+        
+    keys = bucket.list( prefix=jobid.__str__() )
+    for k in keys:
+        print "deleting key - ", k
+        bucket.delete_key( k )  
+
 def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     """Pushes the startup files for a job to S3.
         jobid is the ID of the Job object,
