@@ -20,6 +20,13 @@ function clearAll(){
 
 <h2>Step 2: Define the Outgroup</h2>
 	
+{% for msg in error_messages %}
+{% if msg != None %}
+<div class="rounded_div_medium" style="background-color:pink;">
+<p>{{msg}}</p>
+</div>
+{% endif %}
+{% endfor %}
 
 <p>Select one or more sequences that can be used to root the trees.<br>
 <em>Note: If the list below looks incorrect, then your FASTA file may have errors. Return to Step 1 and try a different FASTA file.</em></p>

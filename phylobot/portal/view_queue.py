@@ -39,6 +39,8 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
         
     if job.settings.has_codon_data != False:
         push_jobfile_to_s3(job.id, job.settings.original_codon_file.codonseq_path._get_path() )
+    if job.settings.constraint_tree_file:
+        push_jobfile_to_s3(job.id, job.settings.constraint_tree_file.constrainttree_path._get_path() )
     configfile = job.generate_configfile()
     push_jobfile_to_s3(job.id, configfile)
     setup_slave_startup_script(job.id)

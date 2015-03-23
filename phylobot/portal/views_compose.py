@@ -132,6 +132,7 @@ def compose1(request):
             filepath = request.FILES[inputname]
             print "133:", filepath
             ctfile = ConstraintTreeFile(constrainttree_path=filepath)
+            ctfile.owner = request.user
             ctfile.save()
             print "135:", ctfile
             fullpath = os.path.join(settings.MEDIA_ROOT, ctfile.__str__())  
@@ -168,6 +169,8 @@ def compose1(request):
         this_job.settings.save()        
         this_job.save()
     
+        set_aws_validated(this_job.id, 0)
+        
         if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
 
@@ -245,6 +248,7 @@ def compose1(request):
 def compose2(request):        
     this_job = get_mr_job(request)
     context = RequestContext(request)
+    error_messages = []
 
     outgroup_name = "outgroup"
     matching_groups = this_job.settings.taxa_groups.filter(name=outgroup_name)
@@ -254,6 +258,7 @@ def compose2(request):
         newgroup.save()
         this_job.settings.taxa_groups.add( newgroup )
         this_job.settings.save()
+        set_aws_validated(this_job.id, 0)
 
     if request.method == 'POST':
         if request.POST['action'] == 'setoutgroup':
@@ -265,21 +270,27 @@ def compose2(request):
             outgroup.save()
             
             """Save the currently-checked taxa into the outgroup"""
+            count_outgroup = 0
             for taxa in this_job.settings.original_aa_file.contents.filter(id__in=checked_taxa): # for each checked taxon
                 outgroup.taxa.add(taxa)
+                count_outgroup += 1
             outgroup.save()
+            
+            print "279:", count_outgroup
+            
+            if count_outgroup == 0:
+                error_messages.append("Please select at least one outgroup sequence.")
+            else:
+                """Save the outgroup to the Job Setting"""
+                this_job.settings.outgroup = outgroup
+                this_job.settings.save()
+                this_job.save()
+            set_aws_validated(this_job.id, 0)
 
-            """Save the outgroup to the Job Setting"""
-            this_job.settings.outgroup = outgroup
-            this_job.settings.save()
-            this_job.save()
-
-            if this_job.validate():
+            if error_messages.__len__() == 0 and this_job.validate():
                 """enqueue_job launches the job!"""
                 enqueue_job(request, this_job)
                 return HttpResponseRedirect('/portal/status/' + this_job.id.__str__())
-            else:
-                return HttpResponseRedirect('/portal/compose2')
    
     outgroup_ids = []
     for taxon in this_job.settings.taxa_groups.filter(name=outgroup_name)[0].taxa.all():
@@ -323,6 +334,7 @@ def compose2(request):
                     'jobname': this_job.settings.name,
                     #'outgroup_form':outgroup_taxon_form,
                     'taxon_tuples': taxon_tuples,
+                    'error_messages': error_messages,
                     #'list_of_taxagroups':list_of_taxagroups,
                     #'outgroup_form':outgroup_form,
                     #'outgroup':this_job.settings.outgroup,
