@@ -28,14 +28,13 @@ def compose1(request):
     That job object will then be loaded  upon calling get_mr_job.
     See below for an example.
     """
-    
     context = RequestContext(request)    
     this_job = get_mr_job(request)
     error_messages = []
     
     first_time_composing = False
     
-    if this_job.settings == None:
+    if this_job == None:
         first_time_composing = True
         this_js = JobSetting()
         this_js.save()
