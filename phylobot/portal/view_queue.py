@@ -22,6 +22,9 @@ def parse_asr_log_line(line):
 
 def enqueue_job(request, job, jumppoint = None, stoppoint = None):    
 
+    """First check if the job is already running. If it is, then just ignore this request and return"""
+
+
     if job.checkpoint == -1:
         job.checkpoint = 0
     job.save()

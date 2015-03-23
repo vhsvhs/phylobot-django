@@ -7,6 +7,24 @@
   Portal
 {% endblock %}
 
+{% block javascript %}
+<script>
+function verify_stop(e)
+{
+    if(!confirm('Are you sure you want to stop the job? This will release cloud resources.'))e.preventDefault();
+}
+function verify_reset(e)
+{
+    if(!confirm('Are you sure you want to reset your job? This will delete any unsaved progress.'))e.preventDefault();
+}
+function verify_trash(e)
+{
+    if(!confirm('Are you sure you want to delete your job? This cannot be undone.'))e.preventDefault();
+}
+</script>
+{% endblock %}
+
+
 {% block content %}
   {% load staticfiles %}
   
@@ -119,7 +137,7 @@
 		  		{% csrf_token %}
 		  		<input type="hidden" name="action" value="stop" />
 		  		<input type="hidden" name="jobid" value="{{ j.id }}" />
-		  		<input type="image" src="{% static "portal/stop.png"%}" width=30 height=30>Stop
+		  		<input type="image" src="{% static "portal/stop.png"%}" width=30 height=30 onclick="verify_stop(event)">Stop
 		  		</form>
 		  		</div>
 		  	</td>
@@ -129,7 +147,7 @@
 		  		{% csrf_token %}
 		  		<input type="hidden" name="action" value="stop" />
 		  		<input type="hidden" name="jobid" value="{{ j.id }}" />
-		  		<input type="image" src="{% static "portal/flash.png"%}" width=30 height=30>Reset
+		  		<input type="image" src="{% static "portal/flash.png"%}" width=30 height=30 onclick="verify_reset(event)">Reset
 		  		</form>
 		  		</div>
 		  	</td>
@@ -139,7 +157,7 @@
 		  		{% csrf_token %}
 		  		<input type="hidden" name="action" value="remove" />
 		  		<input type="hidden" name="jobid" value="{{ j.id }}" />
-		  		<input type="image" src="{% static "portal/trash.png"%}" width=30 height=30>Trash
+		  		<input type="image" src="{% static "portal/trash.png"%}" width=30 height=30 onclick="verify_trash(event)">Trash
 		  		</form>
 		  		</div>
 		  	</td>
