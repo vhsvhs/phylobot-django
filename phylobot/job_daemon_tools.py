@@ -194,6 +194,7 @@ def start_job(jobid, dbconn):
         #remote_command = "nohup bash exe > foo.out 2> foo.err < /dev/null &"
         print "195:", remote_command
         ssh_command = "ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        print "197:", ssh_command
         os.system( ssh_command )
 
         set_job_status(jobid, "The replicate node is finished.")
