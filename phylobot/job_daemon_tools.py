@@ -186,7 +186,7 @@ def start_job(jobid, dbconn):
                 
         """Run the startup script"""        
         remote_command = "bash slave_startup_script"
-        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        ssh_command = "ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
         
         """Launch the job, using '&' to put the execution into the background"""
