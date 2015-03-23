@@ -99,6 +99,7 @@ def portal_main_page(request):
 def jobstatus(request, jobid):
     job = None
     if jobid:
+        jobid = re.sub("/", "", jobid)
         print "102: get status for", jobid
         try:
             job = Job.objects.get(id=jobid)
