@@ -147,7 +147,7 @@ def get_last_user_command(jobid):
     CHECKPOINT_KEY = jobid.__str__() + "/last_user_command"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
-        set_aws_validated(jobid, 0)
+        set_last_user_command(jobid, None)
         return None
     return key.get_contents_as_string() 
 
