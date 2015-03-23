@@ -192,6 +192,7 @@ def start_job(jobid, dbconn):
         """Launch the job, using '&' to put the execution into the background"""
         #remote_command = "bash exe &"
         remote_command = "nohup bash exe > foo.out 2> foo.err < /dev/null &"
+        print "195:", remote_command
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
 
