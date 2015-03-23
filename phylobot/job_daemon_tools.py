@@ -154,6 +154,7 @@ def start_job(jobid, dbconn):
                 return (False, None)
         
         print "\n. Waiting for port 22 to open on the instance"
+        set_job_status(jobid, "Waiting for the replicate to open a communication port.")
         time_count = 0
         portopen = False
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -175,30 +176,26 @@ def start_job(jobid, dbconn):
         add_instance(dbconn, instance.id, instance.ip_address)
         map_job_on_instance(dbconn, jobid, instance.id)
         
-        set_job_status(jobid, "Starting, cloud resources activated")
+        set_job_status(jobid, "Cloud resources online. Launching the analysis pipeline...")
         
         remote_command = "aws s3 cp s3://phylobot-jobfiles/" + jobid.__str__() + " ./ --recursive --region " + ZONE
         print "AWS command:", remote_command
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         print "SSH command:", ssh_command
         os.system(ssh_command)
-        
-        set_job_status(jobid, "Starting, building a replicate node")
-        
-        """Run the startup script"""
-        
+                
+        """Run the startup script"""        
         remote_command = "bash slave_startup_script"
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
         
-        set_job_status(jobid, "Starting, launching the replicate node")
-        
-        """Launch the job, using & to put it in the background"""
-        remote_command = "bash exe &"
+        """Launch the job, using '&' to put the execution into the background"""
+        #remote_command = "bash exe &"
+        remote_command = "nohup bash exe > foo.out 2> foo.err < /dev/null &"
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
 
-        set_job_status(jobid, "The replicate node returned.")
+        set_job_status(jobid, "The replicate node is finished.")
                 
         return (True, instance.id)
     except:
