@@ -132,6 +132,7 @@ def compose1(request):
             filepath = request.FILES[inputname]
             print "133:", filepath
             ctfile = ConstraintTreeFile(constrainttree_path=filepath)
+            ctfile.save()
             print "135:", ctfile
             fullpath = os.path.join(settings.MEDIA_ROOT, ctfile.__str__())  
             print "137:", fullpath
