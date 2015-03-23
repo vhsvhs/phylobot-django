@@ -24,6 +24,7 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
 
     """First check if the job is already running. If it is, then just ignore this request and return"""
 
+    set_last_user_command(job.id, "start")
 
     if job.checkpoint == -1:
         job.checkpoint = 0
@@ -56,7 +57,8 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
         to read the SQS queue and take action."""
     return
 
-def dequeue_job(request, job):
+def stop_job(request, job):
+    set_last_user_command(job.id, "stop")
     status = get_job_status(job.id)
     if status == "Finished":
         # You can't stop an already stopped job
@@ -73,8 +75,10 @@ def finish_job(request, job):
 
 
 def trash_job(request, job):
+    set_last_user_command(job.id, "trash")
+    
     """ Release any EC2 resources"""
-    dequeue_job(request, job)
+    stop_job(request, job)
     
     """Release any S3 resources"""
     clear_all_s3(job.id)

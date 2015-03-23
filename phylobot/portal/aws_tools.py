@@ -123,32 +123,32 @@ def get_aws_checkpoint(jobid):
     return key.get_contents_as_string() 
 
 
-def set_aws_validated(jobid, flag):
+def set_last_user_command(jobid, command):
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
         bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
         bucket.set_acl('public-read')
 
-    CHECKPOINT_KEY = jobid.__str__() + "/ready_to_launch"
+    CHECKPOINT_KEY = jobid.__str__() + "/last_user_command"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
         key = bucket.new_key(CHECKPOINT_KEY) 
-    key.set_contents_from_string(flag.__str__()) 
+    key.set_contents_from_string(command.__str__()) 
     key.set_acl('public-read')
 
-def get_aws_validated(jobid):
+def get_last_user_command(jobid):
     s3 = boto.connect_s3()
     bucket = s3.lookup("phylobot-jobfiles")
     if bucket == None:
         bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
         bucket.set_acl('public-read')
 
-    CHECKPOINT_KEY = jobid.__str__() + "/ready_to_launch"
+    CHECKPOINT_KEY = jobid.__str__() + "/last_user_command"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
         set_aws_validated(jobid, 0)
-        return 0
+        return None
     return key.get_contents_as_string() 
 
 

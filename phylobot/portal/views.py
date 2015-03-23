@@ -52,7 +52,7 @@ def portal_main_page(request):
         if action == "stop":
             jobid = request.POST.get( 'jobid' )
             this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
-            dequeue_job( request, this_job ) 
+            stop_job( request, this_job ) 
         if action == "start":
             jobid = request.POST.get('jobid')
             this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
@@ -137,7 +137,7 @@ def jobstatus(request, jobid):
         if action == "stop":
             this_jobid = request.POST.get( 'jobid' )
             this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
-            dequeue_job( request, this_job ) 
+            stop_job( request, this_job ) 
         if action == "start":
             this_jobid = request.POST.get('jobid')
             this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
@@ -163,6 +163,9 @@ def jobstatus(request, jobid):
     if job.id == None:
         print >> sys.stderr, "I couldn't process the status request for an unknown job ID"
     
+    
+    """What was the last button pushed for this job? i.e., start, stop, trash, etc."""
+    last_user_command = get_last_user_command(job.id)
     
     selected_aaseqfile = None
     selected_aaseqfile_short = None
@@ -231,6 +234,7 @@ def jobstatus(request, jobid):
     
     context_dict = {'job': job, 
                     'job_status': job_status,
+                    'last_user_command':last_user_command,
                     'nseqs':job.settings.original_aa_file.contents.count(),
                     'list_of_aa':list_of_aa,
                     'list_of_rm':list_of_rm,

@@ -168,9 +168,7 @@ def compose1(request):
         #this_job.settings.n_bayes_samples = request.POST.get('n_bayes_samples')
         this_job.settings.save()        
         this_job.save()
-    
-        set_aws_validated(this_job.id, 0)
-        
+            
         if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
 
@@ -258,7 +256,6 @@ def compose2(request):
         newgroup.save()
         this_job.settings.taxa_groups.add( newgroup )
         this_job.settings.save()
-        set_aws_validated(this_job.id, 0)
 
     if request.method == 'POST':
         if request.POST['action'] == 'setoutgroup':
@@ -285,7 +282,6 @@ def compose2(request):
                 this_job.settings.outgroup = outgroup
                 this_job.settings.save()
                 this_job.save()
-            set_aws_validated(this_job.id, 0)
 
             if error_messages.__len__() == 0 and this_job.validate():
                 """enqueue_job launches the job!"""

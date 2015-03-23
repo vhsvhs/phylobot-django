@@ -165,7 +165,11 @@ function verify_trash(e)
 		<table width="95%">
 		<tr>
 		<td width="90%">
-		<h2>Status:
+		{% if last_user_command != "stop" and last_user_command != None %}
+		<h2>Status: Running
+		{% else %}
+		<h2>Status: Not Running  
+		{% endif %}
 			
 			{% if job.status.short == "error"%}
 			<font style="color:red;">
