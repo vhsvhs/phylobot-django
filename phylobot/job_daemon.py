@@ -27,7 +27,6 @@ while(True):
     if messages.__len__() > 0:
         print "\n. Daemon Status: There are ", messages.__len__().__str__(), "pending messages in the SQS queue."
     
-    
     """
     Build a dictionary of jobs, actions, and their order in the queue.
     We'll use this ordering later on when we need to maintain queue state.

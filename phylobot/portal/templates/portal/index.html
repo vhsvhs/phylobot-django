@@ -106,12 +106,16 @@ function verify_trash(e)
 		  	{% if j.checkpoint >= 0 %}
 		  	
 		  	<td><div class="rounded_div_small"  id="div_button">
-		  		<form method="post" action="/portal/" enctype="multipart/form-data">
+		  		<!--<form method="post" action="/portal/" enctype="multipart/form-data">
 		  		{% csrf_token %}
 		  		<input type="hidden" name="action" value="status" />
 		  		<input type="hidden" name="jobid" value="{{ j.id }}" />
 		  		<input type="image" src="{% static "portal/question.png"%}" width=30 height=30>Status
 		  		</form>
+		  		-->
+		  		
+		  		<a href="/portal/status/{{j.id}}/"><img src="{% static "portal/question.png"%}" width=30 height=30>Status</a>
+		  		
 		  		</div>
 		  	</td>
 		  	<td><div class="rounded_div_small"  id="div_button">
