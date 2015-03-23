@@ -34,7 +34,7 @@ def compose1(request):
     
     first_time_composing = False
     
-    if this_job == None:
+    if this_job == None or this_job.settings == None:
         first_time_composing = True
         this_js = JobSetting()
         this_js.save()
