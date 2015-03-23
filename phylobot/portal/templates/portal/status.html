@@ -63,6 +63,12 @@ function verify_trash(e)
 			None given
 		{% endif %}
 		</li>
+		<li>Constraint Tree: 
+		{% if constrainttree_seqfile_url %}
+	    	<a href="{% static constrainttree_seqfile_url %}">{{constrainttree_seqfile_short}}</a>
+		{% else %} None Specified
+	    {% endif %}
+		</li>
 		</ul>
 		    
 		    

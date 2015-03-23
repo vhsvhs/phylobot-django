@@ -416,7 +416,13 @@ def jobstatus(request, jobid):
         selected_aaseqfile =  settings.STATIC_MEDIA_URL + job.settings.original_aa_file.aaseq_path.__str__()
         selected_aaseqfile_short = selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ]
     
-        
+
+    selected_constrainttreefile = None
+    selected_constrainttreefile_short = None
+    if job.settings.constraint_tree_file:
+        selected_constrainttreefile = settings.STATIC_MEDIA_URL +  job.settings.constraint_tree_file.constrainttree_path.__str__()
+        selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
+
     job_status = get_job_status(job.id)
     checkpoint = float( get_aws_checkpoint(job.id) )
     
@@ -479,6 +485,8 @@ def jobstatus(request, jobid):
                     'finished_library_id':finished_library_id,
                     'selected_aaseqfile_short':selected_aaseqfile_short,
                     'selected_aa_seqfile_url':selected_aaseqfile,
+                    'constrainttree_seqfile_url':    selected_constrainttreefile,
+                    'constrainttree_seqfile_short':  selected_constrainttreefile_short,
                     }
     
     return render(request, 'portal/status.html', context_dict)
