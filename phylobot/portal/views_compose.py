@@ -171,7 +171,7 @@ def compose1(request):
         if this_job.settings.original_aa_file and this_job.settings.name:
             return HttpResponseRedirect('/portal/compose2')
 
-    if False == first_time_composing:
+    if False == first_time_composing and this_job.settings != None:
         if this_job.settings.name == None or this_job.settings.name == "":
             error_messages.append("Please choose a name for this job.")
 
