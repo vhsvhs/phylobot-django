@@ -59,6 +59,7 @@ def get_mr_job(request):
             last_job = j  
     return last_job
 
+
 def kill_orphan_jobs(request):
     """Remove any jobs that were started to be composed, but not completed."""
     orphans = Job.objects.filter(owner=request.user)
