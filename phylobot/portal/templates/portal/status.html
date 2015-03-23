@@ -175,8 +175,8 @@
 			{% endif %}
 		</p>
 		
-		<div width="100%" style="height:6px;background-color:lightgrey; margin-right:40px">
-		<div style="height:7px; width:{{job.p_done}}%;background-color:
+		<div width="100%" style="height:10px;background-color:darkgrey; margin-right:40px">
+		<div style="height:11px; width:{{job.p_done}}%;background-color:
 		{% if job.status.short == "error"%}
 		red;
 		{% elif job.status.short == "stopped" %}
@@ -185,7 +185,7 @@
 		#66CC66;
 		{% endif %}
 		height:5px;float:left;">
-		</div>
+		</div><br>
 		<font style="color:
 		{% if job.status.short == "error"%}
 		red;
@@ -198,6 +198,7 @@
 		{{job.p_done|floatformat}}% complete
 		</font>
 		</div>
+		<br>
 		<p>
 		{{j.status.short}}<font class="smalltext">(last updated {{job.last_modified}})
 		</p>
