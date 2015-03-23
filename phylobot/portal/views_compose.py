@@ -160,9 +160,10 @@ def compose1(request):
             this_model = RaxmlModel.objects.get(id = rid)
             this_job.settings.raxml_models.add( this_model )
         
-        this_job.settings.start_motif = request.POST.get('start_motif')
-        this_job.settings.end_motif = request.POST.get('end_motif')
-        this_job.settings.n_bayes_samples = request.POST.get('n_bayes_samples')
+        # not currently enabled
+        #this_job.settings.start_motif = request.POST.get('start_motif')
+        #this_job.settings.end_motif = request.POST.get('end_motif')
+        #this_job.settings.n_bayes_samples = request.POST.get('n_bayes_samples')
         this_job.settings.save()        
         this_job.save()
     
@@ -202,9 +203,11 @@ def compose1(request):
     constrainttree_fileform = ConstraintTreeFileForm()
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
+    print "206:", this_job.settings.constraint_tree_file
     if this_job.settings.constraint_tree_file:
         constrainttree_fileform.fields["constrainttree_path"].default = this_job.settings.constraint_tree_file.constrainttree_path
         selected_constrainttreefile = settings.STATIC_MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
+        print "210:", selected_constrainttreefile
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
         
     js_form = JobSettingForm()
@@ -255,8 +258,6 @@ def compose2(request):
         if request.POST['action'] == 'setoutgroup':
             checked_taxa = request.POST.getlist('taxa')
             
-            print "236:", checked_taxa
-            
             """Remove any previously-saved taxa in the outgroup"""
             outgroup = this_job.settings.taxa_groups.filter(name=outgroup_name)[0] 
             outgroup.clear_all()
@@ -265,7 +266,6 @@ def compose2(request):
             """Save the currently-checked taxa into the outgroup"""
             for taxa in this_job.settings.original_aa_file.contents.filter(id__in=checked_taxa): # for each checked taxon
                 outgroup.taxa.add(taxa)
-                print "246:", taxa
             outgroup.save()
 
             """Save the outgroup to the Job Setting"""
@@ -283,14 +283,12 @@ def compose2(request):
     outgroup_ids = []
     for taxon in this_job.settings.taxa_groups.filter(name=outgroup_name)[0].taxa.all():
         outgroup_ids.append( taxon.id )
-        print "264:", taxon.id
         
     taxon_tuples = []
     for taxon in this_job.settings.original_aa_file.contents.all():
         checked = False
         if taxon.id in outgroup_ids:
             checked = True
-            print "271:", taxon.id
         nsites = 0
         this_job
         taxon_tuples.append( (taxon.name, taxon.id, checked, taxon.nsites) )
