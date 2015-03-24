@@ -265,6 +265,9 @@ def get_list_of_same_ancids(con, ancid):
 
 
 def get_ancestral_matches(con, ancid1, ancid2):
+    
+    print "269:", ancid1, ancid2
+    
     cur = con.cursor()
     sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid1.__str__()
     cur.execute(sql)
@@ -312,6 +315,8 @@ def get_ancestral_matches(con, ancid1, ancid2):
     sql = "Select almethod from Ancestors where id=" + ancid1.__str__()
     cur.execute(sql)
     input_almethod = cur.fetchone()[0]
+    
+    print "319:", msas
     
     msas.pop( msas.index(input_almethod) )
     

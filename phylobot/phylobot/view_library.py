@@ -1389,7 +1389,6 @@ def view_mutations_bybranch(request, alib, con):
     """For some reason, the ancestors weren't selected in the HTML form 
         (or this is the first time rendering) so let's check if the user has 
         any saved preferences about the last-viewed ancestors."""
-    
     if ancid1 == None or ancid2 == None:
         last_viewed_ancid1 = get_viewing_pref(request, alib.id, con, "lastviewed_ancid1_msa=" + msaid.__str__() )
         last_viewed_ancid2 = get_viewing_pref(request, alib.id, con, "lastviewed_ancid2_msa=" + msaid.__str__() )
@@ -1404,7 +1403,8 @@ def view_mutations_bybranch(request, alib, con):
             cur.execute(sql)
             ancname2 = cur.fetchone()[0]
         
-    """Deal with missing data in the HTML form by just grabbing the first ancestor from the database"""
+    """OK, the ancestors are still None. Deal with this by 
+    just grabbing the first ancestor from the database"""
     if ancid1 == None or ancid2 == None:
         sql = "select name, id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
         cur.execute(sql)
@@ -1445,7 +1445,9 @@ def view_mutations_bybranch(request, alib, con):
         for the user-specified msaid"""
 
     """ Get a list of these ancestors in other alignments and models """ 
+    print "1448:", ancid1, ancid2
     matched_ancestors = get_ancestral_matches(con, ancid1, ancid2)
+    print "1449:", matched_ancestors
     matched_ancestors = [ (ancid1,ancid2) ] + matched_ancestors
      
     ancid_msaid = {}
