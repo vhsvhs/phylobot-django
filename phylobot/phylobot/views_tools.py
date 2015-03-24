@@ -317,6 +317,9 @@ def get_ancestral_matches(con, ancid1, ancid2):
     input_almethod = cur.fetchone()[0]
     
     print "319:", msas
+    if msas.__len__() == 0:
+        """msas can be empty if the user considered only one alignment/model combo"""
+        return []
     
     msas.pop( msas.index(input_almethod) )
     
