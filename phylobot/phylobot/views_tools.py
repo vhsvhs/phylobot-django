@@ -192,7 +192,7 @@ def get_msamodel(request, alib, con):
     return (msaid, msaname, phylomodelid, phylomodelname)       
 
 def get_seed_sequence(con, msaname):
-    #cur = con.cursor()
+    cur = con.cursor()
     #sql = "select id from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
     #cur.execute(sql)
     #
