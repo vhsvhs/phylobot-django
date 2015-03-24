@@ -1275,7 +1275,11 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
     
-    sql = "select value from Settings where keyword='seedtaxa'"
+    #
+    # continue here - fix the seed thing
+    #
+    #sql = "select value from Settings where keyword='seedtaxa'"
+    sql = "select shortname from Taxa"
     cur.execute(sql)
     seedtaxonname = cur.fetchone()[0]
     
@@ -1345,7 +1349,11 @@ def view_mutations_bybranch(request, alib, con):
     """Get the seedsequence with indels"""
     seedsequence = get_seed_sequence(con, msaname)
     nsites = seedsequence.__len__()
-    sql = "select id, shortname from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
+    #sql = "select id, shortname from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
+    #
+    # continue here - fix the seed thing
+    #
+    sql = "select id, shortname from Taxa"
     cur.execute(sql)
     x = cur.fetchone()
     seedtaxonid = x[0]
