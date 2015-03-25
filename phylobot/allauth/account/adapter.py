@@ -98,6 +98,18 @@ class DefaultAccountAdapter(object):
 
     def send_mail(self, template_prefix, email, context):
         msg = self.render_mail(template_prefix, email, context)
+
+        #
+        # continue here
+        #
+        msg.from_email = 'hello@phylobot.com'
+        print "101:", msg, msg.from_email, msg.to, msg.cc, msg.bcc
+        
+        import boto.ses
+        conn = boto.ses.connect_to_region('us-west-2')
+        print "110:", conn.list_verified_email_addresses()
+        
+        
         msg.send()
 
     def get_login_redirect_url(self, request):

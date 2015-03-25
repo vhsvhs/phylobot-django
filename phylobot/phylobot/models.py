@@ -34,6 +34,10 @@ class AncestralLibrary(models.Model):
     def __unicode__(self):
         return unicode(self.shortname)  
 
+class AncestralLibraryVisibility(models.Model):
+    libid = models.ForeignKey(AncestralLibrary)
+    visibility = models.IntegerField() # 0 = only visible to owner, 1 = visible to world
+
 class AncestralLibraryPermissions(models.Model):
     libid = models.ForeignKey(AncestralLibrary)
     user = models.ForeignKey(User)

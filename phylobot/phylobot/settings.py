@@ -45,17 +45,12 @@ ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = True
 ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
-# 
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = 'phylobotmail@gmail.com'
-# EMAIL_HOST_PASSWORD = 'iforgotit2015'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-
-"""This is a hack -- it will print authentication emails to the console,
-    rather than actually sending emaiils."""
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+"""Amazon SES"""
+EMAIL_BACKEND = 'django_ses.SESBackend'
+AWS_SES_REGION_NAME = 'us-west-2'
+EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
+EMAIL_PORT = 465
+DEFAULT_FROM_EMAIL =  'PhyloBot <hello@phylobot.com>'
 #DJANGO_SETTINGS_MODULE = 'phylobot.settings'
 
 # Static files (CSS, JavaScript, Images)
@@ -105,6 +100,7 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'django_ses',
 #     'allauth.socialaccount.providers.facebook',
 #     'allauth.socialaccount.providers.linkedin',
 #     'allauth.socialaccount.providers.linkedin_oauth2',
@@ -126,7 +122,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'phylobot.urls'
 
 WSGI_APPLICATION = 'phylobot.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases

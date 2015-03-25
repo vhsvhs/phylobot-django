@@ -41,3 +41,5 @@ urlpatterns = patterns('',
  	(r'^(.*)$', view_library),
 
 )
+
+urlpatterns += (url(r'^admin/django-ses/', include('django_ses.urls')),)
