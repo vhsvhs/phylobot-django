@@ -3,6 +3,9 @@
 # instance is launched for the first time.
 #
 
+# Ensure we have the latest version of Django-SES (Required to send email from Django)
+sudo pip install django-ses
+
 # Get the PhyloBot Django project
 cd ~/
 sudo rm -rf phylobot-django
