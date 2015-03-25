@@ -30,7 +30,6 @@ from . import app_settings
 # need to change any of this, simply override clean_username().
 USERNAME_REGEX = re.compile(r'^[\w.@+-]+$', re.UNICODE)
 
-
 class DefaultAccountAdapter(object):
 
     def stash_verified_email(self, request, email):

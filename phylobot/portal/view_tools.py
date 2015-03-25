@@ -91,10 +91,11 @@ def is_valid_fasta(path):
     fin.close()
 
     
-    """Change \r line breaks to \n line breaks"""
+
     cleanlines = []
-    for l in lines:
-        l = re.sub("\r", "\n", l)
+    for l in lines:    
+        #"""Change \r line breaks to \n line breaks"""
+        #l = re.sub("\r", "\n", l)
         tokens = l.split()
         for t in tokens:
             """Strip indels"""
@@ -109,7 +110,7 @@ def is_valid_fasta(path):
     if cleanlines.__len__() < 3:
         msg = "Something is wrong with your FASTA file. It doesn't appear to contain enough lines. Check your line breaks. Did you create this FASTA file in Word, or some other rich text editor?"
         return (False, msg)
-    
+        
     count_seqs = 0
     for l in cleanlines:
         if l.startswith(">"):
@@ -117,6 +118,7 @@ def is_valid_fasta(path):
     if count_seqs < 3:
         msg = "Your FASTA file appears to contain two or fewer sequences, and PhyloBot needs at least three sequences. If you think your file contains more sequences, please check the line breaks. If you saved your FASTA file from Microsoft Word, for example, the line breaks may be incorrect."
         return (False, msg)
+    
     
     """At this point, the FASTA looks okay. Let's write the clean lines over the saved file."""
     print "116:", path
