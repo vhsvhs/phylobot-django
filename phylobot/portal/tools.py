@@ -33,6 +33,7 @@ def get_taxa(seqpath, format):
                 l = re.sub(" ", "", l)
                 currseq += l.strip()
         taxa_seq[currtaxa] = currseq
+    
     elif format == "phylip":
         for l in fin.xreadlines():
             if l.__len__() > 15:

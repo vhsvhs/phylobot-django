@@ -41,11 +41,17 @@ function clearAll(){
     <tr>
    		<th align="left">Sequence Name</th>
    		<th>Amino Acid Sites</th>
+   		<th>Sequence</th>
    	</tr>
     {% for tuple in taxon_tuples %}
     <tr>
 	    <td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2%}checked{%endif%}/> {{tuple.0|slice:":50"}}</label></td>
 	    <td align="center">{{tuple.3}}</td>
+	    {% if tuple.4|length == 20 %}
+			<td align="left">{{tuple.4}}. . .</td>
+		{% else %}
+			<td align="left">{{tuple.4}}</td>		
+		{% endif %}
     </tr>
     {% endfor %}
     </table>

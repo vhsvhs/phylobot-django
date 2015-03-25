@@ -84,47 +84,28 @@ def is_valid_fasta(path):
         msg = "An error occurred when uploading your file. Please try again."
         return (False, msg)
 
-    display_path = path.split("/")[ path.split("/").__len__()-1 ]    
-    fin = open(path, "r")
-    firstchar = None
-    lines = fin.readlines()
-    fin.close()
+    taxa_seq = get_taxa(path, "fasta") 
+    taxa_cleanseq = {}
 
-    
+    for taxa in taxa_seq:
+        seq = taxa_seq[taxa]
+        cleanseq = re.sub("-", "", seq)
+        cleanseq = re.sub(" ", "", seq)
+        cleantaxa = re.sub(" ", "", taxa)
+        if cleanseq.__len__() > 0:
+            taxa_cleanseq[cleantaxa] = cleanseq
 
-    cleanlines = []
-    for l in lines:    
-        #"""Change \r line breaks to \n line breaks"""
-        #l = re.sub("\r", "\n", l)
-        tokens = l.split()
-        for t in tokens:
-            """Strip indels"""
-            if False == t.startswith(">"):
-                t = re.sub(" ", "", t)
-                t = re.sub("-", "", t)
-            cleanlines.append(t)
-        
-    
     """Check for correct line breaks -- problems can occur in the FASTA file
         if it was created in Word, or rich text."""
-    if cleanlines.__len__() < 3:
-        msg = "Something is wrong with your FASTA file. It doesn't appear to contain enough lines. Check your line breaks. Did you create this FASTA file in Word, or some other rich text editor?"
+    if taxa_cleanseq.__len__() < 3:
+        msg = "Something is wrong with your FASTA file. It doesn't appear to contain enough sequences. Check your line breaks. Did you create this FASTA file in Word, or some other rich text editor?"
         return (False, msg)
-        
-    count_seqs = 0
-    for l in cleanlines:
-        if l.startswith(">"):
-            count_seqs += 1
-    if count_seqs < 3:
-        msg = "Your FASTA file appears to contain two or fewer sequences, and PhyloBot needs at least three sequences. If you think your file contains more sequences, please check the line breaks. If you saved your FASTA file from Microsoft Word, for example, the line breaks may be incorrect."
-        return (False, msg)
-    
-    
+
     """At this point, the FASTA looks okay. Let's write the clean lines over the saved file."""
-    print "116:", path
     fout = open(path, "w")
-    for l in cleanlines:
-        fout.write(l + "\n")
+    for cleantaxa in taxa_cleanseq:
+        fout.write(">" + cleantaxa + "\n")
+        fout.write(taxa_cleanseq[cleantaxa] + "\n")
     fout.close()
 
     return (True, None)

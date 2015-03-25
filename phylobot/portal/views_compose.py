@@ -290,15 +290,18 @@ def compose2(request):
     outgroup_ids = []
     for taxon in this_job.settings.taxa_groups.filter(name=outgroup_name)[0].taxa.all():
         outgroup_ids.append( taxon.id )
-        
+    
+    aapath = os.path.join(settings.MEDIA_ROOT, this_job.settings.original_aa_file.__str__()) 
+    taxa_seq = get_taxa(aapath, "fasta")
+       
     taxon_tuples = []
     for taxon in this_job.settings.original_aa_file.contents.all():
         checked = False
         if taxon.id in outgroup_ids:
             checked = True
         nsites = 0
-        this_job
-        taxon_tuples.append( (taxon.name, taxon.id, checked, taxon.nsites) )
+        seq = taxa_seq[ taxon.name ]
+        taxon_tuples.append( (taxon.name, taxon.id, checked, taxon.nsites, seq[0:20]) )
         
 
     #outgroup_taxon_form = TaxaGroupForm()
