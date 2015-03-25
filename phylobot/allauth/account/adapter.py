@@ -102,12 +102,12 @@ class DefaultAccountAdapter(object):
         #
         # continue here
         #
-        msg.from_email = 'hello@phylobot.com'
-        print "101:", msg, msg.from_email, msg.to, msg.cc, msg.bcc
-        
-        import boto.ses
-        conn = boto.ses.connect_to_region('us-west-2')
-        print "110:", conn.list_verified_email_addresses()
+#         msg.from_email = 'hello@phylobot.com'
+#         print "101:", msg, msg.from_email, msg.to, msg.cc, msg.bcc
+#         
+#         import boto.ses
+#         conn = boto.ses.connect_to_region('us-west-2')
+#         print "110:", conn.list_verified_email_addresses()
         
         
         msg.send()

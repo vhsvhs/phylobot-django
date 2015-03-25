@@ -50,7 +50,7 @@ EMAIL_BACKEND = 'django_ses.SESBackend'
 AWS_SES_REGION_NAME = 'us-west-2'
 EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
 EMAIL_PORT = 465
-DEFAULT_FROM_EMAIL =  'PhyloBot <hello@phylobot.com>'
+DEFAULT_FROM_EMAIL =  'hello@phylobot.com'
 
 
 # Static files (CSS, JavaScript, Images)
