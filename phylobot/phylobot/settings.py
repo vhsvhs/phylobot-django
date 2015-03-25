@@ -51,7 +51,7 @@ AWS_SES_REGION_NAME = 'us-west-2'
 EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
 EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL =  'PhyloBot <hello@phylobot.com>'
-#DJANGO_SETTINGS_MODULE = 'phylobot.settings'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
