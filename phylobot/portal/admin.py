@@ -4,6 +4,7 @@ from django.contrib import admin
 from portal.models import *
 admin.site.register(SeqType)
 admin.site.register(Taxon)
+admin.site.register(TaxonNCBI)
 admin.site.register(AlignmentAlgorithm)
 admin.site.register(RaxmlModel)
 admin.site.register(TaxaGroup)

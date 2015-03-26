@@ -41,10 +41,12 @@
 	    </td>
 	    </tr>
 	    </table>
-	    {% if aa_seqfile_url %}
+		{% if aa_seqfile_url %}
 	    	<p>Current File: <a href="{% static aa_seqfile_url %}">{{aa_seqfile_short}}</a></p>
 	    {% endif %}
 	    {{ aa_seqfileform.as_p }}
+		<p class="smalltext"><input id="aa_is_uniprot" name="is_uniprot" type="checkbox" value="aa"/>Click here if your sequence names are formatted using the <a href="http://www.uniprot.org/help/fasta-headers">NCBI/UniProtKB format.</a></p>
+	   
 	
 	</div>
 
@@ -75,7 +77,9 @@
 	    {% if codon_seqfile_url %}
 	    	<p>Current File: <a href="{% static codon_seqfile_url %}">{{codon_seqfile_short}}</a></p>
 	    {% endif %}
-	    {{ codon_seqfileform.as_p }}	
+	    {{ codon_seqfileform.as_p }}
+		<p class="smalltext"><input id="nt_is_uniprot" name="is_uniprot" type="checkbox" value="nt"/>Click here if your sequence names are formatted using the <a href="http://www.uniprot.org/help/fasta-headers">NCBI/UniProtKB format.</a></p>
+	   	
 	</div>
 	
 	<div class="rounded_div_medium" style="background-color:#dedede;">

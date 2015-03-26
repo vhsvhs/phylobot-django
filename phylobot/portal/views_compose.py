@@ -45,6 +45,7 @@ def compose1(request):
         aa_seqfileform = AASeqFileForm(request.POST, request.FILES)
         codon_seqfileform = CodonSeqFileForm(request.POST, request.FILES)
         js_form = JobSettingForm(request.POST)
+        checked_uniprot = request.POST.getlist('is_uniprot')
       
         """
         Read sequence input
@@ -61,40 +62,73 @@ def compose1(request):
             
             seqfile = None
             this_type = None
+
+            is_uniprot = False
             if ii == 0: 
                 """AA"""
                 seqfile = AASeqFile(aaseq_path=filepath)
                 this_type = "aa"
+                if "aa" in checked_uniprot:
+                    is_uniprot = True
             elif ii == 1: 
                 """Codons"""
                 seqfile = CodonSeqFile(codonseq_path=filepath)
                 this_type = "codon"
+                if "nt" in checked_uniprot:
+                    is_uniprot = True
             seqfile.owner = request.user
             
-            #
-            # to-do: asses the file format by parsing the file
-            #
             this_format = "fasta"
-            if this_format == "fasta":
-                seqfile.format = SeqFileFormat.objects.get_or_create(name=this_format)[0]
-                seqfile.save()
+            seqfile.format = SeqFileFormat.objects.get_or_create(name=this_format)[0]
+            seqfile.save()
 
             # full path to the uploaded sequence file.
             fullpath = os.path.join(settings.MEDIA_ROOT, seqfile.__str__())                        
             this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
 
-            # note: taxa_seq[taxon name] = sequence
-            (validflag, msg) = is_valid_fasta(fullpath)
+            """Is the sequence file a valid FASTA file?"""
+            (validflag, msg) = is_valid_fasta(fullpath, is_uniprot=is_uniprot)
             
             if validflag:
-                taxa_seq = get_taxa(fullpath, this_format)      
+                taxa_seq = get_taxa(fullpath, this_format)
+                cleaned_taxa_seq = {} 
                 for taxa in taxa_seq:
-                    t = Taxon.objects.get_or_create(name=taxa,
-                                                seqtype=this_seqtype,
-                                                nsites = taxa_seq[taxa].__len__() )[0]
-                    t.save()
+                    sequence = taxa_seq[taxa]
+                    uniprot_data = None # are the sequence name formatted according to NCBI?
+                    seqname = taxa # the cleaned sequence name
+                    
+                    if is_uniprot:
+                        (db, uniqueid, entryname, ogs, gn, pe, sv) = parse_uniprot_seqname( taxa )
+                        seqname = gn + "." + uniqueid.__str__()
+                        seqname = re.sub("\. ", ".", seqname )
+                        seqname = re.sub(" ", ".", seqname)                        
+                        """Make or get the Taxon"""
+                        t = Taxon.objects.get_or_create(name=seqname,
+                                                    seqtype=this_seqtype,
+                                                    nsites = taxa_seq[taxa].__len__() )[0]
+                        t.save()
+                        
+                        """Make of get the NCBI data"""
+                        tncbi = TaxonNCBI.objects.get_or_create(taxon=t,
+                                                                uniqueid=uniqueid,
+                                                                entryname=entryname,
+                                                                organismname=ogs,
+                                                                genename=gn)[0]
+                        tncbi.save()
+                    else:
+                        """Make or get the Taxon"""
+                        t = Taxon.objects.get_or_create(name=seqname,
+                                                    seqtype=this_seqtype,
+                                                    nsites = taxa_seq[taxa].__len__() )[0]
+                        t.save()                    
+
+                    """Attach the taxon to the SeqFile"""
                     seqfile.contents.add(t)
-                    seqfile.save()    
+                    seqfile.save()
+                    cleaned_taxa_seq[seqname] = sequence
+                    
+                
+                write_clean_fasta(cleaned_taxa_seq, fullpath)
                 
                 if ii == 0: 
                     """AA"""
@@ -271,9 +305,7 @@ def compose2(request):
                 outgroup.taxa.add(taxa)
                 count_outgroup += 1
             outgroup.save()
-            
-            print "279:", count_outgroup
-            
+                        
             if count_outgroup == 0:
                 error_messages.append("Please select at least one outgroup sequence.")
             else:

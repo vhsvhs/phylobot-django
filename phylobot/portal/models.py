@@ -31,6 +31,22 @@ class Taxon(models.Model):
     def __unicode__(self):
         return unicode(self.name)
 
+class TaxonNCBI(models.Model):
+    """If the given fasta file is NCBI-formatted, then we may have the following information
+        (based on http://www.uniprot.org/help/fasta-headers)
+    """
+    taxon = models.ForeignKey(Taxon)
+    uniqueid = models.CharField(max_length=20)
+    entryname = models.CharField(max_length=40)
+    proteinname = models.CharField(max_length=40, null=True)
+    organismname = models.CharField(max_length=50, null=True)
+    genename = models.CharField(max_length=30, null=True)
+    proteinexistence = models.IntegerField(null=True)
+    sequenceversion = models.IntegerField(null=True)
+    
+    def __unicode__(self):
+        return unicode(self.uniqueid)
+    
 class AlignmentAlgorithm(models.Model):
     name = models.CharField(max_length=30)
     executable = models.TextField()
