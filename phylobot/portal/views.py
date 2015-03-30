@@ -68,7 +68,16 @@ def portal_main_page(request):
     # Generate a list of jobs that belong to user
     #
     my_jobs = []
-    for job in Job.objects.filter(owner=request.user):
+    show_owner = False
+    
+    """For a normal user, just show their jobs.
+        But for admin, show all jobs"""
+    if request.user.username == "admin":
+        ij =  Job.objects.all()
+        show_owner = True
+    else:
+        ij =  Job.objects.filter(owner=request.user)
+    for job in ij:
 
         # The idea of these if blocks is to prevent malformed/orphaned
         # jobs from getting displayed.
@@ -87,9 +96,13 @@ def portal_main_page(request):
         if checkpoint > 8:
             alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
             finished_library_id = alib.id.__str__()
+                
         my_jobs.append( (job, finished_library_id ) )    
 
-    context_dict = {'jobs':my_jobs}
+        
+
+    context_dict = {'jobs':my_jobs,
+                    'show_owner':show_owner}
     
     # Another, better, method:
     return render(request, 'portal/index.html', context_dict)
