@@ -10,6 +10,8 @@ from phylobot.view_faqs import *
 urlpatterns = patterns('', 
 	(r'^$', views.main_page),
 	
+	(r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /", mimetype="text/plain")),
+	
  	(r'^admin/', include(admin.site.urls)),
 	(r'^accounts/', include('allauth.urls') ),
 
