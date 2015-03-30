@@ -36,26 +36,26 @@ def portal_main_page(request):
     #
     
     if request.method == 'POST':
+        jobid = request.POST.get('jobid')
+        if jobid == None:
+            return
+        
+        this_job = Job.objects.filter(owner=request.user, id=jobid)
+        if request.user.username == "admin":
+            this_job = Job.objects.filter(id=jobid)
+        this_job = this_job[0]
+        
         action = request.POST.get('action')
         if action == "status":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)            
+                
             return HttpResponseRedirect('/portal/status/' + jobid)
-        if action == "edit":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)            
+        if action == "edit":           
             return HttpResponseRedirect('/portal/compose/' + jobid)
         if action == "remove":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
             trash_job(request, this_job)            
         if action == "stop":
-            jobid = request.POST.get( 'jobid' )
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
             stop_job( request, this_job ) 
         if action == "start":
-            jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=jobid)[0]
             if this_job.validate():
                 enqueue_job( request, this_job )
             else:
@@ -130,32 +130,30 @@ def jobstatus(request, jobid):
     this_jobid = None
     this_job = None
     if request.method == 'POST':
-    
+        this_jobid = request.POST.get('jobid')
+        if this_jobid == None:
+            return
+        
+        this_job = Job.objects.filter(owner=request.user, id=this_jobid)
+        if request.user.username == "admin":
+            this_job = Job.objects.filter(id=this_jobid)
+        this_job = this_job[0]
+        
         action = request.POST.get('action')
         print "371:", action
-        if action == "edit":
-            this_jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=this_jobid)            
+        if action == "edit":            
             return HttpResponseRedirect('/portal/compose/' + this_jobid)
         if action == "remove":
-            this_jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             context_dict = {}
             context_dict['jobname'] = this_job.settings.name
             context_dict['jobid'] = this_job.id
             trash_job(request, this_job)
             return render(request, 'portal/trashed.html', context_dict)            
         if action == "reset":
-            this_jobid = request.POST.get( 'jobid' )
-            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             reset_job( request, this_job ) 
         if action == "stop":
-            this_jobid = request.POST.get( 'jobid' )
-            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             stop_job( request, this_job ) 
         if action == "start":
-            this_jobid = request.POST.get('jobid')
-            this_job = Job.objects.filter(owner=request.user, id=this_jobid)[0]
             if this_job.validate():
                 enqueue_job( request, this_job )
             else:
