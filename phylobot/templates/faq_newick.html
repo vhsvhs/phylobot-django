@@ -1,0 +1,26 @@
+{% extends "portal/portal_base.html" %}
+
+{% block content %}
+
+<hr>
+
+<h3>Notes on Constraint Trees</h3>
+
+<p>PhyloBot reads constraint trees in <a href="http://en.wikipedia.org/wiki/Newick_format">the Newick file format</a>.
+This format uses parenthesis and commas to represent a graph object, such as a phylogeny.
+The constraint tree expresses your prior beliefs about taxonomic relationships. PhyloBot will read your constraint tree, and direct RAxML (the software for
+phylogenetic inference) to restrict its search to topologies that satisfy the constraint tree.</p>
+
+<p>The constraint tree does not need to express a phylogenetic relationship for all sequences
+in your sequence set. For example, suppose your input sequence set contains 200 sequences, but
+you have prior opinions about only four of those sequences with names A, B, C, and D. Your constraint
+tree could look like this:
+
+
+<code>
+(A,B,(C,D)); 
+</code>
+</p>
+
+<hr>
+{% endblock %}
