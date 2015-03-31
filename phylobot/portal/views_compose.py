@@ -13,12 +13,12 @@ def composenew(request):
 
 @login_required
 def edit_job(request, jobid):
+    print "16:", jobid
     this_job = Job.objects.filter(owner=request.user, id=jobid)
     if this_job:
         this_job = this_job[0]
         this_job.last_modified = datetime.datetime.now()
         this_job.save()
-    print "20:", request.method
     return HttpResponseRedirect('/portal/compose1')
 
 @login_required
@@ -335,48 +335,14 @@ def compose2(request):
         seq = taxa_seq[ taxon.name ]
         taxon_tuples.append( (taxon.name, taxon.id, checked, taxon.nsites, seq[0:20]) )
         
-
-    #outgroup_taxon_form = TaxaGroupForm()
-    #outgroup_taxon_form.fields["taxa"].queryset = this_job.settings.original_aa_file.contents.all()
-    
-    #list_of_ancestors = []
-    #for aa in this_job.settings.ancestors.all():
-    #    list_of_ancestors.append( aa.ancname )
-    
-    #newanc_form = AncestorForm()
-    #newanc_form.fields['ingroup'].queryset = this_job.settings.taxa_groups
-    #newanc_form.fields['seedtaxa'].queryset = this_job.settings.original_aa_file.contents.all()
-    
-    #anccomp_form = AncCompForm()
-    #anccomp_form.fields["oldanc"].queryset = this_job.settings.ancestors.all()
-    #anccomp_form.fields["newanc"].queryset = this_job.settings.ancestors.all()
-    
-    #outgroup_form = OutgroupForm()
-    #outgroup_form.fields['outgroup'].queryset = this_job.settings.taxa_groups
-    #if this_job.settings.outgroup:
-    #    outgroup_form.fields['outgroup'].initial = this_job.settings.outgroup
-     
-    #list_of_anccomps = []
-    #for ac in this_job.settings.anc_comparisons.all():
-    #    list_of_anccomps.append( (ac.oldanc.ancname, ac.oldanc.id, ac.newanc.ancname, ac.newanc.id) )
-
     context_dict = {'forward_unlock': True,
                     'jobname': this_job.settings.name,
-                    #'outgroup_form':outgroup_taxon_form,
                     'taxon_tuples': taxon_tuples,
                     'error_messages': error_messages,
-                    #'list_of_taxagroups':list_of_taxagroups,
-                    #'outgroup_form':outgroup_form,
-                    #'outgroup':this_job.settings.outgroup,
-                    #'list_of_ancestors': list_of_ancestors,
-                    #'newanc_form':newanc_form,
-                    #'list_of_anccomps':list_of_anccomps,
-                    #'anccomp_form':anccomp_form,
                     'current_step':2}
 
     return render(request, 'portal/compose2.html', context_dict)
     
-
 @login_required
 def cancelcompose(request):
     """Cancel a job composition. . . basically delete a bunch of database objects

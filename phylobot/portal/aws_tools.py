@@ -10,7 +10,8 @@ import sys, time
 ZONE = "us-west-1"
 #AMI_SLAVE_MOTHER = "ami-6fb3552b" # march 13, 2015
 AMI_SLAVE_MOTHER = "ami-59db3a1d" # march 23, 2015
-INSTANCE_TYPE = "t2.micro"
+#INSTANCE_TYPE = "t2.micro"
+INSTANCE_TYPE = "t2.small"
 INSTANCE_KEY_NAME = "phylobot-ec2-key"
 INSTANCE_SECURITY_GROUP = 'phylobot-security'
 S3LOCATION = Location.USWest
