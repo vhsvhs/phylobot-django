@@ -48,7 +48,10 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     configfile = job.generate_configfile()
     push_jobfile_to_s3(job.id, configfile)
     setup_slave_startup_script(job.id)
-    set_job_status(job.id, "Starting, waiting for cloud resources to spawn")
+    js = get_job_status(job.id)
+    if js == "Stopped" or js == None:
+        set_job_status(job.id, "Starting, waiting for cloud resources to spawn")
+    # else, the job is already running, so don't override its current status
 
     """ Add to the SQS """
     sqs_start(job.id)
