@@ -345,7 +345,8 @@ def cleanup_orphaned_instances(dbconn):
         print ii
 
 def run_tests():
-    dbconn = build_db(SQLDBPATH)
-    write_log(dbconn, "Connected to the daemon DB at " + SQLDBPATH.__str__())
+    dbconn = None
+    #dbconn = build_db(SQLDBPATH)
+    #write_log(dbconn, "Connected to the daemon DB at " + SQLDBPATH.__str__())
     cleanup_orphaned_instances(dbconn)
     
