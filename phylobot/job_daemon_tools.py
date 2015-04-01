@@ -343,4 +343,9 @@ def cleanup_orphaned_instances(dbconn):
     reservation = conn.get_all_instances()[0]
     for ii in reservation.instances:
         print ii
+
+def run_tests():
+    dbconn = build_db(SQLDBPATH)
+    write_log(dbconn, "Connected to the daemon DB at " + SQLDBPATH.__str__())
+    cleanup_orphaned_instances(dbconn)
     
