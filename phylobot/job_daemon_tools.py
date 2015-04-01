@@ -334,3 +334,13 @@ def release_job(jobid, dbconn):
             time.sleep(3)
     
     return True
+
+def cleanup_orphaned_instances(dbconn):
+    """Get a list of instances on EC2, and another list of known instances in our databse.
+        Kill any instances on EC2 that don't map to a known job
+    """
+    conn = boto.ec2.connect_to_region(ZONE)
+    reservation = conn.get_all_instances()[0]
+    for ii in reservation.instances:
+        print ii
+    

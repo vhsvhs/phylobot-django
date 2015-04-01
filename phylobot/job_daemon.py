@@ -125,5 +125,7 @@ while(True):
                 print "I successfully stopped job", msg_jobid
             continue
         
-    # outside the for loop, but inside the while loop:
+    """
+    outside the for loop, but inside the while loop
+    """
     time.sleep(5)
