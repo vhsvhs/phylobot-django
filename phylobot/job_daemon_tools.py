@@ -340,9 +340,10 @@ def cleanup_orphaned_instances(dbconn):
         Kill any instances on EC2 that don't map to a known job
     """
     conn = boto.ec2.connect_to_region(ZONE)
-    reservation = conn.get_all_instances()[0]
-    for ii in reservation.instances:
-        print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
+    reservations = conn.get_all_reservations()
+    for rr in reservations:
+        for ii in rr.instances:
+            print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
 
 def run_tests():
     dbconn = None
