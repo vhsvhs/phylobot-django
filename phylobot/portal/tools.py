@@ -17,12 +17,21 @@ def scan_seq(seqpath):
     return (format, type)
 
 def get_taxa(seqpath, format):
+    """Given the path to a sequence collection, this method returns a hashtable
+    where key = sequence name, value = the sequence"""
     taxa_seq = {}
     fin = open(seqpath, "r")
     if format == "fasta":
         currseq = ""
         currtaxa = None
+        
+        """First, split lines ending in \r"""
+        cleanlines = []
         for l in fin.xreadlines():
+            for lt in l.split("\r"):
+                cleanlines.append(lt)
+        
+        for l in cleanlines:
             if l.startswith(">"):
                 this_taxa = re.sub( ">", "", l.strip() )
                 if currtaxa != None:
