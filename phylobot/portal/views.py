@@ -88,17 +88,21 @@ def portal_main_page(request):
         
 
         checkpoint = float( get_aws_checkpoint(job.id) )
-
         print "92:", checkpoint
-
-        job.p_done = 100.0 * float(checkpoint)/9.0
-        job.save()
         
         finished_library_id = None
+        
+        if checkpoint == 8:
+            import_ancestral_library(job)
+            checkpoint = 9
+        
         if checkpoint >= 8:
             alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
             finished_library_id = alib.id.__str__()
-                
+
+        job.p_done = 100.0 * float(checkpoint)/9.0
+        job.save()                
+        print "105:", checkpoint
         my_jobs.append( (job, finished_library_id ) )    
 
         
@@ -208,33 +212,35 @@ def jobstatus(request, jobid):
     
     finished_library_id = None
     
-    if checkpoint == 8 and job_status == "Finished":
+    if checkpoint == 8:
         print "views_compose.py 380 - let's import", job.id
         
         contact_authors_profile = phylobotmodels.UserProfile.objects.get_or_create(user=request.user)[0]
         #print "383:", contact_authors_profile
         contact_authors_profile.save()
         
-        alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
-        #print "384:", alib
-        
-        relationship = phylobotmodels.AncestralLibrarySourceJob.objects.get_or_create(jobid=job.id, libid=alib.id)[0]
-        #print "383:", relationship
-        relationship.save()
-        
-        save_to_path = settings.MEDIA_ROOT + "/anclibs/asr_" + job.id.__str__() + ".db"
-        #print "392:", save_to_path
-        get_asrdb(job.id, save_to_path)
-        
-        if False == os.path.exists(save_to_path):
-            print "398 - the db save didn't work"
-        else:
-            print "400 - the db save worked!"
-            checkpoint = 9.0
-            set_aws_checkpoint(job.id, checkpoint)
-        
-        alib.dbpath = "anclibs/asr_" + job.id.__str__() + ".db"
-        alib.save()
+        import_ancestral_library(job)
+        checkpoint = 9
+#         alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
+#         #print "384:", alib
+#         
+#         relationship = phylobotmodels.AncestralLibrarySourceJob.objects.get_or_create(jobid=job.id, libid=alib.id)[0]
+#         #print "383:", relationship
+#         relationship.save()
+#         
+#         save_to_path = settings.MEDIA_ROOT + "/anclibs/asr_" + job.id.__str__() + ".db"
+#         #print "392:", save_to_path
+#         get_asrdb(job.id, save_to_path)
+#         
+#         if False == os.path.exists(save_to_path):
+#             print "398 - the db save didn't work"
+#         else:
+#             print "400 - the db save worked!"
+#             checkpoint = 9.0
+#             set_aws_checkpoint(job.id, checkpoint)
+#         
+#         alib.dbpath = "anclibs/asr_" + job.id.__str__() + ".db"
+#         alib.save()
     
     if checkpoint >= 8:
         alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
@@ -263,4 +269,3 @@ def jobstatus(request, jobid):
                     }
     
     return render(request, 'portal/status.html', context_dict)
-     
