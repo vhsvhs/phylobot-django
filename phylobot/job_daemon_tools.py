@@ -349,6 +349,7 @@ def cleanup_orphaned_instances(dbconn):
             """Does this instance map to a known job?"""
             sql = "select jobid from JobInstance where aws_id=" + ii.id.__str__()
             cur = dbconn.cursor()
+            print "352:", sql
             cur.execute(sql)
             x = cur.fetchall()
             if x == None:
