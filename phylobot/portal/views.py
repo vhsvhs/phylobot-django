@@ -93,7 +93,7 @@ def portal_main_page(request):
         job.save()
         
         finished_library_id = None
-        if checkpoint > 8:
+        if checkpoint >= 8:
             alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
             finished_library_id = alib.id.__str__()
                 
