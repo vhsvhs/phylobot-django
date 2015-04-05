@@ -154,8 +154,6 @@ def get_last_user_command(jobid):
     return key.get_contents_as_string() 
 
 
-
-
 def set_job_exe(jobid, exe):
     s3 = S3Connection()
     

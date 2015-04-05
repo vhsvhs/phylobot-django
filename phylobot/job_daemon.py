@@ -75,6 +75,9 @@ while(True):
             continue
     
         if msg_action == "start":
+            """
+            start_job
+            """
             (success_flag, aws_id) = start_job(msg_jobid, dbconn)
             if success_flag == False:
                 write_log(dbconn, "I couldn't start the job " + msg_jobid.__str__() + ". I'm re-queing the job to try again next cycle.")
@@ -104,6 +107,9 @@ while(True):
                 continue
   
         elif msg_action == "stop":
+            """
+            stop_job
+            """
             success_flag = stop_job(msg_jobid, dbconn)
             queue.delete_message( msg )
             if success_flag == False:

@@ -206,7 +206,7 @@ def jobstatus(request, jobid):
     
     finished_library_id = None
     
-    job.p_done = 100.0 * float(checkpoint)/9.0
+    job.p_done = 100.0 * float(checkpoint)/8.0
     job.save()
     
     if checkpoint == 8 and job_status == "Finished":
@@ -237,7 +237,7 @@ def jobstatus(request, jobid):
         alib.dbpath = "anclibs/asr_" + job.id.__str__() + ".db"
         alib.save()
     
-    if checkpoint > 8:
+    if checkpoint >= 8:
         alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
         finished_library_id = alib.id.__str__()
         print "409:", finished_library_id

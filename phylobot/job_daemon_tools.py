@@ -245,7 +245,7 @@ def stop_job(jobid, dbconn):
         MAX_WAIT = 120
         print "\n. Waiting for AWS to catchup"
         while(known_instances.__len__() > 0):
-            """While our list of instances known to be assocated with this jobid
+            """While our list of instances known to be associated with this jobid
                 contains at least one non-terminated instance, then keep waiting for
                 AWS to terminate."""
             all_instances = conn.get_all_instances()
@@ -345,9 +345,4 @@ def cleanup_orphaned_instances(dbconn):
         for ii in rr.instances:
             print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
 
-def run_tests():
-    dbconn = None
-    #dbconn = build_db(SQLDBPATH)
-    #write_log(dbconn, "Connected to the daemon DB at " + SQLDBPATH.__str__())
-    cleanup_orphaned_instances(dbconn)
     
