@@ -346,6 +346,9 @@ def cleanup_orphaned_instances(dbconn):
         for ii in rr.instances:
             print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
             
+            if ii.state == "terminated":
+                continue
+            
             terminate_this_instance = False
             """Does this instance map to a known job?"""
             sql = "select jobid from JobInstance where aws_id='" + ii.id.__str__() + "'"
