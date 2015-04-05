@@ -206,9 +206,6 @@ def jobstatus(request, jobid):
     
     finished_library_id = None
     
-    job.p_done = 100.0 * float(checkpoint)/8.0
-    job.save()
-    
     if checkpoint == 8 and job_status == "Finished":
         print "views_compose.py 380 - let's import", job.id
         
@@ -244,6 +241,9 @@ def jobstatus(request, jobid):
         #
         #  continue here - get finished_library_id into the template
         #
+
+    job.p_done = 100.0 * float(checkpoint)/9.0
+    job.save()
     
     context_dict = {'job': job, 
                     'job_status': job_status,
