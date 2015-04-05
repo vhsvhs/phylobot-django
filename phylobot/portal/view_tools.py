@@ -12,6 +12,8 @@ from portal.models import *
 from portal.forms import *
 from portal.tools import *
 
+from phylobot import models as phylobotmodels
+
 from aws_tools import *
 
 try:

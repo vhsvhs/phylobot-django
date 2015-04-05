@@ -92,9 +92,9 @@ def portal_main_page(request):
         
         finished_library_id = None
         
-        #if checkpoint == 8:
-        #    import_ancestral_library(job)
-        #    checkpoint = 9
+        if checkpoint == 8:
+            import_ancestral_library(job)
+            checkpoint = 9
         
         if checkpoint >= 8:
             alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
