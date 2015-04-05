@@ -89,6 +89,8 @@ def portal_main_page(request):
 
         checkpoint = float( get_aws_checkpoint(job.id) )
 
+        print "92:", checkpoint
+
         job.p_done = 100.0 * float(checkpoint)/9.0
         job.save()
         
