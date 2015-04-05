@@ -341,6 +341,7 @@ def cleanup_orphaned_instances(dbconn):
     """
     conn = boto.ec2.connect_to_region(ZONE)
     reservations = conn.get_all_reservations()
+    terminate_these_instance_ids = []
     for rr in reservations:
         for ii in rr.instances:
             print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
@@ -364,6 +365,10 @@ def cleanup_orphaned_instances(dbconn):
                         terminate_this_instance = True
             if terminate_this_instance == True:
                 print "\n. 365 - planning to terminate instance for " + jj[0].__str__()
+                terminate_these_instance_ids.append( ii.id )
+    print "369: Terminating:", terminate_these_instance_ids
+    conn.terminate_instances( instance_ids=terminate_these_instance_ids ) 
+                
                 #
                 # continue here
                 #
