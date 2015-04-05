@@ -118,7 +118,7 @@ while(True):
                 sqs_stop(jobid, attempts=msg_attempts+1 )
             if success_flag == True:
                 print "I successfully stopped job", msg_jobid
-                set_job_status(msg_jobid, "Stopped.")
+                set_job_status(msg_jobid, "Stopped")
             continue
         
         elif msg_action == "release":
@@ -130,8 +130,9 @@ while(True):
             if success_flag == True:
                 print "I successfully stopped job", msg_jobid
             continue
-        
+           
     """
     outside the for loop, but inside the while loop
     """
     time.sleep(5)
+    cleanup_orphaned_instances(dbconn)

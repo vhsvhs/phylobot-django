@@ -267,7 +267,7 @@ def stop_job(jobid, dbconn):
                 conn.terminate_instances(instance_ids=known_instances)        
             elif known_instances.__len__() == 0:
                 """We're done!"""
-                set_job_status(jobid, "Stopped.")
+                set_job_status(jobid, "Stopped")
                 remove_job(dbconn, jobid)
                 return True
             
@@ -344,5 +344,29 @@ def cleanup_orphaned_instances(dbconn):
     for rr in reservations:
         for ii in rr.instances:
             print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
+            
+            terminate_this_instance = False
+            """Does this instance map to a known job?"""
+            sql = "select jobid from JobInstance where aws_id=" + ii.id.__str__()
+            cur = dbconn.cursor()
+            cur.execute(sql)
+            x = cur.fetchall()
+            if x == None:
+                """Then this instance has no known job."""
+                terminate_this_instance = True
+            else:
+                for jj in x:
+                    this_status = get_job_status( jj[0] )
+                    if this_status.__contains__("Stopped"):
+                        terminate_this_instance = True
+                    elif this_status.__contains__("Finished"):
+                        terminate_this_instance = True
+            if terminate_this_instance == True:
+                print "\n. 365 - planning to terminate instance for " + jj[0].__str__()
+                #
+                # continue here
+                #
+            
+            
 
     
