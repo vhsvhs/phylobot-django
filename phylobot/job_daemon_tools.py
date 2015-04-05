@@ -370,7 +370,8 @@ def cleanup_orphaned_instances(dbconn):
                 print "\n. 365 - planning to terminate instance for " + jj[0].__str__()
                 terminate_these_instance_ids.append( ii.id )
     print "369: Terminating:", terminate_these_instance_ids
-    conn.terminate_instances( instance_ids=terminate_these_instance_ids ) 
+    if terminate_these_instance_ids.__len__() > 0:
+        conn.terminate_instances( instance_ids=terminate_these_instance_ids ) 
                 
                 #
                 # continue here
