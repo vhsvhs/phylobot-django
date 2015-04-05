@@ -134,5 +134,5 @@ while(True):
     """
     outside the for loop, but inside the while loop
     """
-    time.sleep(5)
+    time.sleep(6)
     cleanup_orphaned_instances(dbconn)

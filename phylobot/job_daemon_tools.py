@@ -344,7 +344,7 @@ def cleanup_orphaned_instances(dbconn):
     terminate_these_instance_ids = []
     for rr in reservations:
         for ii in rr.instances:
-            print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
+            #print ii.instance_type, ii.instance_type, ii.state, ii.ip_address
             
             if ii.state == "terminated":
                 continue
@@ -353,7 +353,7 @@ def cleanup_orphaned_instances(dbconn):
             """Does this instance map to a known job?"""
             sql = "select jobid from JobInstance where aws_id='" + ii.id.__str__() + "'"
             cur = dbconn.cursor()
-            print "352:", sql
+            print "* Active Instance:", ii.id.__str__()
             cur.execute(sql)
             x = cur.fetchall()
             if x == None:
