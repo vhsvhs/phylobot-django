@@ -1274,14 +1274,23 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     ancid = x[0]
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
-    
-    #
-    # continue here - fix the seed thing
-    #
-    #sql = "select value from Settings where keyword='seedtaxa'"
+
+    seedtaxonid = None
+    seedtaxonname = None
+    taxonnames = []
     sql = "select shortname from Taxa"
     cur.execute(sql)
-    seedtaxonname = cur.fetchone()[0]
+    x = cur.fetchall()
+    for ii in x:
+        taxonnames.append( ii[0] )
+    """Get the seedsequence with indels"""
+    (seedtaxonid, seedtaxonname) = get_seedtaxon(request, alib, con)
+    print "1288:", seedtaxonid, seedtaxonname
+    save_viewing_pref(request, alib.id, con, "lastviewed_seedtaxonid", seedtaxonid.__str__()) 
+    if seedtaxonid == None:
+        sql = "select shortname from Taxa"
+        cur.execute(sql)
+        seedtaxonname = cur.fetchone()[0]
     
     sql = "select alsequence from AlignedSequences where almethod="+ msaid.__str__() + " and taxonid in (select id from Taxa where shortname='" + seedtaxonname + "')"
     cur.execute(sql)
@@ -1319,7 +1328,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
                 tuple = (state, pp)
                 tuples.append( tuple )
         site_rows.append( [site,count_sites,alignedsite_seedsite[site],seedseq[site-1],tuples] )
-    
             
     context = get_base_context(request, alib, con)
     context["node_number"] = nodenumber
@@ -1327,6 +1335,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     context["modelname"] = phylomodelname
     context["site_rows"] = site_rows
     context["seedtaxonname"] = seedtaxonname
+    context["taxonnames"] = taxonnames
     if xls == True:
         return render(request, 'libview/libview_ancestor_supportbysite.xls', context, content_type='text')
     return render(request, 'libview/libview_ancestor_supportbysite.html', context)   
