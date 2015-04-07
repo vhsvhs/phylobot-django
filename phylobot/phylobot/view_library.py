@@ -1346,18 +1346,20 @@ def view_mutations_bybranch(request, alib, con):
     save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
 
-    """Get the seedsequence with indels"""
-    seedsequence = get_seed_sequence(con, msaname)
-    nsites = seedsequence.__len__()
-    #sql = "select id, shortname from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
-    #
-    # continue here - fix the seed thing
-    #
-    sql = "select id, shortname from Taxa"
+    taxonnames = []
+    sql = "select shortname from Taxa"
     cur.execute(sql)
-    x = cur.fetchone()
-    seedtaxonid = x[0]
-    seedtaxonname = x[1]
+    x = cur.fetchall()
+    for ii in x:
+        taxonnames.append( ii[0] )
+
+    """Get the seedsequence with indels"""
+    (seedtaxonid, seedtaxonname) = get_seedtaxon(request, alib, con)
+    print "1358:", seedtaxonid, seedtaxonname
+    save_viewing_pref(request, alib.id, con, "lastviewed_seedtaxonid", seedtaxonid.__str__()) 
+    seedsequence = get_sequence_for_taxon(con, msaname, seedtaxonid)
+    nsites = seedsequence.__len__()
+
     sl = seedtaxonname.__len__()
     if sl > 10:
         seedtaxonnameshort = seedtaxonname[0:4] + "..." + seedtaxonname[sl-7:sl]
@@ -1587,6 +1589,7 @@ def view_mutations_bybranch(request, alib, con):
     for ii in x:
         context["ancnames"].append( ii[0] )
     context["seedtaxonname"] = seedtaxonname
+    context["taxonnames"] = taxonnames
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
     context["default_msaname"] = msaname

@@ -131,6 +131,53 @@ def __get_model_from_post(request, con):
             return (phylomodelname, phylomodelid)
     return None
 
+def __get_seedtaxon_from_post(request, con):
+    """Returns the tuple (taxon ID, taxon name), where taxon name was read
+        from the request POST form field named 'seedtaxonname'
+        If the request lacks a field named 'seedtaxonname', then this method returns None."""
+    if "seedtaxonname" in request.POST:
+        cur = con.cursor()
+        seedtaxonname = request.POST.get("seedtaxonname")
+        sql = "select id, shortname from Taxa where shortname='" + seedtaxonname + "'"
+        cur.execute(sql)
+        x = cur.fetchone()
+        if x == None:
+            return None
+        taxonid = x[0]
+        return (taxonid, seedtaxonname)
+    return None
+
+def get_seedtaxon(request, alib, con):
+    """This method returns the seed taxon, by searching in a few different places
+        for information. See the related method get_msamodel"""
+    cur = con.cursor()
+    seedtaxonname = None
+    seedtaxonid = None
+
+    """INPUT 1: parse the POST information from the web form"""
+    if request.method == "POST":
+        if "seedtaxonname" in request.POST:
+            (seedtaxonid, seedtaxonname) = __get_seedtaxon_from_post(request, con)
+            print "161:", seedtaxonid, seedtaxonname
+
+    """INPUT 3: maybe the user has some saved viewing preferences?"""
+    if seedtaxonid == None:
+        seedtaxonid = get_viewing_pref(request, alib.id, con, "lastviewed_seedtaxonid")
+        if seedtaxonid != None:
+            sql = "select shortname from Taxa where id=" + seedtaxonid.__str__()
+            cur.execute(sql)
+            seedtaxonname = cur.fetchone()[0]
+            
+    """INPUT 4: pick a random sequence to tbe the seed."""
+    if seedtaxonid == None:
+        sql = "select id, shortname from Taxa"
+        cur.execute(sql)
+        x = cur.fetchone()
+        seedtaxonid = x[0]
+        seedtaxonname = x[1]
+
+    return (seedtaxonid, seedtaxonname)
+
 def get_msamodel(request, alib, con):
     """This method returns the tuple (msaid, msaname, phylomodelid, phylomodelname) by parsing
         data from several possible different sources, in this order:
@@ -161,7 +208,6 @@ def get_msamodel(request, alib, con):
         if x != None:
             (msaid, msaname, phylomodelid, phylomodelname) = x
             
-
     """INPUT 3: maybe the user has some saved viewing preferences?"""
     if msaid == None and phylomodelid == None:
         msaid = get_viewing_pref(request, alib.id, con, "lastviewed_msaid")
@@ -191,16 +237,8 @@ def get_msamodel(request, alib, con):
     
     return (msaid, msaname, phylomodelid, phylomodelname)       
 
-def get_seed_sequence(con, msaname):
+def get_sequence_for_taxon(con, msaname, seedtaxonid):
     cur = con.cursor()
-    #sql = "select id from Taxa where shortname in (select value from Settings where keyword='seedtaxa')"
-    #cur.execute(sql)
-    #
-    # continue here
-    #
-    sql = "select id from Taxa"
-    cur.execute(sql)
-    seedtaxonid = cur.fetchone()[0]
     
     sql = "select id from AlignmentMethods where name='" + msaname + "'"
     cur.execute(sql)
