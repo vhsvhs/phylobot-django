@@ -169,7 +169,7 @@ These substitutions are listed below:
 
 	<tr>
 	<td align="center"><a href="/{{alid}}/{{default_msaname}}/site{{mu.0}}">{{mu.0}}</a></td>
-	<td align="center">{{mu.1}}</td>
+	<td align="center">{% if mu.1 == "-" %}none{% else %}{{mu.1}}{% endif %}</td>
 	<td align="center"><strong>{{mu.2}}</strong>&#x2192;<strong>{{mu.3}}</strong></td>
 	<td align="center">{{mu.4}}</td>
 	</tr>
@@ -196,7 +196,7 @@ connecting {{default_ancname1}} to {{default_ancname2}}:</p>
 			<td><a href="/{{alid}}/{{default_msaname}}/site{{row.0}}">Site {{row.0}}</a></td>
 			
 			{# Print either the empty case, or the ancestral state and PP #}
-			<td>{% if row.2 == "-" %}&empty;{% else %}{{row.1}}: {{row.2}}{% endif %}</td>
+			<td>{% if row.2 == "-" %}none{% else %}{{row.1}}: {{row.2}}{% endif %}</td>
 			
 			{% for col in row.3 %}
 			{# col.0 is anc1state, col.1 is the PP, col.2 is the anc2state, col.3 is the PP, col.4 is the mutation flag #}
@@ -204,7 +204,7 @@ connecting {{default_ancname1}} to {{default_ancname2}}:</p>
 					{# now site data for this alignment/model combo #}
 					<td>&nbsp;</td>
 				{% else %}
-					<td class="mu{{col.4}}">{% if col.0 == "-" %}&empty;<br>{% else %}{{col.0}} ({{col.1}}){% endif %}&#8594;<br>{% if col.2 == "-" %}&empty;{% else %}{{col.2}} ({{col.3}}){% endif %}</td>
+					<td class="mu{{col.4}}">{% if col.0 == "-" %}none<br>{% else %}{{col.0}} ({{col.1}}){% endif %}&#8594;<br>{% if col.2 == "-" %}none{% else %}{{col.2}} ({{col.3}}){% endif %}</td>
 				{% endif %}
 			{% endfor %}
 		</tr>

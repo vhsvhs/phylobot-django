@@ -1494,6 +1494,7 @@ def view_mutations_bybranch(request, alib, con):
     for site in range(1, nsites+1):
         found_content = False # did we find any non-indel characters?
         this_row = []
+
         
         if site == 1:
             """Add header information"""
@@ -1502,7 +1503,10 @@ def view_mutations_bybranch(request, alib, con):
 
         if seedsequence[site-1] != "-":
             seed_site += 1
-        
+            display_seed_site = seed_site
+        else:
+            display_seed_site = "-"
+
         count_replicates = 0 # how many of the columns support this mutation?
         focus_state1 = None
         focus_state2 = None
@@ -1579,7 +1583,7 @@ def view_mutations_bybranch(request, alib, con):
         if focus_state1 != focus_state2 and count_replicates > 2:
             (anc1state, anc1pp) = ancid_site_statepp[ matched_ancestors[0][0] ][site]
             (anc2state, anc2pp) = ancid_site_statepp[ matched_ancestors[0][1] ][site]
-            tuple = (site,seed_site, anc1state, anc2state, count_replicates)
+            tuple = (site, display_seed_site, anc1state, anc2state, count_replicates)
             mutation_shortlist.append( tuple )
     
     context["mutation_header"] = mutation_header
