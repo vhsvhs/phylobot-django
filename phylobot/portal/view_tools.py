@@ -16,6 +16,8 @@ from phylobot import models as phylobotmodels
 
 from aws_tools import *
 
+from dendropy import Tree
+
 try:
     from cPickle import loads, dumps
 except ImportError:
@@ -71,6 +73,21 @@ def kill_orphan_jobs(request):
         if o.settings.name == None or o.settings.original_aa_file == None:
             o.settings.delete()
             o.delete()
+
+def is_valid_newick(path, source_sequence_names = None):
+    """Is the file located at 'path' a valid newick-formatted tree?
+    This method returns the tuple (True/False, error message)
+    if source_sequence_names != None, then the tree should contain taxa from the list of sequence names."""
+    retflag = False
+    emsg = ""
+    try:
+        test_tree = Tree()
+        test_tree.read_from_path(path, "newick")
+    except Exception as e:
+        emsg = e.__str__()
+    else:
+        retflag = True
+    return (retflag, emsg)
 
 def is_valid_fasta(path, is_uniprot=False):
     """This method checks if the FASTA file located at 'path' is a valid FASTA format.

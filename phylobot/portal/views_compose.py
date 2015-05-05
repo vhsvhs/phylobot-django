@@ -30,6 +30,10 @@ def compose1(request):
     """
     context = RequestContext(request)    
     this_job = get_mr_job(request)
+    
+    """error_messages is a list of strings, each being an error message. The user cannot proceed to step #2
+        unless error_messages is empty.
+        If the list is not empty, then the error messages will be displayed on the compose page."""
     error_messages = []
     
     first_time_composing = False
@@ -84,6 +88,7 @@ def compose1(request):
 
             # full path to the uploaded sequence file.
             fullpath = os.path.join(settings.MEDIA_ROOT, seqfile.__str__())                        
+            print "92:", fullpath
             this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
 
             """Is the sequence file a valid FASTA file?"""
@@ -117,6 +122,11 @@ def compose1(request):
                         tncbi.save()
                     else:
                         """Make or get the Taxon"""
+                        
+                        """Remove underscores and spaces from the sequence names"""
+                        seqname = re.sub("_", ".", seqname)
+                        seqname = re.sub("\ ", ".", seqname)
+                        
                         t = Taxon.objects.get_or_create(name=seqname,
                                                     seqtype=this_seqtype,
                                                     nsites = taxa_seq[taxa].__len__() )[0]
@@ -163,17 +173,23 @@ def compose1(request):
         inputname = "constrainttree_path"
         if inputname in request.FILES:
             filepath = request.FILES[inputname]
-            print "133:", filepath
-            ctfile = ConstraintTreeFile(constrainttree_path=filepath)
-            ctfile.owner = request.user
-            ctfile.save()
-            print "135:", ctfile
-            fullpath = os.path.join(settings.MEDIA_ROOT, ctfile.__str__())  
-            print "137:", fullpath
-            this_job.settings.constraint_tree_file = ctfile
-            this_job.settings.save()
-            this_job.save() 
-            print "141"
+            
+            (retflag, emsg) = is_valid_newick(os.path.join(settings.MEDIA_ROOT, "uploaded_sequences/" + filepath.__str__()), source_sequence_names = None)
+            
+            if retflag == False:
+                this_job.settings.constraint_tree_file = None
+                this_job.settings.save()
+                this_job.save() 
+                error_messages.append("Something is wrong with your constraint tree: " + emsg)
+            else:
+                """Do the following code if the tree reading was successful."""
+                ctfile = ConstraintTreeFile(constrainttree_path=filepath)
+                ctfile.owner = request.user
+                ctfile.save()
+                fullpath = os.path.join(settings.MEDIA_ROOT, ctfile.__str__())  
+                this_job.settings.constraint_tree_file = ctfile
+                this_job.settings.save()
+                this_job.save() 
             
         """
             Now update the JobSettings object
@@ -195,14 +211,14 @@ def compose1(request):
             this_model = RaxmlModel.objects.get(id = rid)
             this_job.settings.raxml_models.add( this_model )
         
-        # not currently enabled
+        # these three things disabled, presently.
         #this_job.settings.start_motif = request.POST.get('start_motif')
         #this_job.settings.end_motif = request.POST.get('end_motif')
         #this_job.settings.n_bayes_samples = request.POST.get('n_bayes_samples')
         this_job.settings.save()        
         this_job.save()
             
-        if this_job.settings.original_aa_file and this_job.settings.name:
+        if this_job.settings.original_aa_file and this_job.settings.name and error_messages.__len__() == 0:
             return HttpResponseRedirect('/portal/compose2')
 
     if False == first_time_composing and this_job.settings != None:
@@ -213,7 +229,7 @@ def compose1(request):
         Finally render the page
     """
 
-    if this_job.settings.original_aa_file and this_job.settings.name:
+    if this_job.settings.original_aa_file and this_job.settings.name and error_messages.__len__() == 0:
         forward_unlock = True
     else:
         forward_unlock = False
@@ -238,11 +254,11 @@ def compose1(request):
     constrainttree_fileform = ConstraintTreeFileForm()
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
-    print "206:", this_job.settings.constraint_tree_file
+    print "249:", this_job.settings.constraint_tree_file
     if this_job.settings.constraint_tree_file:
         constrainttree_fileform.fields["constrainttree_path"].default = this_job.settings.constraint_tree_file.constrainttree_path
         selected_constrainttreefile = settings.STATIC_MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
-        print "210:", selected_constrainttreefile
+        print "253:", selected_constrainttreefile
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
         
     js_form = JobSettingForm()
