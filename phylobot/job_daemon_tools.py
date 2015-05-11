@@ -379,6 +379,7 @@ def cleanup_orphaned_volumes(dbconn):
     volumes = conn.get_all_volumes(volume_ids=None, filters=None)      
     for volume in volumes:
         if volume.status == 'available':
-            print "382: volume", volume.id, "should be deleted."
+            print "Deleting Volume:", volume.id
+            volume.delete()
 
     
