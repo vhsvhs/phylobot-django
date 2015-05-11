@@ -374,10 +374,11 @@ def cleanup_orphaned_instances(dbconn):
         print "369: Terminating:", terminate_these_instance_ids
         conn.terminate_instances( instance_ids=terminate_these_instance_ids ) 
                 
-                #
-                # continue here
-                #
-            
-            
+def cleanup_orphaned_volumes(dbconn):
+    conn = boto.ec2.connect_to_region(ZONE)
+    volumes = conn.get_all_volumes(volume_ids=None, filters=None)      
+    for volume in volumes:
+        if volume.status == 'available':
+            print "382: volume", volume.id, "should be deleted."
 
     

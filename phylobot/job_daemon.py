@@ -136,3 +136,4 @@ while(True):
     """
     time.sleep(6)
     cleanup_orphaned_instances(dbconn)
+    cleanup_orphaned_volumes(dbconn)
