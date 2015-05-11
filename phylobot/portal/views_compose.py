@@ -88,7 +88,6 @@ def compose1(request):
 
             # full path to the uploaded sequence file.
             fullpath = os.path.join(settings.MEDIA_ROOT, seqfile.__str__())                        
-            print "92:", fullpath
             this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
 
             """Is the sequence file a valid FASTA file?"""
@@ -104,16 +103,15 @@ def compose1(request):
                     
                     if is_uniprot:
                         (db, uniqueid, entryname, ogs, gn, pe, sv) = parse_uniprot_seqname( taxa )
-                        seqname = gn + "." + uniqueid.__str__()
-                        seqname = re.sub("\. ", ".", seqname )
-                        seqname = re.sub(" ", ".", seqname)                        
+                        seqname = gn + "." + uniqueid.__str__() 
+                        seqname = clean_fasta_name(seqname)                       
                         """Make or get the Taxon"""
                         t = Taxon.objects.get_or_create(name=seqname,
                                                     seqtype=this_seqtype,
                                                     nsites = taxa_seq[taxa].__len__() )[0]
                         t.save()
                         
-                        """Make of get the NCBI data"""
+                        """Remember the NCBI information"""
                         tncbi = TaxonNCBI.objects.get_or_create(taxon=t,
                                                                 uniqueid=uniqueid,
                                                                 entryname=entryname,
@@ -124,9 +122,7 @@ def compose1(request):
                         """Make or get the Taxon"""
                         
                         """Remove underscores and spaces from the sequence names"""
-                        seqname = re.sub("_", ".", seqname)
-                        seqname = re.sub("\ ", ".", seqname)
-                        
+                        seqname = clean_fasta_name(seqname)
                         t = Taxon.objects.get_or_create(name=seqname,
                                                     seqtype=this_seqtype,
                                                     nsites = taxa_seq[taxa].__len__() )[0]
@@ -138,7 +134,7 @@ def compose1(request):
                     cleaned_taxa_seq[seqname] = sequence
                     
                 
-                write_clean_fasta(cleaned_taxa_seq, fullpath)
+                write_fasta(cleaned_taxa_seq, fullpath)
                 
                 if ii == 0: 
                     """AA"""

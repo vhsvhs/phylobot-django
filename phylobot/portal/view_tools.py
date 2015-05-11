@@ -128,12 +128,19 @@ def is_valid_fasta(path, is_uniprot=False):
     """This preliminary check seems to indicate the FASTA file is OK."""
     return (True, None)
 
-def write_clean_fasta(taxa_seq, outpath):
+def write_fasta(taxa_seq, outpath):
     fout = open(outpath, "w")
     for taxa in taxa_seq:
         fout.write(">" + taxa + "\n")
         fout.write( taxa_seq[taxa] + "\n")
     fout.close()
+    
+def clean_fasta_name(seqname):
+    seqname = re.sub("_", ".", seqname)
+    seqname = re.sub("\ ", ".", seqname)
+    seqname = re.sub(" ", ".", seqname)
+    return seqname
+
 
 def parse_uniprot_seqname(name):
     """This method will attempt to get the UniProtKB / NCBI values from a sequence name.
