@@ -20,6 +20,8 @@ def get_instance_type(jobid):
     ntaxa = get_ntaxa(jobid)
     nsites = get_seqlen(jobid)
     
+    print "23: ntaxa=", ntaxa, " nsites=", nsites
+    
     if ntaxa == None or nsites == None:
         return "t2.small"
     
