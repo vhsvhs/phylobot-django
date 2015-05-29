@@ -17,8 +17,8 @@ S3LOCATION = Location.USWest
 def get_instance_type(jobid):
     """Determine what size of instance is appropriate, based on the nsites and seqlen
         of the job."""
-    ntaxa = get_ntaxa(jobid)
-    nsites = get_seqlen(jobid)
+    ntaxa = int( get_ntaxa(jobid) )
+    nsites = int( get_seqlen(jobid) )
     
     print "23: ntaxa=", ntaxa, " nsites=", nsites
     
