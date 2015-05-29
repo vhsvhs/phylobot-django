@@ -53,7 +53,9 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
             if nsites > lastseqlen:
                 nsites = lastseqlen
             lastseq = ""
-            nsites += 1
+            ntaxa += 1
+        else:
+            lastseq += l.strip()
     fin.close()
     set_ntaxa(job.id, ntaxa)
     set_seqlen(job.id, nsites)
