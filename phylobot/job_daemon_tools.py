@@ -126,6 +126,8 @@ def start_job(jobid, dbconn):
         # continue here -- check that the instance is OK.
         #
     
+    INSTANCE_TYPE = get_instance_type(jobid)
+    
     """Instantiate an AWS EC2 instance"""
     instance = None
     conn = boto.ec2.connect_to_region(ZONE)

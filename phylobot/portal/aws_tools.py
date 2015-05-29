@@ -10,11 +10,26 @@ import sys, time
 ZONE = "us-west-1"
 #AMI_SLAVE_MOTHER = "ami-6fb3552b" # march 13, 2015
 AMI_SLAVE_MOTHER = "ami-59db3a1d" # march 23, 2015
-#INSTANCE_TYPE = "t2.micro"
-INSTANCE_TYPE = "t2.small"
 INSTANCE_KEY_NAME = "phylobot-ec2-key"
 INSTANCE_SECURITY_GROUP = 'phylobot-security'
 S3LOCATION = Location.USWest
+
+def get_instance_type(jobid):
+    """Determine what size of instance is appropriate, based on the nsites and seqlen
+        of the job."""
+    ntaxa = get_ntaxa(jobid)
+    nsites = get_seqlen(jobid)
+    
+    """To-do: these values need to be tuned, based on performance tests."""
+    if ntaxa < 40 and nsites < 500:
+        return "t2.small"
+    elif ntaxa < 60 and nsites < 700:
+        return "t2.medium"
+    elif ntaxa < 100 and nsites < 1000:
+        return "c4.large"
+    else:
+        return "r3.large"
+    
 
 def clear_all_s3(jobid):
     s3 = boto.connect_s3()
@@ -122,6 +137,63 @@ def get_aws_checkpoint(jobid):
     if key == None:
         set_aws_checkpoint(jobid, 0)
         return 0
+    return key.get_contents_as_string() 
+
+def set_ntaxa(jobid, ntaxa):
+    s3 = boto.connect_s3()
+    bucket = s3.lookup("phylobot-jobfiles")
+    if bucket == None:
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
+
+    CHECKPOINT_KEY = jobid.__str__() + "/ntaxa"
+    key = bucket.get_key(CHECKPOINT_KEY)
+    if key == None:
+        key = bucket.new_key(CHECKPOINT_KEY) 
+    key.set_contents_from_string(ntaxa.__str__()) 
+    key.set_acl('public-read')
+    
+def get_ntaxa(jobid):
+    s3 = boto.connect_s3()
+    bucket = s3.lookup("phylobot-jobfiles")
+    if bucket == None:
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
+
+    CHECKPOINT_KEY = jobid.__str__() + "/ntaxa"
+    key = bucket.get_key(CHECKPOINT_KEY)
+    if key == None:
+        set_last_user_command(jobid, None)
+        return None
+    return key.get_contents_as_string() 
+
+
+def set_seqlen(jobid, seqlen):
+    s3 = boto.connect_s3()
+    bucket = s3.lookup("phylobot-jobfiles")
+    if bucket == None:
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
+
+    CHECKPOINT_KEY = jobid.__str__() + "/seqlen"
+    key = bucket.get_key(CHECKPOINT_KEY)
+    if key == None:
+        key = bucket.new_key(CHECKPOINT_KEY) 
+    key.set_contents_from_string(seqlen.__str__()) 
+    key.set_acl('public-read')
+
+def get_seqlen(jobid):
+    s3 = boto.connect_s3()
+    bucket = s3.lookup("phylobot-jobfiles")
+    if bucket == None:
+        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
+        bucket.set_acl('public-read')
+
+    CHECKPOINT_KEY = jobid.__str__() + "/seqlen"
+    key = bucket.get_key(CHECKPOINT_KEY)
+    if key == None:
+        set_last_user_command(jobid, None)
+        return None
     return key.get_contents_as_string() 
 
 

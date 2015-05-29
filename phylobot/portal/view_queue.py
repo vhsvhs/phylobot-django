@@ -36,10 +36,27 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     set_job_exe(job.id, job.exe)
     
     """
-        to-do: these file uploads are taking sweet time.
+        to-do: the following file uploads are taking sweet time.
             Maybe we could move the uploads to a separate thread?
     """
     push_jobfile_to_s3(job.id, job.settings.original_aa_file.aaseq_path._get_path() )
+    
+    """How many taxa and sites in the amino acid sequence collection? -- we'll use this information
+        later (in the job daemon) to launch an EC2 instance of the appropriate size."""
+    fin = open( job.settings.original_aa_file.aaseq_path._get_path(), "r" )
+    ntaxa = 0
+    nsites = 0
+    lastseq = ""
+    for l in fin.xreadlines():
+        if l.startswith(">"):
+            lastseqlen = lastseq.__len__()
+            if nsites > lastseqlen:
+                nsites = lastseqlen
+            lastseq = ""
+            nsites += 1
+    fin.close()
+    set_ntaxa(job.id, ntaxa)
+    set_seqlen(job.id, nsites)
         
     if job.settings.has_codon_data != False:
         push_jobfile_to_s3(job.id, job.settings.original_codon_file.codonseq_path._get_path() )
