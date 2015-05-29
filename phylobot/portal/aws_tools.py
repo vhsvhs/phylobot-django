@@ -20,7 +20,10 @@ def get_instance_type(jobid):
     ntaxa = get_ntaxa(jobid)
     nsites = get_seqlen(jobid)
     
-    """To-do: these values need to be tuned, based on performance tests."""
+    if ntaxa == None or nsites == None:
+        return "t2.small"
+    
+    """To-do: these thresholds need to be tuned, based on performance tests."""
     if ntaxa < 40 and nsites < 500:
         return "t2.small"
     elif ntaxa < 60 and nsites < 700:
