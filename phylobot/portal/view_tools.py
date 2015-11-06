@@ -147,15 +147,20 @@ def parse_uniprot_seqname(name):
         It assumes that we've already established that this sequence name has at least three tokens
         when split with | """
     tokens = name.split("|")
+    if tokens.__len__() < 3:
+        return None
     db = tokens[0]
     uniqueid = tokens[1]
     entryname = tokens[2]
     subtok = ""
-    if tokens[4].startswith(" "):
-        entryname = tokens[3]
-        subtok = tokens[4]
-    else:
+    if tokens.__len__() == 3:    
+        subtok = tokens[2]
+    if tokens.__len__() == 4:
         subtok = tokens[3]
+    elif tokens.__len__() == 5:
+        if tokens[4].startswith(" "):
+            entryname = tokens[3]
+            subtok = tokens[4]
       
     tokens = subtok.split()
     ogs = ""

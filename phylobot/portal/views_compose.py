@@ -102,7 +102,11 @@ def compose1(request):
                     seqname = taxa # the cleaned sequence name
                     
                     if is_uniprot:
-                        (db, uniqueid, entryname, ogs, gn, pe, sv) = parse_uniprot_seqname( taxa )
+                        x = parse_uniprot_seqname( taxa )
+                        if x == None:
+                            pass
+                            # to-do deal with error condition here!
+                        (db, uniqueid, entryname, ogs, gn, pe, sv) = x
                         seqname = gn + "." + uniqueid.__str__() 
                         seqname = clean_fasta_name(seqname)                       
                         """Make or get the Taxon"""
