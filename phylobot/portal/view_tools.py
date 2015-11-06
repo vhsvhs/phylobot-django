@@ -217,7 +217,7 @@ def parse_uniprot_seqname(name):
     if gn == "":
         """We didn't find GN=, so let's look for brackets"""
         subsubtok = subtok.split("[")
-        if subsubtok.__len__() > 0:
+        if subsubtok.__len__() > 1:
             possible_gn = subsubtok[1].split("]")[0]
             if possible_gn != "":
                 gn = possible_gn
