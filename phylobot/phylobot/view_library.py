@@ -1157,7 +1157,7 @@ def view_ancestor_ml(request, alib, con):
         this_row = (othermsaname, othermodelname, othername, sameancid )
         similarity_rows.append( this_row )
         
-        this_mlseq = get_ml_sequence(con, sameancid, skip_indels=True)
+        this_mlseq = get_ml_sequence(con, sameancid, skip_indels=False)
         ancid_mlseq[sameancid] = this_mlseq
         
     similarity_matrix = []
