@@ -739,6 +739,23 @@ def get_ml_sequence(con, ancid, skip_indels=True):
         mlseq += site_state[s]
     return mlseq
 
+def ml_sequence_difference(seq1, seq2):
+    """Returns the proportion similarity between two sequences.
+        If the sequences have different length, then it returns
+        0.0."""
+    if seq1.__len__() != seq2.__len__():
+        return None
+    count_sites = 0
+    count_matches = 0
+    for ii in xrange(0, seq1.__len__() ):
+        # skip sites where both sequences are indels.
+        if seq1[ii] == "-" and seq2[ii] == "-":
+            continue
+        count_sites += 1
+        if seq1[ii].__str__().upper() == seq2[ii].__str__().upper():
+            count_matches += 1
+    return float(count_matches) / float(count_sites)
+
 def get_site_state_pp(con, ancid, skip_indels = True):
     """Returns a hashtable, key = site, value = hash; key = residue state, value = PP of the state
         skip_indels will skip those sites with indels"""
@@ -1103,11 +1120,28 @@ def view_ancestor_ml(request, alib, con):
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
 
+    seq = get_ml_sequence(con, ancid)
+
+    #
+    # ancid_mlseq: key = ancestor ID, value = ML sequence with gaps
+    # this data will be used to compare the sequences and estimate
+    # the degree of similarity of the ancestors across different
+    # evolutionary models.
+    #
+    ancid_mlseq = {}
+    all_ancids = []
+
+    #
+    # similarity_rows contain data for the table titled
+    # "Similarity to Other Alignments"
+    #
     similarity_rows = []
     sql = "select ancid, same_ancid from AncestorsAcrossModels where ancid=" + ancid.__str__()
     cur.execute(sql)
     for ii in cur.fetchall():
         sameancid = ii[1]
+        all_ancids.append( sameancid )
+        
         sql = "select name from PhyloModels where modelid in (select phylomodel from Ancestors where id=" + sameancid.__str__() + ")"
         cur.execute(sql)
         othermodelname = cur.fetchone()[0]
@@ -1122,13 +1156,19 @@ def view_ancestor_ml(request, alib, con):
         
         this_row = (othermsaname, othermodelname, othername, sameancid )
         similarity_rows.append( this_row )
+        
+        this_mlseq = get_ml_sequence(con, sameancid, skip_indels=True)
+        ancid_mlseq[sameancid] = this_mlseq
+        
+    similarity_matrix = []
+    for ii in all_ancids:
+        ii_mlseq = ancid_mlseq[ii]
+        this_row = []
+        for jj in all_ancids:
+            this_row.append( ml_sequence_difference(ii_mlseq, ancid_mlseq[jj]) )
+        similarity_matrix.append( this_row )
 
-    seq = get_ml_sequence(con, ancid)
-#     ml_sequence = ""
-#     for index, char in enumerate(seq):
-#         ml_sequence += char
-#         if index%70 == 0 and index>1:
-#             ml_sequence += "<br>"
+
     stride = 0.1
     bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
@@ -1141,6 +1181,7 @@ def view_ancestor_ml(request, alib, con):
     context["ml_sequence"] = seq
     context["alt_sequences"] = alt_seqs
     context["similarity_rows"] = similarity_rows
+    context["similarity_matrix"] = similarity_matrix
     return render(request, 'libview/libview_ancestor_ml.html', context)
         
 def view_ancestor_support(request, alib, con):

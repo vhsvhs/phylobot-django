@@ -19,7 +19,7 @@
 
 <hr>
 
-<h3>Similarity to Other Alignments		
+<h3>Same Anccestor, Different Models	
 		<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span>
@@ -32,15 +32,51 @@
 <table width="50%">
 {% for row in similarity_rows %}
 	{% if forloop.counter0|divisibleby:25 %}
-	<th class="mu_header_small">Alignment Method</th>
+	<th class="mu_header_small">ID</th>
+	<th class="mu_header_small" >Alignment Method</th>
 	<th class="mu_header_small">Markov Model</th>
 	<th class="mu_header_small">Ancestor</th>
 	{% endif %}
 	<tr>
-
-		<td>{{row.0}}</td>
+		<td align="center">{{ forloop.counter0 }}</td>
+		<td align="center">{{row.0}}</td>
 		<td>{{row.1}}</td>
 		<td align="center"><a href="/{{alid}}/{{row.0}}.{{row.1}}/{{row.2}}">{{row.2}}</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+<h3>Similarity to Other Models		
+		<a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">The values in this table express the proportion sequence similarity between this ancestor and the same ancestor reconstructed with different models.
+	        	The ancestor IDs, on the row and column headers, correspond to the ID column in the table above.</p>
+	    	</span>
+		</a>
+
+</h3>
+
+<table width="50%">
+<tr><td align="center">ID</td>
+{% for item in similarity_matrix.0 %}
+<th class="mu_header_small">{{ forloop.counter0 }}</th>
+{% endfor %}
+</tr>
+{% for row in similarity_matrix %}
+	<tr align="center">
+	<td class="mu_header_small">{{ forloop.counter0 }}</td>
+	{% for item in row %}
+		<td
+		{% if item == 1.0 %}class="ppfull"
+		{% elif item >= 0.9 %}class="pp9"
+		{% elif item >= 0.8 %}class="pp8"
+		{% elif item >= 0.7 %}class="pp7"
+		{% elif item >= 0.6 %}class="pp6"
+		{% elif item >= 0.5 %}class="pp5"
+		{% else%}class="pplow"{% endif %}
+		>{{ item|floatformat:2 }}</td>
+	{% endfor %}
 	</tr>
 {% endfor %}
 </table>

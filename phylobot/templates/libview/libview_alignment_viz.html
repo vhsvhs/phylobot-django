@@ -351,11 +351,10 @@ document.addEventListener('readystatechange', function() {
 				{% endfor %}
 				</tr>
 		
-
 				{% for tuple in scorerows %}
 				<tr class="smalltext">
 					{% for score in tuple.1 %}
-						<td>{[score}}</td>
+						<td>{{score}}</td>
 					{% endfor %}
 				</tr>
 				{% endfor %}

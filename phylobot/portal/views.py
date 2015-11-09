@@ -62,10 +62,8 @@ def portal_main_page(request):
                 print >> sys.stderr, "I couldn't launch the job:" + this_job.name + " " + this_job.id.__str__()
     context_dict = {}
     
-
-    
     #
-    # Generate a list of jobs that belong to user
+    # my_jobs: generate a list of tuples (job, job id) that belong to user.
     #
     my_jobs = []
     show_owner = False
@@ -86,9 +84,7 @@ def portal_main_page(request):
         elif not job.settings.name:
             continue
         
-
         checkpoint = float( get_aws_checkpoint(job.id) )
-        print "92:", checkpoint
         
         finished_library_id = None
         
@@ -102,10 +98,7 @@ def portal_main_page(request):
 
         job.p_done = 100.0 * float(checkpoint)/9.0
         job.save()                
-        print "105:", checkpoint
         my_jobs.append( (job, finished_library_id ) )    
-
-        
 
     context_dict = {'jobs':my_jobs,
                     'show_owner':show_owner}
