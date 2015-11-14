@@ -7,7 +7,6 @@ import socket
 SQLDBPATH = "job_daemon.db"
 MAX_MSG_ATTEMPTS = 3
 
-
 def print_splash():
     print "\n======================================="
     print "PhyloBot Job Daemon"
