@@ -4,7 +4,7 @@
 
 <table width=100%>
 <tr>
-	<th align='center'>ID</th>
+	<th align='left'>ID</th>
 	<th align='left'>Alignment
 			<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
@@ -140,13 +140,13 @@
 	<tr align="center">
 	<td class="mu_header_small">{{ forloop.counter0 }}</td>
 	{% for item in row %}
-		<td
-		{% if item == 1.0 %}class="ppfull"
-		{% elif item >= 0.9 %}class="pp9"
-		{% elif item >= 0.8 %}class="pp8"
-		{% elif item >= 0.7 %}class="pp7"
-		{% elif item >= 0.6 %}class="pp6"
-		{% elif item >= 0.5 %}class="pp5"
+		<td		
+		{% if item == symmd_matrix_colorbins.0 %}class="ppfull"
+		{% elif item >= symmd_matrix_colorbins.1 %}class="pp9"
+		{% elif item >= symmd_matrix_colorbins.2 %}class="pp8"
+		{% elif item >= symmd_matrix_colorbins.3 %}class="pp7"
+		{% elif item >= symmd_matrix_colorbins.4 %}class="pp6"
+		{% elif item >= symmd_matrix_colorbins.5 %}class="pp5"
 		{% else%}class="pplow"{% endif %}
 		>{{ item|floatformat:2 }}</td>
 	{% endfor %}

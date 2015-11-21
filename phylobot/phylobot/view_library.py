@@ -633,15 +633,28 @@ def view_library_trees(request, alib, con):
         method-model pairs."""
 
     symmd_matrix = []
+    maxdistance = 0
     for ii in treeids:
         treeii = treeid_dendropytree[ii]
         this_row = []
         for jj in treeids:
             treejj = treeid_dendropytree[jj]
             distance = treeii.symmetric_difference(treejj)
+            if distance > maxdistance:
+                maxdistance = distance
             this_row.append( distance )
         symmd_matrix.append( this_row )
     context["symmd_matrix"] = symmd_matrix
+    context["maxdistance"] = maxdistance
+    
+    symmd_matrix_colorbins = []
+    symmd_matrix_colorbins.append( maxdistance )
+    symmd_matrix_colorbins.append( 0.9*maxdistance)
+    symmd_matrix_colorbins.append( 0.8*maxdistance)
+    symmd_matrix_colorbins.append( 0.7*maxdistance)
+    symmd_matrix_colorbins.append( 0.6*maxdistance)
+    symmd_matrix_colorbins.append( 0.5*maxdistance)
+    context["symmd_matrix_colorbins"] = symmd_matrix_colorbins
     
     return render(request, 'libview/libview_trees.html', context)
 
