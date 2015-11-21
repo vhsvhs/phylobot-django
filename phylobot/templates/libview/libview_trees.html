@@ -4,7 +4,7 @@
 
 <table width=100%>
 <tr>
-	<th align="center">ID</th>
+	<th align='center'>ID</th>
 	<th align='left'>Alignment
 			<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
@@ -90,9 +90,23 @@
 	<th align='center'>Ancestors</th>
 </tr>
 
+<h3>Symmetric Distance Between Trees		
+		<a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">The values in this table express the symmmetric
+	        	distance between trees inferred from different combinations of alignment
+	        	method and model. The IDs correspond to the row IDs in the table above.
+	        	Symmetric distance is computed as the sum of branch splits found in one
+	        	tree, but not the other tree.</p>
+	    	</span>
+		</a>
+
+</h3>
+
 {% for tuple in tree_tuples %}
 <tr>
-	<td class="mu_header_small">{{ forloop.counter0 }}</td>
+	<td>{{ forloop.counter0 }}.</td>
 	<td>{{tuple.0}}</td>
 	<td class='smalltext'>{{tuple.1}}</td>
 	<td align='center'>{{tuple.2|floatformat:2}}</td>
