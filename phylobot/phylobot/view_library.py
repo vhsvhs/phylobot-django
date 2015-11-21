@@ -654,28 +654,28 @@ def view_library_trees(request, alib, con):
     symmd_matrix_colorbins.append( 0.5*maxdistance)
     context["symmd_matrix_colorbins"] = symmd_matrix_colorbins
 
-    eucd_matrix = []
-    maxdistance = 0
-    for ii in treeids:
-        treeii = treeid_dendropytree[ii]
-        this_row = []
-        for jj in treeids:
-            treejj = treeid_dendropytree[jj]
-            distance = treeii.euclidean_distance(treejj)
-            if distance > maxdistance:
-                maxdistance = distance
-            this_row.append( distance )
-        eucd_matrix.append( this_row )
-    context["eucd_matrix"] = eucd_matrix
-    
-    eucd_matrix_colorbins = []
-    eucd_matrix_colorbins.append( 0.0 )
-    eucd_matrix_colorbins.append( 0.1*maxdistance)
-    eucd_matrix_colorbins.append( 0.2*maxdistance)
-    eucd_matrix_colorbins.append( 0.3*maxdistance)
-    eucd_matrix_colorbins.append( 0.4*maxdistance)
-    eucd_matrix_colorbins.append( 0.5*maxdistance)
-    context["eucd_matrix_colorbins"] = eucd_matrix_colorbins
+#     eucd_matrix = []
+#     maxdistance = 0
+#     for ii in treeids:
+#         treeii = treeid_dendropytree[ii]
+#         this_row = []
+#         for jj in treeids:
+#             treejj = treeid_dendropytree[jj]
+#             distance = treeii.euclidean_distance(treejj)
+#             if distance > maxdistance:
+#                 maxdistance = distance
+#             this_row.append( distance )
+#         eucd_matrix.append( this_row )
+#     context["eucd_matrix"] = eucd_matrix
+#     
+#     eucd_matrix_colorbins = []
+#     eucd_matrix_colorbins.append( 0.0 )
+#     eucd_matrix_colorbins.append( 0.1*maxdistance)
+#     eucd_matrix_colorbins.append( 0.2*maxdistance)
+#     eucd_matrix_colorbins.append( 0.3*maxdistance)
+#     eucd_matrix_colorbins.append( 0.4*maxdistance)
+#     eucd_matrix_colorbins.append( 0.5*maxdistance)
+#     context["eucd_matrix_colorbins"] = eucd_matrix_colorbins
 
     return render(request, 'libview/libview_trees.html', context)
 
