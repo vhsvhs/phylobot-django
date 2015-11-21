@@ -661,7 +661,7 @@ def view_library_trees(request, alib, con):
         this_row = []
         for jj in treeids:
             treejj = treeid_dendropytree[jj]
-            distance = treeii.euclidean_difference(treejj)
+            distance = treeii.euclidean_distance(treejj)
             if distance > maxdistance:
                 maxdistance = distance
             this_row.append( distance )
