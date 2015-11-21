@@ -654,14 +654,14 @@ def view_library_trees(request, alib, con):
     symmd_matrix_colorbins.append( 0.5*maxdistance)
     context["symmd_matrix_colorbins"] = symmd_matrix_colorbins
 
-    eucd_matrix = []
-    maxdistance = 0
-    for ii in treeids:
-        treeii = treeid_dendropytree[ii]
-        this_row = []
-        for jj in treeids:
-            treejj = treeid_dendropytree[jj]
-            distance = treeii.robinson_foulds_distance(treejj)
+#     eucd_matrix = []
+#     maxdistance = 0
+#     for ii in treeids:
+#         treeii = treeid_dendropytree[ii]
+#         this_row = []
+#         for jj in treeids:
+#             treejj = treeid_dendropytree[jj]
+#             distance = treeii.robinson_foulds_distance(treejj)
 #             if distance > maxdistance:
 #                 maxdistance = distance
 #             this_row.append( distance )
