@@ -631,7 +631,6 @@ def view_library_trees(request, alib, con):
     
     """Compute the distance matrix between phylogenies from different
         method-model pairs."""
-
     symmd_matrix = []
     maxdistance = 0
     for ii in treeids:
@@ -645,7 +644,6 @@ def view_library_trees(request, alib, con):
             this_row.append( distance )
         symmd_matrix.append( this_row )
     context["symmd_matrix"] = symmd_matrix
-    context["maxdistance"] = maxdistance
     
     symmd_matrix_colorbins = []
     symmd_matrix_colorbins.append( 0.0 )
@@ -655,7 +653,30 @@ def view_library_trees(request, alib, con):
     symmd_matrix_colorbins.append( 0.4*maxdistance)
     symmd_matrix_colorbins.append( 0.5*maxdistance)
     context["symmd_matrix_colorbins"] = symmd_matrix_colorbins
+
+    eucd_matrix = []
+    maxdistance = 0
+    for ii in treeids:
+        treeii = treeid_dendropytree[ii]
+        this_row = []
+        for jj in treeids:
+            treejj = treeid_dendropytree[jj]
+            distance = treeii.euclidean_difference(treejj)
+            if distance > maxdistance:
+                maxdistance = distance
+            this_row.append( distance )
+        eucd_matrix.append( this_row )
+    context["eucd_matrix"] = eucd_matrix
     
+    eucd_matrix_colorbins = []
+    eucd_matrix_colorbins.append( 0.0 )
+    eucd_matrix_colorbins.append( 0.1*maxdistance)
+    eucd_matrix_colorbins.append( 0.2*maxdistance)
+    eucd_matrix_colorbins.append( 0.3*maxdistance)
+    eucd_matrix_colorbins.append( 0.4*maxdistance)
+    eucd_matrix_colorbins.append( 0.5*maxdistance)
+    context["eucd_matrix_colorbins"] = eucd_matrix_colorbins
+
     return render(request, 'libview/libview_trees.html', context)
 
 def reset_all_biopython_branchlengths(root, length):
