@@ -12,12 +12,14 @@ Instructions:
 		. . .where PUBLICIP is the IP address of the instance launched in #1.
 
 2b. Update PhyloBot:
+	# PhyloBot is already installed in the AMI, so we simply need to update
+	# the git repo with the latest code.
 	$> cd phylbot-django
 	$> sudo git pull
 	$> cd ~/
 	$> sudo bash phylobot-django/aws_setup/setup_phylobot_server_on_aws.sh
 
-3. Copy a .boto file to the server. On your local machine (not remote PhyloBot):
+3. Copy a .boto file to the server. Do the following on your local machine (not on the remote PhyloBot):
 	$> cd ~/
 	$> scp -i ~/.ssh/phylobot-ec2-key.pem ~/.boto ubuntu@PUBLICIP:~/
 	
