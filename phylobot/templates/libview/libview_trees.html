@@ -141,11 +141,11 @@
 	{% for item in row %}
 		<td		
 		{% if item == symmd_matrix_colorbins.0 %}class="ppfull"
-		{% elif item >= symmd_matrix_colorbins.1 %}class="pp9"
-		{% elif item >= symmd_matrix_colorbins.2 %}class="pp8"
-		{% elif item >= symmd_matrix_colorbins.3 %}class="pp7"
-		{% elif item >= symmd_matrix_colorbins.4 %}class="pp6"
-		{% elif item >= symmd_matrix_colorbins.5 %}class="pp5"
+		{% elif item <= symmd_matrix_colorbins.1 %}class="pp9"
+		{% elif item <= symmd_matrix_colorbins.2 %}class="pp8"
+		{% elif item <= symmd_matrix_colorbins.3 %}class="pp7"
+		{% elif item <= symmd_matrix_colorbins.4 %}class="pp6"
+		{% elif item <= symmd_matrix_colorbins.5 %}class="pp5"
 		{% else%}class="pplow"{% endif %}
 		>{{ item|floatformat:2 }}</td>
 	{% endfor %}

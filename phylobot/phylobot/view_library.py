@@ -648,11 +648,11 @@ def view_library_trees(request, alib, con):
     context["maxdistance"] = maxdistance
     
     symmd_matrix_colorbins = []
-    symmd_matrix_colorbins.append( maxdistance )
-    symmd_matrix_colorbins.append( 0.9*maxdistance)
-    symmd_matrix_colorbins.append( 0.8*maxdistance)
-    symmd_matrix_colorbins.append( 0.7*maxdistance)
-    symmd_matrix_colorbins.append( 0.6*maxdistance)
+    symmd_matrix_colorbins.append( 0.0 )
+    symmd_matrix_colorbins.append( 0.1*maxdistance)
+    symmd_matrix_colorbins.append( 0.2*maxdistance)
+    symmd_matrix_colorbins.append( 0.3*maxdistance)
+    symmd_matrix_colorbins.append( 0.4*maxdistance)
     symmd_matrix_colorbins.append( 0.5*maxdistance)
     context["symmd_matrix_colorbins"] = symmd_matrix_colorbins
     
