@@ -568,9 +568,12 @@ def view_library_trees(request, alib, con):
     sql = "select id, almethod, phylomodelid from UnsupportedMlPhylogenies"
     cur.execute(sql)
     x = cur.fetchall()
-    tree_tuples = []
+    treeids = [] # store the treeids in order
+    tree_tuples = [] # data for the HTML table
+    treeid_dendropytree = {} # cache the Newick strings
     for ii in x:
         treeid = ii[0]
+        treeids.append( treeid )
         almethodid = ii[1]
         phylomodelid = ii[2]
         sql = "select name from AlignmentMethods where id=" + almethodid.__str__()
@@ -609,6 +612,8 @@ def view_library_trees(request, alib, con):
         t.read_from_string(newick, "newick")
         sumbranches = t.length()
         
+        treeid_dendropytree[treeid] = t
+                
         tuple = (almethodname, phylomodelname, likelihood, pp, alpha, sumbranches)
         
         tree_tuples.append(tuple)
@@ -623,6 +628,20 @@ def view_library_trees(request, alib, con):
         support_methods.append(ii[0])
     context["support_methods"] = support_methods
     context["lastmethod"] = support_methods[ support_methods.__len__()-1 ]
+    
+    """Compute the distance matrix between phylogenies from different
+        method-model pairs."""
+
+    symmd_matrix = []
+    for ii in treeids:
+        treeii = treeid_dendropytree[ii]
+        this_row = []
+        for jj in treeids:
+            treejj = treeid_dendropytree[jj]
+            distance = treeii.symmetric_difference(treejj)
+            this_row.append( distance )
+        symmd_matrix.append( this_row )
+    context["symmd_matrix"] = symmd_matrix
     
     return render(request, 'libview/libview_trees.html', context)
 

@@ -3,7 +3,9 @@
 {% block body %}
 
 <table width=100%>
-<tr><th align='left'>Alignment
+<tr>
+	<th align="center">ID</th>
+	<th align='left'>Alignment
 			<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span align="left">
@@ -90,6 +92,7 @@
 
 {% for tuple in tree_tuples %}
 <tr>
+	<td class="mu_header_small">{{ forloop.counter0 }}</td>
 	<td>{{tuple.0}}</td>
 	<td class='smalltext'>{{tuple.1}}</td>
 	<td align='center'>{{tuple.2|floatformat:2}}</td>
@@ -109,6 +112,32 @@
 </tr>
 {% endfor %}
 
+</table>
+
+<hr>
+
+<table width="50%">
+<tr><td align="center">ID</td>
+{% for item in symmd_matrix.0 %}
+<th class="mu_header_small">{{ forloop.counter0 }}</th>
+{% endfor %}
+</tr>
+{% for row in symmd_matrix %}
+	<tr align="center">
+	<td class="mu_header_small">{{ forloop.counter0 }}</td>
+	{% for item in row %}
+		<td
+		{% if item == 1.0 %}class="ppfull"
+		{% elif item >= 0.9 %}class="pp9"
+		{% elif item >= 0.8 %}class="pp8"
+		{% elif item >= 0.7 %}class="pp7"
+		{% elif item >= 0.6 %}class="pp6"
+		{% elif item >= 0.5 %}class="pp5"
+		{% else%}class="pplow"{% endif %}
+		>{{ item|floatformat:2 }}</td>
+	{% endfor %}
+	</tr>
+{% endfor %}
 </table>
 
 {% endblock %}
