@@ -90,10 +90,11 @@ chart2.draw(data2, options2);
 <div align="center">
 	<p class="smalltext">Mean Probability: {{mean_pp|floatformat:2}}, Standard Deviation: {{sd_pp|floatformat:2}}</p>
 	
-	<div id="chart_div" style="width: 100%; height: 200px;"></div>
+	<div id="chart_div" style="width: 100%; height: 200px;">
+	<p align="right" class="smalltext"><a href="{{node_number}}.support_binned.txt">View Raw Data</a></p>
+	</div>
 	
-	<div align="right"><p><a href='{{node_number}}.support_binned.txt'>View Raw Data</a></p></div>
-	
+
 	<div id="linechart_div" style="width: 100%; height: 200px;"></div>	
 </div>
 
