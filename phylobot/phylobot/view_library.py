@@ -672,11 +672,11 @@ def view_library_trees(request, alib, con):
       
     eucd_matrix_colorbins = []
     eucd_matrix_colorbins.append( 0.0 )
-    eucd_matrix_colorbins.append( 0.1*maxdistance)
-    eucd_matrix_colorbins.append( 0.2*maxdistance)
-    eucd_matrix_colorbins.append( 0.3*maxdistance)
-    eucd_matrix_colorbins.append( 0.4*maxdistance)
     eucd_matrix_colorbins.append( 0.5*maxdistance)
+    eucd_matrix_colorbins.append( 0.6*maxdistance)
+    eucd_matrix_colorbins.append( 0.7*maxdistance)
+    eucd_matrix_colorbins.append( 0.8*maxdistance)
+    eucd_matrix_colorbins.append( 0.9*maxdistance)
     context["eucd_matrix_colorbins"] = eucd_matrix_colorbins
 
     return render(request, 'libview/libview_trees.html', context)
