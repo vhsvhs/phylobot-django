@@ -87,13 +87,17 @@ chart2.draw(data2, options2);
 <h3>Support Summary</h3>
 <p>The posterior probabilities of all maximum likelihood sequence residues
  were binned by their probability, and then the proportion of sites was counted in each bin.</p>
+
+<p align="left" class="smalltext">
+<a href="{{node_number}}.support_binned.txt">View Raw Data (Barplot)</a><br>
+<a href="{{node_number}}.support_line.txt">View Raw Data (Line Graph)</a>
+</p>
+
 <div align="center" width="100%" overflow: hidden;">
 	<p class="smalltext">Mean Probability: {{mean_pp|floatformat:2}}, Standard Deviation: {{sd_pp|floatformat:2}}</p>
 
 	<div id="chart_div" style="width: 80%; height: 200px;" float: left;"></div>
-	<div style="margin-left: 84%;"><p align="right" class="smalltext"><a href="{{node_number}}.support_binned.txt">View Raw Data</a></p></div>
 	
-	<p align="right" class="smalltext"><a href="{{node_number}}.support_line.txt">View Raw Data</a></p>
 	<div id="linechart_div" style="width: 80%; height: 200px;" float: left;"></div>	
 </div>
 
