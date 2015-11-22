@@ -1,4 +1,4 @@
-bin_floor   bin_ceiling   proportion_of_sites
-{% for bin in bin_freq_tuples %}
-{{bin.0}}   {{bin.1}}    {{bin.2}}
+site   P(ml_residue)   P(2nd_best_residue)   P(3rd_best_residue)
+{% for e in site_support_tuples %}
+{{e.0}}     {{e.1}}    {{e.2}}    {{e.3}}
 {% endfor %}

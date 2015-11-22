@@ -1335,7 +1335,7 @@ def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=Fa
         template_url = 'libview/libview_ancestor_support_binned.txt'
         return render(request, template_url, context, content_type='text')
     elif showlineplot == True:
-        template_url = 'libview/libview_ancestor_support_bysite.txt'
+        template_url = 'libview/libview_ancestor_support_line.txt'
         return render(request, template_url, context, content_type='text')
     return render(request, template_url, context)
 
