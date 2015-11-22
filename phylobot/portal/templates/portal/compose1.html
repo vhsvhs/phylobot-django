@@ -15,7 +15,8 @@
 {% for msg in error_messages %}
 {% if msg != None %}
 <div class="rounded_div_medium" style="background-color:pink;">
-<p>{{msg}}</p>
+<h3 style="red">A problem occurred. . .</h3>
+<p>&#10140; {{msg}}</p>
 </div>
 {% endif %}
 {% endfor %}

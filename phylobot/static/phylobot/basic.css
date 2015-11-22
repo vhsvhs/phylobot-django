@@ -78,9 +78,7 @@ hr {
 	border: none;
 }
 
-.white{
-	color: #FFFFFF;
-}
+
 
 .grey{
 	color: grey;
@@ -93,10 +91,6 @@ hr {
 .green{
 	color: #009900;
 }
-
-.red{
-	color: #FF0000;
-}	
 
 .lightgreen{
 	color: #66CC66;
@@ -113,6 +107,31 @@ hr {
 .columnright{
   	float: right;
 }
+
+.aqua{color: #3399ff;}
+.yellow{color: #ffcc33;}
+.white{color: #ffffff;}
+.red{color:#ff6666;}
+.orange{color:#ff6666;}
+.blue{color:#ff6666;}
+
+.redrow{background: #ffcccc;}
+
+.orangerow{background: #ffffcc;}
+.whiterow{background: #ffffff;}
+.bluerow{background: #C2E0FF;}
+.indelrow{background: #ffcc00;}
+
+.redtd{background: #ffcccc; font-size: 7pt;}
+.orangetd{background: #ffffcc; font-size: 7pt;}
+.whitetd{font-size: 7pt;}
+.bluetd{background: #C2E0FF; font-size: 7pt;}
+.indeltd{background: #ffcc00; font-size: 7pt;}
+
+.bigtext{font-size: 14pt; font-style: bold;}
+.smalltext{font-size: 10pt;}
+.tinytext{font-size: 7pt;}
+.verytinytext{font-size: 3pt;}
 
 p, input{
 	font-size: 11pt;
