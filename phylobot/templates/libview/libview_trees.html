@@ -115,13 +115,13 @@
 </table>
 
 <hr>
-<h3>Symmetric Distance Between Trees		
+<h3>Structural Difference Between Trees		
 		<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span>
-	        	<p class="smalltext">The values in this table express the symmmetric
-	        	distance between trees inferred from different combinations of alignment
-	        	method and model. The IDs correspond to the row IDs in the table above.
+	        	<p class="smalltext">The values in this table express symmmetric
+	        	distance between trees inferred from different combinations methods and models. 
+	        	The IDs correspond to the row IDs in the table at top.
 	        	Symmetric distance is computed as the sum of branch splits found in one
 	        	tree, but not the other tree.</p>
 	    	</span>
@@ -153,9 +153,8 @@
 {% endfor %}
 </table>
 
-<!--
 <hr>
-<h3>Euclidean Distance Between Trees		
+<h3>Branch Length Differences Between Trees		
 		<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span>
@@ -194,6 +193,6 @@
 	</tr>
 {% endfor %}
 </table>
--->
+
 
 {% endblock %}
