@@ -132,12 +132,12 @@
 <table width="50%">
 <tr><td align="center">ID</td>
 {% for item in symmd_matrix.0 %}
-<th class="mu_header_small">{{ forloop.counter0 }}</th>
+<th align="center">{{ forloop.counter0 }}</th>
 {% endfor %}
 </tr>
 {% for row in symmd_matrix %}
 	<tr align="center">
-	<td class="mu_header_small">{{ forloop.counter0 }}</td>
+	<td align="center">{{ forloop.counter0 }}</td>
 	{% for item in row %}
 		<td		
 		{% if item == symmd_matrix_colorbins.0 %}class="ppfull"
@@ -159,8 +159,8 @@
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span>
 	        	<p class="smalltext">The values in this table express the Euclidean
-	        	distance between trees inferred from different combinations of alignment
-	        	method and model. The IDs correspond to the row IDs in the table above.
+	        	distance between trees inferred from different combinations of 
+	        	methods and model. The IDs correspond to the row IDs in the table at top.
 	        	Euclidean distance is the sum of absolute differences in branch lengths
 	        	for equivalent splits between two trees, with a value of 0.0 for
 	        	the branch length of a missing split. This is equivalent to the "branch length distance"
@@ -173,12 +173,12 @@
 <table width="50%">
 <tr><td align="center">ID</td>
 {% for item in eucd_matrix.0 %}
-<th class="mu_header_small">{{ forloop.counter0 }}</th>
+<th align="center">{{ forloop.counter0 }}</th>
 {% endfor %}
 </tr>
 {% for row in eucd_matrix %}
 	<tr align="center">
-	<td class="mu_header_small">{{ forloop.counter0 }}</td>
+	<td align="center">{{ forloop.counter0 }}</td>
 	{% for item in row %}
 		<td		
 		{% if item == eucd_matrix_colorbins.0 %}class="ppfull"
