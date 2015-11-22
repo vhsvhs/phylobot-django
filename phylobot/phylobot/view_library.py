@@ -246,11 +246,11 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
     context = get_base_context(request, alib, con)
     context["taxon_seq"] = taxon_seq
     if format == "fasta":
-        return render(request, 'libview/libview_fasta.fasta', context)
+        return render(request, 'libview/libview_fasta.fasta', context, content_type='text')
     else:
         context["nsites"] = nsites
         context["ntaxa"] = taxon_seq.keys().__len__()
-        return render(request, 'libview/libview_phylip.phylip', context) 
+        return render(request, 'libview/libview_phylip.phylip', context, content_type='text') 
 
 def view_tree(request, alib, con, format="newick"):
     """Most of this method is concerned with determining what tree was requested,
