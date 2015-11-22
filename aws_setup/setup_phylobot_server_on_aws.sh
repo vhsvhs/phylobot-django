@@ -34,3 +34,4 @@ sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
 # known alignment algorithms, phylogenetic models, and job status
 # objects to the DB.
 sudo python phylobot-django/phylobot/populate_phylobot.py
+
