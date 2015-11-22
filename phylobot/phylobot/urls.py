@@ -24,12 +24,6 @@ urlpatterns = patterns('',
  	(r'^faq_fasta*', faq_fasta),
  	(r'^faq_newick*', faq_newick),
 	
-	#
-	# continue here!
-	#
-	
-		
-
 # 	These patterns are depricated, because we're not using the allauth package.
 # 	(r'^login/$', 'django.contrib.auth.views.login'),
 #   (r'^logout/$', views.logout_page),
