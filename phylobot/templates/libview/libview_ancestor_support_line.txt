@@ -1,0 +1,4 @@
+bin_floor   bin_ceiling   proportion_of_sites
+{% for bin in bin_freq_tuples %}
+{{bin.0}}   {{bin.1}}    {{bin.2}}
+{% endfor %}
