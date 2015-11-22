@@ -109,7 +109,7 @@ def is_valid_fasta(path, is_uniprot=False):
     
     """Too many sequences."""
     if taxa_seq.keys().__len__() > 250:
-        return (False, "PhyloBot analysis is currently limited to 250 sequences per job. Your file appears to contain " + taxa_seq.keys().__len__().__str__() + " sequences. Please reduce the number of sequences in your file and resubmit your job. If you would like to remove the 250 limit, please contact us using the 'Contact' link at the bottom of the page.")
+        return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain " + taxa_seq.keys().__len__().__str__() + " sequences. Please reduce the number of sequences in your file and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
 
     max_length = 0
     for taxa in taxa_seq:
@@ -122,7 +122,7 @@ def is_valid_fasta(path, is_uniprot=False):
         if max_length < taxa_seq[taxa].__len__():
             max_length = taxa_seq[taxa].__len__()
         if max_length > 2000:
-            return (False, "PhyloBot analysis is currently limited to protein sequences of length 2000 or less. Your file appears to contain a sequence of length " + max_length.__len__() + ".Please trim your sites and resubmit your job. If you would like to remove the 250 limit, please contact us using the 'Contact' link at the bottom of the page.")
+            return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain a sequence of length " + max_length.__len__() + ".Please trim your sites and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
             
         if is_uniprot:
             tokens = taxa.split("|")
