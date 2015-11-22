@@ -77,6 +77,7 @@ def view_library(request, libid):
     
     elif request.path_info.endswith(".phylip"):
         """aligned phylip"""
+        tokens = request.path_info.split("/")[-1]
         tokens = request.path_info.split(".")
         datatype="aa"
         if tokens.__len__() >= 2:
