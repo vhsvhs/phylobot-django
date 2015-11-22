@@ -53,39 +53,33 @@ def view_library(request, libid):
     if request.path_info.endswith("alignments"):
         return view_alignments(request, alib, con)
     
-    elif request.path_info.endswith(anclib.shortname + ".fasta"):
+    elif request.path_info.endswith("unaligned.fasta") or request.path_info.endswith("noalign.fasta"):
         """original fasta"""
-        return view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_method=None)
+        return view_sequences(request, alib, con, format="fasta", alignment_method=None)
     
     elif request.path_info.endswith(".fasta"):
         """aligned fasta"""
         tokens = request.path_info.split("/")[-1]
         tokens = tokens.split(".")
-        datatype = "aa"
-        if tokens.__len__() >= 2:
-            datatype = tokens[   tokens.__len__()-1  ]
         alignment_method = None
-        if tokens.__len__() >= 3:
-            alignment_method = tokens[   tokens.__len__()-2  ]
-        return view_sequences(request, alib, con, format="fasta", datatype=datatype, alignment_method=alignment_method)
+        if tokens.__len__() >= 2:
+            alignment_method = tokens[-2]
+        return view_sequences(request, alib, con, format="fasta", alignment_method=alignment_method)
     
     # I think we can depricate this elif case. When would we
-    elif request.path_info.endswith(anclib.shortname + ".phylip"):
+    elif request.path_info.endswith("unaligned.phylip") or request.path_info.endswith("noalign.phylip"):
         """original phylip"""
         tokens = request.path_info.split(".")
-        return view_sequences(request, alib, con, format="phylip", datatype="aa", alignment_method=None)    
+        return view_sequences(request, alib, con, format="phylip", alignment_method=None)    
     
     elif request.path_info.endswith(".phylip"):
         """aligned phylip"""
         tokens = request.path_info.split("/")[-1]
         tokens = request.path_info.split(".")
-        datatype="aa"
-        if tokens.__len__() >= 2:
-            datatype = tokens[   tokens.__len__()-1  ]
         alignment_method = None
-        if tokens.__len__() >= 3:
-            alignment_method = tokens[   tokens.__len__()-2  ]
-        return view_sequences(request, alib, con, format="phylip", datatype=datatype, alignment_method=alignment_method)
+        if tokens.__len__() >= 2:
+            alignment_method = tokens[-2]
+        return view_sequences(request, alib, con, format="phylip", alignment_method=alignment_method)
        
     elif request.path_info.endswith(".newick"):
         return view_tree(request, alib, con, format="newick")
@@ -223,9 +217,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
         datatype = 1
     elif datatype == "codon":
         datatype = 0
-    
-    print "218", alignment_method
-    
+        
     if alignment_method == None:    
         sql = "select taxonid, sequence from OriginalSequences where datatype=" + datatype.__str__()
     else:
@@ -253,9 +245,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
         cur.execute(sql)
         fullname = cur.fetchone()[0]
         taxon_seq[ fullname ] = sequence
-    
-    print "view_sequences: 246!"
-    
+        
     context = get_base_context(request, alib, con)
     context["taxon_seq"] = taxon_seq
     if format == "fasta":
