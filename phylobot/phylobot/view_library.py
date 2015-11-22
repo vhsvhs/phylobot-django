@@ -93,6 +93,10 @@ def view_library(request, libid):
         return view_ancestor_ml(request, alib, con)
     elif request.path_info.endswith("support"):
         return view_ancestor_support(request, alib, con)
+    elif request.path_info.endswith("support_binned.txt"):
+        return view_ancestor_support(request, alib, con, showbarplot=True)
+    elif request.path_info.endswith("support_line.txt"):
+        return view_ancestor_support(request, alib, con, showlineplot=True)
     
     elif request.path_info.endswith("supportbysite"):
         return view_ancestor_supportbysite(request, alib, con)
