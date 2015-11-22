@@ -19,6 +19,8 @@ Instructions:
 	$> cd ~/
 	$> sudo bash phylobot-django/aws_setup/setup_phylobot_server_on_aws.sh
 
+2c. Answer the question to create a superuser for the Django portal.
+
 3. Copy a .boto file to the server. Do the following on your local machine (not on the remote PhyloBot):
 	$> cd ~/
 	$> scp -i ~/.ssh/phylobot-ec2-key.pem ~/.boto ubuntu@PUBLICIP:~/
