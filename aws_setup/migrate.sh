@@ -5,6 +5,9 @@
 
 # Copy the static data, including uploaded sequences.
 cd
+sudo chown www-data -R /home/ubuntu/phylobot-django/phylobot
+sudo chgrp www-data -R /home/ubuntu/phylobot-django/phylobot
+
 scp -i ~/.ssh/phylobot-ec2-key.pem -r ubuntu@www.phylobot.com:/home/ubuntu/phylobot-django/phylobot/static/* /home/ubuntu/phylobot-django/phylobot/static/
 sudo chown www-data -R /home/ubuntu/phylobot-django/phylobot/static
 sudo chgrp www-data -R /home/ubuntu/phylobot-django/phylobot/static
