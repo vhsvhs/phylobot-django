@@ -1,0 +1,4 @@
+bin_floor\tbin_ceiling\tproportion_of_sites
+{% for bin in bin_freq_tuples %}
+{{bin.0}}\t{{bin.1}}\t{{bin.2}}\n
+{% endfor %}

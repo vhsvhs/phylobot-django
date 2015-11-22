@@ -1239,7 +1239,7 @@ def view_ancestor_ml(request, alib, con):
     context["similarity_matrix"] = similarity_matrix
     return render(request, 'libview/libview_ancestor_ml.html', context)
         
-def view_ancestor_support(request, alib, con):
+def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
@@ -1275,15 +1275,9 @@ def view_ancestor_support(request, alib, con):
     ancid = x[0]
 
     seq = get_ml_sequence(con, ancid)
-#     ml_sequence = ""
-#     for index, char in enumerate(seq):
-#         ml_sequence += char
-#         if index%70 == 0 and index>1:
-#             ml_sequence += "<br>"
     stride = 0.1
     bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
-
 
     context = get_base_context(request, alib, con)
 
@@ -1331,7 +1325,13 @@ def view_ancestor_support(request, alib, con):
     context["stride"] = stride
     context["mean_pp"] = mean_pp
     context["sd_pp"] = sd_pp
-    return render(request, 'libview/libview_ancestor_support.html', context)      
+    
+    template_url='libview/libview_ancestor_support.html'
+    if showbarplot == True:
+        template_url = 'libview/libview_ancestor_support_binned.txt'
+    elif showlineplot == True:
+        template_url = 'libview/libview_ancestor_support_bysite.txt'
+    return render(request, template_url, context)      
 
 
 def view_ancestor_supportbysite(request, alib, con, xls=False):
@@ -1438,6 +1438,12 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
 
 def view_ancestor_supportbysitexls(request, alib, con):
     return view_ancestor_supportbysite(request, alib, con, xls=True)
+
+def view_ancestor_supportsummary_barplot(request, alib, con):
+    return view_ancestor_support(request, alib, con, showbarplot = True)
+
+def view_ancestor_supportsummary_lineplot(request, alib, con):
+    return view_ancestor_support(request, alib, con, showlineplot = True)
 
 def view_mutations_bybranch(request, alib, con):
     cur = con.cursor()
