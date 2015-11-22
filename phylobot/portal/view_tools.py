@@ -91,6 +91,7 @@ def is_valid_newick(path, source_sequence_names = None):
 
 def is_valid_fasta(path, is_uniprot=False):
     """This method checks if the FASTA file located at 'path' is a valid FASTA format.
+        AND if the sequence contains too many, or not enough, taxa.
         If there are formatting problems, this method will attempt to fix them (i.e., /r line breaks
         instead of \n line break. If the problems cannot be fixed, then this message will
         return an error.
@@ -105,7 +106,12 @@ def is_valid_fasta(path, is_uniprot=False):
         return (False, msg)
 
     taxa_seq = get_taxa(path, "fasta") 
+    
+    """Too many sequences."""
+    if taxa_seq.keys().__len__() > 250:
+        return (False, "PhyloBot analysis is currently limited to 250 sequences per job. Your file appears to contain " + taxa_seq.keys().__len__().__str__() + " sequences. Please reduce the number of sequences in your file and resubmit your job. If you would like to remove the 250 limit, please contact us using the 'Contact' link at the bottom of the page.")
 
+    max_length = 0
     for taxa in taxa_seq:
         if taxa.split(">").__len__() > 2:
             msg = "Your sequence named '" + taxa + "' appears to be two sequence names combined. Can you correct this?"
@@ -113,6 +119,11 @@ def is_valid_fasta(path, is_uniprot=False):
         if taxa_seq[taxa].__len__() == 0:
             msg = "Your sequence named '" + taxa + "' doesn't appear to contain any sequence content."
             return (False, msg)
+        if max_length < taxa_seq[taxa].__len__():
+            max_length = taxa_seq[taxa].__len__()
+        if max_length > 2000:
+            return (False, "PhyloBot analysis is currently limited to protein sequences of length 2000 or less. Your file appears to contain a sequence of length " + max_length.__len__() + ".Please trim your sites and resubmit your job. If you would like to remove the 250 limit, please contact us using the 'Contact' link at the bottom of the page.")
+            
         if is_uniprot:
             tokens = taxa.split("|")
             if tokens.__len__() < 2:

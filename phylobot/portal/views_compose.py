@@ -52,7 +52,7 @@ def compose1(request):
         checked_uniprot = request.POST.getlist('is_uniprot')
       
         """
-        Read sequence input
+        Read sequence input (i.e. the FASTA file)
         """
         aaseqfile = None
         codonseqfile = None
@@ -159,10 +159,10 @@ def compose1(request):
                 this_job.settings.save()
                 seqfile.delete()
                 if ii == 0:
-                    aa_seqfileform.fields['aaseq_path'].errors = "Please select a FASTA-formatted file of amino acid sequences."
+                    aa_seqfileform.fields['aaseq_path'].errors = "Your file does not appear to be FASTA formatted. Please select a FASTA file of amino acid sequences."
                     #error_messages.append("Please select a FASTA-formatted file of amino acid sequences.")
                 if ii == 1:
-                    codon_seqfileform.fields['codonseq_path'].errors = "Please select a FASTA-formatted file of codon sequences."
+                    codon_seqfileform.fields['codonseq_path'].errors = "Your file does not appear to be FASTA formatted. Please select a FASTA file of codon sequences."
                     #error_messages.append("Please select a FASTA-formatted file of codon sequences.")
                 this_job.settings.save()
                 this_job.save()
