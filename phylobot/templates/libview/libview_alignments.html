@@ -63,7 +63,7 @@ function drawChart() {
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span>
 				<h3>Alignment Method</h3>
-	        	<p class="smalltext">Each alignment method applies a unique approach to determine which sequence sites are homologous and the placement of gaps.</p><p class="smalltext">To learn more about a particular alignment method, click the link [ref] next to its name.</p>
+	        	<p class="smalltext">Each alignment method applies a unique approach to determine which sequence sites are homologous and the placement of gaps.</p><p class="smalltext">To learn more about a particular alignment method, click the link [cite] next to its name.</p>
 	    	</span>
 		</a>
 	</th>	
@@ -89,7 +89,6 @@ function drawChart() {
 			<a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span align="left">
-				<h3>ZORRO Profile</h3>
 	        	<p class="smalltext">The ZORRO algorithm assigns a confidence score to each site in the alignment.
 	        	Use the profile of ZORRO scores to determine the relative robustness of different regions of the alignment.</p>
 	        	<p class="smalltext">Reference:</p>
@@ -107,10 +106,9 @@ function drawChart() {
 </tr>
 
 {% for tuple in msaid_tuples %}
-<tr><td align='left'>{{tuple.0}} <font class="smalltext"><a href="{{tuple.3}}">[ref]</a></font></td>
+<tr><td align='left'>{{tuple.0}} <font class="smalltext"><a href="{{tuple.3}}">[cite]</a></font></td>
 	<td align='center'>{{tuple.1}}</td>
 	<td align='center'>{{tuple.2}}</td>
-	<td align='center'><a href='/{{alid}}/zorro'>view</a></td>
 	<td align='center'><a href='/{{alid}}/{{tuple.0}}/alignment'>launch viewer</a></td>
 	<td align='center'>
 		<a href='/{{alid}}/{{shortname}}.{{tuple.0}}.fasta'>fasta</a> |
@@ -128,7 +126,8 @@ function drawChart() {
 			<span>
 	        	<p class="smalltext">ZORRO scores were calculated for every site in every alignment.
 	        	These scores estimate our confidence in assigning homology to a set of residues, versus
-	        	another hypothesis in which those residues are aligned into two or more different sites.</p>
+	        	another hypothesis in which those residues are aligned into two or more different sites.
+	        	For more information, see Wu, Chatterji, and Eisen (PLoS One 2012).</p>
 	    	</span>
 		</a>
 
