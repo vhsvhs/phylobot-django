@@ -80,10 +80,12 @@ def get_asrdb(jobid, save_to_path):
     DBKEY = jobid.__str__() + "/sqldb"
     print DBKEY
     key = bucket.get_key(DBKEY)
-    print "46:", key, save_to_path
+    #print "46:", key, save_to_path
     if key == None:
         return None
     key.get_contents_to_filename(save_to_path)
+    # Make the DB writeable
+    os.chmod(save_to_path, 0777)
             
 def get_job_status(jobid):    
     """Returns the value of the status key for the job"""
