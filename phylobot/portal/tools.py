@@ -41,6 +41,8 @@ def get_taxa(seqpath, format):
             else:
                 l = re.sub(" ", "", l)
                 l = re.sub("\?", "", l)
+                l = re.sub("\_", "", l)
+                l = re.sub("\.", "", l)
                 currseq += l.strip()
         taxa_seq[currtaxa] = currseq
     
