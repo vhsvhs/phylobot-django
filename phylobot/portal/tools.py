@@ -60,7 +60,7 @@ def get_library_savetopath(jobid):
 def check_ancestral_library_filepermissions(jobid):
     """Ensure the ancestral database is writeable."""
     save_to_path = get_library_savetopath(jobid)
-    if os.file.exists(save_to_path):
+    if os.path.exists(save_to_path):
         os.system(save_to_path, 0777)
         return True
     return False
