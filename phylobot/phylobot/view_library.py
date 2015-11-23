@@ -672,7 +672,7 @@ def view_library_trees(request, alib, con):
     
     """Compute the distance matrix between phylogenies from different
         method-model pairs, but first check if its already been computed and cached."""
-    sql = "show tables like TreeDistanceMetrics"
+    sql = "SELECT * FROM sqlite_master WHERE name ='TreeDistanceMetrics' and type='table'"
     cur.execute(sql)
     x = cur.fetchall()
     if x == None:
