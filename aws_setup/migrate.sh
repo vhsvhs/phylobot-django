@@ -19,3 +19,8 @@ sudo chgrp www-data /home/ubuntu/phylobot-django/phylobot/db.sqlite3
 
 # Copy the Job daemon DB. It remains owned by root.
 scp -i ~/.ssh/phylobot-ec2-key.pem ubuntu@www.phylobot.com:/home/ubuntu/phylobot-django/phylobot/job_daemon.db /home/ubuntu/phylobot-django/phylobot/
+
+# Copy the BOTO configuration
+sudo scp -i ~/.ssh/phylobot-ec2-key.pem -r ubuntu@www.phylobot.com:/etc/boto.cfg /etc/boto.cfg
+sudo chown ubuntu /etc/boto.cfg
+sudo chgrp ubuntu /etc/boto.cfg
