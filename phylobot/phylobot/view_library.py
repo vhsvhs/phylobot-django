@@ -677,12 +677,17 @@ def view_library_trees(request, alib, con):
     x = cur.fetchall()
     if x == None:
         cur.execute("create table if not exists TreeDistanceMetrics(metricid INTEGER primary key, name TEXT unique)")
-        cur.execute("create table if not exists TreeDistances(metricid INTEGER, treeida INTEGER, treeidb INTEGER, distance FLOAT)")
-        con.commit()
         cur.execute("insert or replace into TreeDistanceMetrics(metricid, name) values(1, 'euclidean')")
         cur.execute("insert or replace into TreeDistanceMetrics(metricid, name) values(2, 'symmetric')")
         con.commit()
-    
+            
+    sql = "SELECT * FROM sqlite_master WHERE name ='TreeDistances' and type='table'"
+    cur.execute(sql)
+    x = cur.fetchall()
+    if x == None:
+        cur.execute("create table if not exists TreeDistances(metricid INTEGER, treeida INTEGER, treeidb INTEGER, distance FLOAT)")
+        con.commit()
+
     """Cache distances, if possible"""
     metric_treea_treeb_d = {}
     sql = "select metricid, treeida, treeidb, distance from TreeDistances"
