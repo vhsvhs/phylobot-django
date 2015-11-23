@@ -12,7 +12,7 @@ from django.template import RequestContext, Context, loader
 
 from phylobot.models import *
 from portal import tools
-from portal.tools import get_library_savetopath
+from portal.tools import get_library_savetopath, get_library_dbpath
 from portal.tools import check_ancestral_library_filepermissions
 from phylobot.phyloxml_helper import *
 
@@ -24,9 +24,6 @@ from views_tools import *
 def view_library(request, libid):
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
-
-    setup_logging()
-    logger.info("test of logging")
     
     libid = libid.split("/")[0]
     
@@ -44,8 +41,10 @@ def view_library(request, libid):
     alib = AncestralLibrary.objects.get( id=int(libid) )
     
     """Ensure the project's SQL database exists locally."""
-    if False == check_ancestral_library_filepermissions(libid):
-        logger.error("I cannot find a local copy of the ancestral library.")
+    if False == check_ancestral_library_filepermissions(alib=alib):
+        print "I cannot update the permissions on the ancestral library."
+    
+    print "47\n"
     
     """Can we open a connection to this project's SQL database?"""
     con = get_library_sql_connection(libid)
@@ -686,7 +685,7 @@ def view_library_trees(request, alib, con):
     sql = "SELECT * FROM sqlite_master WHERE name ='TreeDistances' and type='table'"
     cur.execute(sql)
     x = cur.fetchall()
-    if x == None:
+    if x.__len__() == 0:
         cur.execute("create table if not exists TreeDistances(metricid INTEGER, treeida INTEGER, treeidb INTEGER, distance FLOAT)")
         con.commit()
 
@@ -719,14 +718,15 @@ def view_library_trees(request, alib, con):
             """Do we have this distance in the cache?"""
             distance = None
             if metricid in metric_treea_treeb_d:
-                if treeii in metric_treea_treeb_d[metricid]:
-                    if treejj in metric_treea_treeb_d[metricid][treeii]:
-                        distance = metric_treea_treeb_d[metricid][treeii][treejj]
+                if ii in metric_treea_treeb_d[metricid]:
+                    if jj in metric_treea_treeb_d[metricid][ii]:
+                        distance = metric_treea_treeb_d[metricid][ii][jj]
             if distance == None:
                 distance = treeii.symmetric_difference(treejj)
                 """Store the computed distance in the database."""
                 sql = "insert into TreeDistances(metricid, treeida, treeidb, distance) values("
-                sql += metricid.__str__() + "," + treeii.__str__() + "," + treejj.__str__() + "," + distance.__str__() + ")"
+                sql += metricid.__str__() + "," + ii.__str__() + "," + jj.__str__() + "," + distance.__str__() + ")"
+                print "729:", sql
                 cur.execute(sql)
             if distance > maxdistance:
                 maxdistance = distance
@@ -758,14 +758,14 @@ def view_library_trees(request, alib, con):
             """Do we have this distance in the cache?"""
             distance = None
             if metricid in metric_treea_treeb_d:
-                if treeii in metric_treea_treeb_d[metricid]:
-                    if treejj in metric_treea_treeb_d[metricid][treeii]:
-                        distance = metric_treea_treeb_d[metricid][treeii][treejj]
+                if ii in metric_treea_treeb_d[metricid]:
+                    if jj in metric_treea_treeb_d[metricid][ii]:
+                        distance = metric_treea_treeb_d[metricid][ii][jj]
             if distance == None:
                 distance = treeii.euclidean_distance(treejj)
                 """Store the computed distance in the database."""
                 sql = "insert into TreeDistances(metricid, treeida, treeidb, distance) values("
-                sql += metricid.__str__() + "," + treeii.__str__() + "," + treejj.__str__() + "," + distance.__str__() + ")"
+                sql += metricid.__str__() + "," + ii.__str__() + "," + jj.__str__() + "," + distance.__str__() + ")"
                 cur.execute(sql)
             if distance > maxdistance:
                 maxdistance = distance

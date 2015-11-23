@@ -55,13 +55,27 @@ def get_taxa(seqpath, format):
     return taxa_seq
 
 def get_library_savetopath(jobid):
-    return settings.MEDIA_ROOT + "/anclibs/asr_" + jobid.__str__() + ".db"
+    dbpath = settings.MEDIA_ROOT + "/anclibs/asr_" + jobid.__str__() + ".db"
+    print "59: get_library_savetopath:", jobid, dbpath
+    return dbpath
 
-def check_ancestral_library_filepermissions(jobid):
+def get_library_dbpath(alib):
+    dbpath = alib.dbpath.__str__()
+    dbpath = settings.MEDIA_ROOT + "/" + dbpath
+    print "65: get_library_dbpath:", alib.id, dbpath
+    return dbpath
+
+def check_ancestral_library_filepermissions(job=None, alib=None):
     """Ensure the ancestral database is writeable."""
-    save_to_path = get_library_savetopath(jobid)
+    if job != None:
+        save_to_path = get_library_savetopath(job.id)
+    elif alib != None:
+        save_to_path = get_library_dbpath(alib)
+    elif job == None and alib == None:
+        return False
+    print "save_to_path:", save_to_path
     if os.path.exists(save_to_path):
-        os.system(save_to_path, 0777)
+        os.chmod(save_to_path, 0777)
         return True
     return False
         
