@@ -30,7 +30,7 @@ def view_library(request, libid):
     
     libid = libid.split("/")[0]
     
-    """Does libid exist in our known libraries?"""
+    """Does this library exist in our known libraries?"""
     foundit = False
     for anclib in AncestralLibrary.objects.all():
         if anclib.id.__str__() == libid or anclib.shortname == libid:
@@ -40,11 +40,11 @@ def view_library(request, libid):
         logger.error("I cannot find any ancestral libraries with names or IDs that match " + libid.__str__())
         return HttpResponseRedirect('/')
     
-    """Retrieve the AncestralLibrary object?"""
+    """Retrieve the AncestralLibrary class object"""
     alib = AncestralLibrary.objects.get( id=int(libid) )
     
     """Ensure the project's SQL database exists locally."""
-    if False == check_ancestral_library_filepermissions(job):
+    if False == check_ancestral_library_filepermissions(libid):
         logger.error("I cannot find a local copy of the ancestral library.")
     
     """Can we open a connection to this project's SQL database?"""
@@ -151,10 +151,7 @@ def view_library(request, libid):
     
     else:
         return view_library_frontpage(request, alib, con)
-    
-    
-    # a hack, for now, to just return the user to the main front page.
-    
+        
 def get_library_sql_connection(alid):
     """Returns a SQL connection to the database for the AncestralLibrary with id = alid
         If something wrong happens, then this method returns None"""
