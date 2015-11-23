@@ -53,5 +53,16 @@ def get_taxa(seqpath, format):
                 taxa_seq[this_taxa] = seq
     fin.close()
     return taxa_seq
+
+def get_library_savetopath(job):
+    return settings.MEDIA_ROOT + "/anclibs/asr_" + job.id.__str__() + ".db"
+
+def check_ancestral_library_filepermissions(job):
+    # Make the DB writeable
+    save_to_path = get_library_savetopath(job)
+    if os.file.exists(save_to_path):
+        os.system(save_to_path, 0777)
+        return True
+    return False
         
         

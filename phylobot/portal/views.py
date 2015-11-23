@@ -206,7 +206,7 @@ def jobstatus(request, jobid):
     finished_library_id = None
     
     if checkpoint == 8:
-        print "views_compose.py 380 - let's import", job.id
+        #print "views_compose.py 380 - let's import", job.id
         
         contact_authors_profile = phylobotmodels.UserProfile.objects.get_or_create(user=request.user)[0]
         #print "383:", contact_authors_profile

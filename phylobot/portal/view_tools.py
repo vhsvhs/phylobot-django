@@ -235,7 +235,19 @@ def parse_uniprot_seqname(name):
     
     return (db, uniqueid, entryname, ogs, gn, pe, sv)
 
+# def get_library_savetopath(job):
+#     return settings.MEDIA_ROOT + "/anclibs/asr_" + job.id.__str__() + ".db"
+# 
+# def check_ancestral_library_filepermissions(job):
+#     # Make the DB writeable
+#     save_to_path = get_library_savetopath(job)
+#     if os.file.exists(save_to_path):
+#         os.system(save_to_path, 0777)
+#         return True
+#     return False
+        
 def import_ancestral_library(job):
+    """Get an ancestral library from S3. Store it locally."""
     alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
     #print "384:", alib
     
@@ -243,7 +255,7 @@ def import_ancestral_library(job):
     #print "383:", relationship
     relationship.save()
     
-    save_to_path = settings.MEDIA_ROOT + "/anclibs/asr_" + job.id.__str__() + ".db"
+    save_to_path = get_library_savetopath(job)
     #print "392:", save_to_path
     get_asrdb(job.id, save_to_path)
     

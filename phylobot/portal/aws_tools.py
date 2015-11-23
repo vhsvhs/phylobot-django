@@ -84,8 +84,7 @@ def get_asrdb(jobid, save_to_path):
     if key == None:
         return None
     key.get_contents_to_filename(save_to_path)
-    # Make the DB writeable
-    os.system(save_to_path, 0777)
+
             
 def get_job_status(jobid):    
     """Returns the value of the status key for the job"""

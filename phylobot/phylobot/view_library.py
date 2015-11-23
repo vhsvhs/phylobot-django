@@ -11,6 +11,9 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext, Context, loader
 
 from phylobot.models import *
+from portal import tools
+from portal.tools import get_library_savetopath
+from portal.tools import check_ancestral_library_filepermissions
 from phylobot.phyloxml_helper import *
 
 import sqlite3 as sqlite
@@ -39,6 +42,11 @@ def view_library(request, libid):
     
     """Retrieve the AncestralLibrary object?"""
     alib = AncestralLibrary.objects.get( id=int(libid) )
+    
+    """Ensure the project's SQL database exists locally."""
+    flag = check_ancestral_library_filepermissions(job)
+    if flag == False:
+        logger.error("I cannot find a local copy of the ancestral library.")
     
     """Can we open a connection to this project's SQL database?"""
     con = get_library_sql_connection(libid)
