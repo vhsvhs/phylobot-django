@@ -717,16 +717,13 @@ def view_library_trees(request, alib, con):
             treejj = treeid_dendropytree[jj]
             """Do we have this distance in the cache?"""
             distance = None
-            if metricid in metric_treea_treeb_d:
-                if ii in metric_treea_treeb_d[metricid]:
-                    if jj in metric_treea_treeb_d[metricid][ii]:
-                        distance = metric_treea_treeb_d[metricid][ii][jj]
-            if distance == None:
+            try:
+                distance = metric_treea_treeb_d[metricid][ii][jj]
+            except KeyError:
                 distance = treeii.symmetric_difference(treejj)
                 """Store the computed distance in the database."""
                 sql = "insert into TreeDistances(metricid, treeida, treeidb, distance) values("
                 sql += metricid.__str__() + "," + ii.__str__() + "," + jj.__str__() + "," + distance.__str__() + ")"
-                print "729:", sql
                 cur.execute(sql)
             if distance > maxdistance:
                 maxdistance = distance
@@ -757,11 +754,9 @@ def view_library_trees(request, alib, con):
             treejj.deroot()
             """Do we have this distance in the cache?"""
             distance = None
-            if metricid in metric_treea_treeb_d:
-                if ii in metric_treea_treeb_d[metricid]:
-                    if jj in metric_treea_treeb_d[metricid][ii]:
-                        distance = metric_treea_treeb_d[metricid][ii][jj]
-            if distance == None:
+            try:
+                distance = metric_treea_treeb_d[metricid][ii][jj]
+            except KeyError:
                 distance = treeii.euclidean_distance(treejj)
                 """Store the computed distance in the database."""
                 sql = "insert into TreeDistances(metricid, treeida, treeidb, distance) values("
