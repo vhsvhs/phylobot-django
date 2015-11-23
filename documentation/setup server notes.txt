@@ -31,3 +31,7 @@ Instructions:
 	$> 
 
 4. If no errors were reported, PhyloBot should be running at the PUBLICIP.
+
+5. Optional: If you're cloning PhyloBot from another instance, then run the 
+	migration script to copy all the static data, databases, and BOTO configurations.
+	$> sudo bash aws_setup/migrate.sh

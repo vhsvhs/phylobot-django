@@ -35,3 +35,9 @@ sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
 # objects to the DB.
 sudo python phylobot-django/phylobot/populate_phylobot.py
 
+#
+# Optional: If you're cloning PhyloBot from another instance,
+# run this too:
+# sudo bash aws_setup/migrate.sh
+#
+
