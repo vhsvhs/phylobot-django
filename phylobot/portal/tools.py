@@ -56,13 +56,11 @@ def get_taxa(seqpath, format):
 
 def get_library_savetopath(jobid):
     dbpath = settings.MEDIA_ROOT + "/anclibs/asr_" + jobid.__str__() + ".db"
-    print "59: get_library_savetopath:", jobid, dbpath
     return dbpath
 
 def get_library_dbpath(alib):
     dbpath = alib.dbpath.__str__()
     dbpath = settings.MEDIA_ROOT + "/" + dbpath
-    print "65: get_library_dbpath:", alib.id, dbpath
     return dbpath
 
 def check_ancestral_library_filepermissions(job=None, alib=None):

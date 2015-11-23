@@ -236,7 +236,6 @@ def parse_uniprot_seqname(name):
 def import_ancestral_library(job):
     """Get an ancestral library from S3. Store it locally."""
     alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
-    
     relationship = phylobotmodels.AncestralLibrarySourceJob.objects.get_or_create(jobid=job.id, libid=alib.id)[0]
     relationship.save()
     
@@ -250,5 +249,5 @@ def import_ancestral_library(job):
         set_aws_checkpoint(job.id, checkpoint)
 
     check_ancestral_library_filepermissions(job=job)    
-    alib.dbpath = "anclibs/asr_" + alib.id.__str__() + ".db"
+    alib.dbpath = "anclibs/asr_" + job.id.__str__() + ".db"
     alib.save()
