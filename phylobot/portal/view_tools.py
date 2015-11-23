@@ -265,6 +265,7 @@ def import_ancestral_library(job):
         print "400 - the db save worked!"
         checkpoint = 9.0
         set_aws_checkpoint(job.id, checkpoint)
-    
+
+    check_ancestral_library_filepermissions(job)    
     alib.dbpath = "anclibs/asr_" + job.id.__str__() + ".db"
     alib.save()

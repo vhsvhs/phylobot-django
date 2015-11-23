@@ -44,8 +44,7 @@ def view_library(request, libid):
     alib = AncestralLibrary.objects.get( id=int(libid) )
     
     """Ensure the project's SQL database exists locally."""
-    flag = check_ancestral_library_filepermissions(job)
-    if flag == False:
+    if False == check_ancestral_library_filepermissions(job):
         logger.error("I cannot find a local copy of the ancestral library.")
     
     """Can we open a connection to this project's SQL database?"""
@@ -54,9 +53,7 @@ def view_library(request, libid):
         logger.error("I cannot open a SQL connection to the database for ancestral library ID " + libid.__str__() )
     
     """
-        
         URL Dispatch:
-    
     """
     if request.path_info.endswith("alignments"):
         return view_alignments(request, alib, con)
