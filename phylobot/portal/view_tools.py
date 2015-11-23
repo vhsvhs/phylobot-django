@@ -121,6 +121,12 @@ def is_valid_fasta(path, is_uniprot=False):
             max_length = taxa_seq[taxa].__len__()
         if max_length > 2000:
             return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain a sequence of length " + max_length.__len__() + ".Please trim your sites and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
+        
+        """Are there non-alpha chars in the sequence data?"""
+        for c in taxa_seq[taxa]:
+            if False == c.isalpha():
+                msg = "I found the character " + c.__str__() + " in the sequence for taxon " + taxa.__str__() + ". This character is not allowed. Please fix your FASTA file and resubmit your job."
+                return (False, msg)
             
         if is_uniprot:
             tokens = taxa.split("|")
