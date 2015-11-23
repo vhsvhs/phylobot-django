@@ -2,6 +2,8 @@
 # This script should be run when the PhyloBot server 
 # instance is launched for the first time.
 #
+# see documentation/setup server notes.txt for more information.
+#
 
 # Ensure we have the latest version of Django-SES (Required to send email from Django)
 sudo pip install django-ses

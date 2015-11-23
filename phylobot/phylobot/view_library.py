@@ -671,7 +671,37 @@ def view_library_trees(request, alib, con):
     context["lastmethod"] = support_methods[ support_methods.__len__()-1 ]
     
     """Compute the distance matrix between phylogenies from different
-        method-model pairs."""
+        method-model pairs, but first check if its already been computed and cached."""
+    sql = "show tables like TreeDistanceMetrics"
+    cur.execute(sql)
+    x = cur.fetchall()
+    if x == None:
+        cur.execute("create table if not exists TreeDistanceMetrics(metricid INTEGER primary key, name TEXT unique)")
+        cur.execute("create table if not exists TreeDistances(metricid INTEGER, treeida INTEGER, treeidb INTEGER, distance FLOAT)")
+        con.commit()
+        cur.execute("insert or replace into TreeDistanceMetrics(metricid, name) values(1, 'euclidean')")
+        cur.execute("insert or replace into TreeDistanceMetrics(metricid, name) values(2, 'symmetric')")
+        con.commit()
+    
+    """Cache distances, if possible"""
+    metric_treea_treeb_d = {}
+    sql = "select metricid, treeida, treeidb, distance from TreeDistances"
+    cur.execute(sql)
+    x = cur.fetchall()
+    if x != None:
+        for ii in x:
+            metricid = int(ii[0])
+            treeida = int(ii[1])
+            treeidb = int(ii[2])
+            distance = float(ii[3])
+            if metricid not in metric_treea_treeb_d:
+                metric_treea_treeb_d[metricid] = {}
+            if treeida not in metric_treea_treeb_d[metricid]:
+                metric_treea_treeb_d[metricid][treeida] = {}
+            metric_treea_treeb_d[metricid][treeida][treeidb] = distance
+    
+    """Symmetric Distances"""
+    metricid = 1
     symmd_matrix = []
     maxdistance = 0
     for ii in treeids:
@@ -679,12 +709,24 @@ def view_library_trees(request, alib, con):
         this_row = []
         for jj in treeids:
             treejj = treeid_dendropytree[jj]
-            distance = treeii.symmetric_difference(treejj)
+            """Do we have this distance in the cache?"""
+            distance = None
+            if metricid in metric_treea_treeb_d:
+                if treeii in metric_treea_treeb_d[metricid]:
+                    if treejj in metric_treea_treeb_d[metricid][treeii]:
+                        distance = metric_treea_treeb_d[metricid][treeii][treejj]
+            if distance == None:
+                distance = treeii.symmetric_difference(treejj)
+                """Store the computed distance in the database."""
+                sql = "insert into TreeDistances(metricid, treeida, treeidb, distance) values("
+                sql += metricid.__str__() + "," + treeii.__str__() + "," + treejj.__str__() + "," + distance.__str__() + ")"
+                cur.execute(sql)
             if distance > maxdistance:
                 maxdistance = distance
             this_row.append( distance )
         symmd_matrix.append( this_row )
     context["symmd_matrix"] = symmd_matrix
+    con.commit()
     
     symmd_matrix_colorbins = []
     symmd_matrix_colorbins.append( 0.0 )
@@ -695,6 +737,8 @@ def view_library_trees(request, alib, con):
     symmd_matrix_colorbins.append( 0.5*maxdistance)
     context["symmd_matrix_colorbins"] = symmd_matrix_colorbins
 
+    """Euclidean Distances"""
+    metricid = 2
     eucd_matrix = []
     maxdistance = 0
     for ii in treeids:
@@ -704,12 +748,24 @@ def view_library_trees(request, alib, con):
         for jj in treeids:
             treejj = treeid_dendropytree[jj]
             treejj.deroot()
-            distance = treeii.euclidean_distance(treejj)
+            """Do we have this distance in the cache?"""
+            distance = None
+            if metricid in metric_treea_treeb_d:
+                if treeii in metric_treea_treeb_d[metricid]:
+                    if treejj in metric_treea_treeb_d[metricid][treeii]:
+                        distance = metric_treea_treeb_d[metricid][treeii][treejj]
+            if distance == None:
+                distance = treeii.euclidean_distance(treejj)
+                """Store the computed distance in the database."""
+                sql = "insert into TreeDistances(metricid, treeida, treeidb, distance) values("
+                sql += metricid.__str__() + "," + treeii.__str__() + "," + treejj.__str__() + "," + distance.__str__() + ")"
+                cur.execute(sql)
             if distance > maxdistance:
                 maxdistance = distance
             this_row.append( distance )
         eucd_matrix.append( this_row )
     context["eucd_matrix"] = eucd_matrix
+    con.commit()
       
     eucd_matrix_colorbins = []
     eucd_matrix_colorbins.append( 0.0 )

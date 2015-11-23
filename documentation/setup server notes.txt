@@ -25,6 +25,8 @@ Instructions:
 	$> cd ~/
 	$> scp -i ~/.ssh/phylobot-ec2-key.pem ~/.boto ubuntu@PUBLICIP:~/
 	
+3b. Copy the PhyloBot key onto the new server. (Do this from your local machine).
+	$> scp -i ~/.ssh/phylobot-ec2-key.pem ~/.ssh/phylobot-ec2-key.pem ubuntu@54.183.185.164:~/.ssh/
 	
 4. Launch the Job Daemon (using the terminal logged into the server)
 	$> screen
@@ -35,3 +37,8 @@ Instructions:
 5. Optional: If you're cloning PhyloBot from another instance, then run the 
 	migration script to copy all the static data, databases, and BOTO configurations.
 	$> sudo bash aws_setup/migrate.sh
+	
+6. Restart Apache.
+	$> sudo service apache2 restart
+	
+7. Done!
