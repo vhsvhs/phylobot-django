@@ -43,9 +43,7 @@ def view_library(request, libid):
     """Ensure the project's SQL database exists locally."""
     if False == check_ancestral_library_filepermissions(alib=alib):
         print "I cannot update the permissions on the ancestral library."
-    
-    print "47\n"
-    
+        
     """Can we open a connection to this project's SQL database?"""
     con = get_library_sql_connection(libid)
     if con == None:
@@ -207,8 +205,6 @@ def view_library_frontpage(request, alib, con):
     return render(request, 'libview/libview_frontpage.html', context)
 
 def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_method=None):
-    
-    print "view_sequences: 207!"
     cur = con.cursor()
     
     taxon_seq = {}
@@ -1658,9 +1654,9 @@ def view_mutations_bybranch(request, alib, con):
         for the user-specified msaid"""
 
     """ Get a list of these ancestors in other alignments and models """ 
-    print "1448:", ancid1, ancid2
+    #print "1448:", ancid1, ancid2
     matched_ancestors = get_ancestral_matches(con, ancid1, ancid2)
-    print "1449:", matched_ancestors
+    #print "1449:", matched_ancestors
     matched_ancestors = [ (ancid1,ancid2) ] + matched_ancestors
      
     ancid_msaid = {}
