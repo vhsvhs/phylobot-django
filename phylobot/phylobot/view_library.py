@@ -21,12 +21,12 @@ import math, random
 
 from views_tools import *
 
-import logging
-logger = logging.getLogger(__name__)
-
 def view_library(request, libid):
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
+
+    setup_logging()
+    logger.info("test of logging")
     
     libid = libid.split("/")[0]
     
