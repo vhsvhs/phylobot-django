@@ -1,6 +1,9 @@
 #
 # This script should be run when the PhyloBot server 
 # instance is launched for the first time.
+# 
+# Run this script as part of the instructions located in the file
+# named "documentation/setup server notes.txt"
 #
 # see documentation/setup server notes.txt for more information.
 #

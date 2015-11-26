@@ -1,15 +1,13 @@
 import job_daemon_tools
 from job_daemon_tools import *
 
-
 print_splash()
 """dbconn is a connection to the daemon's DB (not the Django db)"""
 
 dbconn = None
 try:
     dbconn = build_db(SQLDBPATH)
-    write_log(dbconn, "Connected to the daemon DB at " + SQLDBPATH.__str__())
-    write_log(dbconn, "The PhyloBot job daemon is launching. . .")
+    write_log(dbconn, "Connect  yloBot job daemon is launching. . .")
 except sqlite3.OperationalError:
     print "\n. Error, I couldn't open the database at " + SQLDBPATH
     print ". Try running this script as sudo."

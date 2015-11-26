@@ -14,6 +14,18 @@ def print_splash():
     print "victorhansonsmith@gmail.com" 
     print "======================================="
 
+from os import listdir, environ
+from django.core.exceptions import ImproperlyConfigured
+def get_env_variable(var_name):
+    """Get the env. variable, or return exception"""
+    try:
+        return environ[var_name]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(var_name)
+        raise ImproperlyConfigured(error_msg)
+
+S3_BUCKET = get_env_variable("S3_BUCKET")
+
 def build_db(dbpath):
     """Initializes all the tables. Returns the DB connection object.
     If tables already exist, they will NOT be overwritten."""
@@ -179,7 +191,7 @@ def start_job(jobid, dbconn):
         
         set_job_status(jobid, "Cloud resources online. Launching the analysis pipeline...")
         
-        remote_command = "aws s3 cp s3://phylobot-jobfiles/" + jobid.__str__() + " ./ --recursive --region " + ZONE
+        remote_command = "aws s3 cp s3://" + S3BUCKET + "/" + jobid.__str__() + " ./ --recursive --region " + ZONE
         print "AWS command:", remote_command
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         print "SSH command:", ssh_command

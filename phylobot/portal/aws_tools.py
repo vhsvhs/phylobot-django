@@ -7,26 +7,29 @@ import boto.sqs
 from boto.sqs.message import Message
 import sys, time
 
-ZONE = "us-west-1"
+from phylobot import settings
+from settings import get_env_variable
+
+ZONE = get_env_variable("AWSZONE") #"us-west-1"
 #AMI_SLAVE_MOTHER = "ami-6fb3552b" # march 13, 2015
-AMI_SLAVE_MOTHER = "ami-59db3a1d" # march 23, 2015
-INSTANCE_KEY_NAME = "phylobot-ec2-key"
-INSTANCE_SECURITY_GROUP = 'phylobot-security'
+AMI_SLAVE_MOTHER = get_env_variable("EC2_COMPUTE_INSTANCE_AMI_MOTHER") #"ami-59db3a1d" # march 23, 2015
+INSTANCE_KEY_NAME = get_env_variable("EC2_COMPUTE_INSTANCE_KEYNAME")# "phylobot-ec2-key"
+INSTANCE_SECURITY_GROUP = get_env_variable("EC2_INSTANCE_SECURITY_GROUP_NAME") #'phylobot-security'
+
 S3LOCATION = Location.USWest
+S3BUCKET = get_env_variable("S3BUCKET")
 
 def get_instance_type(jobid):
     """Determine what size of instance is appropriate, based on the nsites and seqlen
         of the job."""
     ntaxa = int( get_ntaxa(jobid) )
     nsites = int( get_seqlen(jobid) )
-    
-    print "23: ntaxa=", ntaxa, " nsites=", nsites
-    
+        
     if ntaxa == None or nsites == None:
         return "t2.small"
     
     """To-do: these thresholds need to be tuned, based on performance tests."""
-    if ntaxa < 40 and nsites < 500:
+    if ntaxa < 40 and nsites < 300:
         return "t2.small"
     elif ntaxa < 60 and nsites < 700:
         return "t2.medium"
@@ -34,17 +37,24 @@ def get_instance_type(jobid):
         return "c4.large"
     else:
         return "r3.large"
-    
+
+def get_s3_bucket():
+    s3 = boto.connect_s3()    
+    bucket = s3.lookup(S3BUCKET)  # bucket names must be unique                                                                     
+    if bucket == None:
+        bucket = s3.create_bucket(S3BUCKET, location=S3LOCATION)
+        bucket.set_acl('public-read')
+    return bucket
+
+def get_sqs_queue():
+    conn = boto.sqs.connect_to_region(ZONE)
+    queue = conn.get_queue(SQS_JOBQUEUE_NAME)
+    if queue == None:
+        queue = conn.create_queue(SQS_JOBQUEUE_NAME)
+    return queue
 
 def clear_all_s3(jobid):
-    s3 = boto.connect_s3()
-    print "16:", s3.aws_access_key_id
-    
-    bucket = s3.lookup('phylobot-jobfiles')  # bucket names must be unique                                                                     
-    if bucket == None:
-        bucket = s3.create_bucket('phylobot-jobfiles', location=S3LOCATION)
-        bucket.set_acl('public-read')
-        
+    bucket = get_s3_bucket()
     keys = bucket.list( prefix=jobid.__str__() )
     for k in keys:
         print "deleting key - ", k
@@ -54,16 +64,7 @@ def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     """Pushes the startup files for a job to S3.
         jobid is the ID of the Job object,
         filepath is the path on this server to the file."""
-    #s3 = S3Connection()
-    
-    s3 = boto.connect_s3()
-    print "16:", s3.aws_access_key_id
-    
-    bucket = s3.lookup('phylobot-jobfiles')  # bucket names must be unique                                                                     
-    if bucket == None:
-        bucket = s3.create_bucket('phylobot-jobfiles', location=S3LOCATION)
-        bucket.set_acl('public-read')
-    #bucket = s3.lookup('phylobot-jobfiles') 
+    bucket = get_s3_bucket()
     filename_short = filepath.split("/")[  filepath.split("/").__len__()-1 ]
     keyname = jobid.__str__() + "/" + filename_short
     k = bucket.new_key(keyname)
@@ -75,8 +76,7 @@ def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     k.make_public()
     
 def get_asrdb(jobid, save_to_path):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
+    bucket = get_s3_bucket()
     DBKEY = jobid.__str__() + "/sqldb"
     print DBKEY
     key = bucket.get_key(DBKEY)
@@ -88,12 +88,7 @@ def get_asrdb(jobid, save_to_path):
             
 def get_job_status(jobid):    
     """Returns the value of the status key for the job"""
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-    
+    bucket = get_s3_bucket()
     STATUS_KEY = jobid.__str__() + "/status"
     key = bucket.get_key(STATUS_KEY)
     if key == None:
@@ -103,12 +98,7 @@ def get_job_status(jobid):
         return key.get_contents_as_string()    
 
 def set_job_status(jobid, message):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     STATUS_KEY = jobid.__str__() + "/status"
     key = bucket.get_key(STATUS_KEY)
     if key == None:
@@ -117,12 +107,7 @@ def set_job_status(jobid, message):
     key.set_acl('public-read')
 
 def set_aws_checkpoint(jobid, checkpoint):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/checkpoint"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -131,12 +116,7 @@ def set_aws_checkpoint(jobid, checkpoint):
     key.set_acl('public-read')
 
 def get_aws_checkpoint(jobid):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/checkpoint"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -145,12 +125,7 @@ def get_aws_checkpoint(jobid):
     return key.get_contents_as_string() 
 
 def set_ntaxa(jobid, ntaxa):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/ntaxa"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -159,12 +134,7 @@ def set_ntaxa(jobid, ntaxa):
     key.set_acl('public-read')
     
 def get_ntaxa(jobid):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/ntaxa"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -172,14 +142,8 @@ def get_ntaxa(jobid):
         return None
     return key.get_contents_as_string() 
 
-
 def set_seqlen(jobid, seqlen):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/seqlen"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -188,12 +152,7 @@ def set_seqlen(jobid, seqlen):
     key.set_acl('public-read')
 
 def get_seqlen(jobid):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/seqlen"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -203,12 +162,7 @@ def get_seqlen(jobid):
 
 
 def set_last_user_command(jobid, command):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/last_user_command"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -217,12 +171,7 @@ def set_last_user_command(jobid, command):
     key.set_acl('public-read')
 
 def get_last_user_command(jobid):
-    s3 = boto.connect_s3()
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket("phylobot-jobfiles", location=S3LOCATION)
-        bucket.set_acl('public-read')
-
+    bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/last_user_command"
     key = bucket.get_key(CHECKPOINT_KEY)
     if key == None:
@@ -230,13 +179,8 @@ def get_last_user_command(jobid):
         return None
     return key.get_contents_as_string() 
 
-
 def set_job_exe(jobid, exe):
-    s3 = S3Connection()
-    
-    bucket = s3.lookup("phylobot-jobfiles")
-    if bucket == None:
-        bucket = s3.create_bucket(S3_BUCKET, location=S3LOCATION)  
+    bucket = get_s3_bucket()  
     EXE_KEY = jobid.__str__() + "/exe"
     print "attempting to get key", EXE_KEY
     key = bucket.get_key(EXE_KEY)
@@ -252,8 +196,7 @@ def set_job_exe(jobid, exe):
 
 def get_job_exe(jobid):
     s3 = S3Connection()
-    
-    bucket = s3.lookup("phylobot-jobfiles")
+    bucket = s3.lookup(S3BUCKET)
     if bucket == None:
         return None  
     EXE_KEY = jobid.__str__() + "/exe"
@@ -265,36 +208,26 @@ def get_job_exe(jobid):
     return key.get_contents_as_string(exe)
 
 def sqs_start(jobid, attempts=0):
-    conn = boto.sqs.connect_to_region(ZONE)
-    queue = conn.get_queue("phylobot-jobs")
-    if queue == None:
-        queue = conn.create_queue("phylobot-jobs")
-    
+    queue = get_sqs_queue()
     m = Message()
     m.set_body('start ' + jobid.__str__() + " " + attempts.__str__())
     queue.write(m)
     
 def sqs_stop(jobid, attempts=0):
-    conn = boto.sqs.connect_to_region(ZONE)
-    queue = conn.get_queue("phylobot-jobs")
-    if queue == None:
-        queue = conn.create_queue("phylobot-jobs")
+    queue = get_sqs_queue()
     m = Message()
     m.set_body('stop ' + jobid.__str__() + " " + attempts.__str__())
     queue.write(m)   
     
 def sqs_release(jobid, attempts=0):
-    conn = boto.sqs.connect_to_region(ZONE)
-    queue = conn.get_queue("phylobot-jobs")
-    if queue == None:
-        queue = conn.create_queue("phylobot-jobs")
+    queue = get_sqs_queue()
     m = Message()
     m.set_body('release ' + jobid.__str__() + " " + attempts.__str__())
     queue.write(m)     
     
 def setup_slave_startup_script(jobid): 
     s3 = S3Connection()
-    bucket = s3.lookup("phylobot-jobfiles")
+    bucket = s3.lookup(S3BUCKET)
     SLAVE_STARTUP_SCRIPT_KEY = jobid.__str__() + "/slave_startup_script"
     key = bucket.get_key(SLAVE_STARTUP_SCRIPT_KEY)
     if key == None:

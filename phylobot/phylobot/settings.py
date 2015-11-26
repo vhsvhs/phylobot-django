@@ -10,6 +10,17 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from os import listdir, environ
+from django.core.exceptions import ImproperlyConfigured
+def get_env_variable(var_name):
+    """Get the env. variable, or return exception"""
+    try:
+        return environ[var_name]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(var_name)
+        raise ImproperlyConfigured(error_msg)
+                                   
+                                   
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SETTINGS_DIR = os.path.dirname(__file__)
 PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
@@ -46,11 +57,11 @@ ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
 """Amazon SES"""
-EMAIL_BACKEND = 'django_ses.SESBackend'
-AWS_SES_REGION_NAME = 'us-west-2'
-EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
-EMAIL_PORT = 465
-DEFAULT_FROM_EMAIL =  'hello@phylobot.com'
+EMAIL_BACKEND = get_env_variable(EMAIIL_BACKEND) #'django_ses.SESBackend'
+AWS_SES_REGION_NAME = get_env_variable(SES_REGION) #'us-west-2'
+EMAIL_HOST = get_env_variable(EMAIL_HOST) #'email-smtp.us-west-2.amazonaws.com'
+EMAIL_PORT = gt_env_variable(EMAIL_PORT) #465
+DEFAULT_FROM_EMAIL =  get_env_variable(DEFAULT_FROM_EMAIL) #'hello@phylobot.com'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -74,7 +85,7 @@ AUTH_PROFILE_MODULE = 'phylobot.UserProfile'
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 't#i6at$qj62e(-*61bh_y3379#zti@5q-n%h&@3x)!pmaoq-_k'
+SECRET_KEY = get_env_variable(PHYLOBOT_SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -101,9 +112,6 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'django_ses',
-#     'allauth.socialaccount.providers.facebook',
-#     'allauth.socialaccount.providers.linkedin',
-#     'allauth.socialaccount.providers.linkedin_oauth2',
 )
 SITE_ID = 1
 
