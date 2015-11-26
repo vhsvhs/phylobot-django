@@ -44,9 +44,9 @@ Instructions:
 	$> scp -i ~/.ssh/KEYPATH ~/.ssh/phylobot-ec2-key.pem ubuntu@PUBLICIP:~/.ssh/
 
 3d. Return to the PhyloBot server and load the .phylobot file
-	$> bash ~/.phylobot
+	$> source ~/.phylobot
 
-4. Rturn to the PhyloBot server and run the PhyloBot Server Setup Script
+4. Run the PhyloBot Server Setup Script
 	$> sudo bash phylobot-django/aws_setup/setup_phylobot_server_on_aws.sh
 
 4a. You will be prompted to create a superuser for the Django portal. Select

@@ -57,7 +57,7 @@ ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
 """Amazon SES"""
-EMAIL_BACKEND = get_env_variable(EMAIIL_BACKEND) #'django_ses.SESBackend'
+EMAIL_BACKEND = get_env_variable(EMAIL_BACKEND) #'django_ses.SESBackend'
 AWS_SES_REGION_NAME = get_env_variable(SES_REGION) #'us-west-2'
 EMAIL_HOST = get_env_variable(EMAIL_HOST) #'email-smtp.us-west-2.amazonaws.com'
 EMAIL_PORT = gt_env_variable(EMAIL_PORT) #465
