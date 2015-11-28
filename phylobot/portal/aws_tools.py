@@ -90,7 +90,7 @@ def get_asrdb(jobid, save_to_path):
     DBKEY = jobid.__str__() + "/sqldb"
     print DBKEY
     key = bucket.get_key(DBKEY)
-    #print "46:", key, save_to_path
+    print "46 get_asrdb:", key, save_to_path
     if key == None:
         return None
     key.get_contents_to_filename(save_to_path)
@@ -126,10 +126,14 @@ def set_aws_checkpoint(jobid, checkpoint):
     key.set_acl('public-read')
 
 def get_aws_checkpoint(jobid):
+    start = time.time()
     bucket = get_s3_bucket()
     CHECKPOINT_KEY = jobid.__str__() + "/checkpoint"
     key = bucket.get_key(CHECKPOINT_KEY)
+    stop = time.time()
+    print "134:", jobid, stop-start
     if key == None:
+        print "133"
         set_aws_checkpoint(jobid, 0)
         return 0
     return key.get_contents_as_string() 
