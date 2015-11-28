@@ -84,11 +84,11 @@ def portal_main_page(request):
         elif not job.settings.name:
             continue
         
-        print "87: getting checkpoint for job", job.id
+        #print "87: getting checkpoint for job", job.id
         start = time.time()
         checkpoint = float( get_aws_checkpoint(job.id) )
         stop = time.time() - start
-        print "89:..done", stop
+        #print "89:..done", stop
         
         finished_library_id = None
         
@@ -165,6 +165,7 @@ def jobstatus(request, jobid):
             """Default, the rest of this method will do the status refresh"""
             pass
     
+    print "168: get status for", jobid
     list_of_aa = []
     for aa in job.settings.alignment_algorithms.all():
         list_of_aa.append( aa.name )

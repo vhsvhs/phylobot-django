@@ -39,6 +39,8 @@ def view_library(request, libid):
     """Retrieve the AncestralLibrary class object"""
     alib = AncestralLibrary.objects.get( id=int(libid) )
     
+    print "42:", alib.id
+    
     """Ensure the project's SQL database exists locally."""
     if False == check_ancestral_library_filepermissions(alib=alib):
         print "I cannot update the permissions on the ancestral library."
