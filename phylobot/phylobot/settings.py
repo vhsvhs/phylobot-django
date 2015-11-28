@@ -71,13 +71,32 @@ DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.co
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_PATH = os.path.join(PROJECT_PATH,'static')
-STATIC_URL = '/static/'
-STATICFILES_DIRS= (STATIC_PATH,)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(STATIC_PATH, "media") 
+#STATIC_PATH = os.path.join(PROJECT_PATH,'static')
+#STATIC_URL = '/static/'
+#STATICFILES_DIRS= (STATIC_PATH,)
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(STATIC_PATH, "media") 
+#STATIC_MEDIA_URL = STATIC_URL + MEDIA_URL
 
-STATIC_MEDIA_URL = STATIC_URL + MEDIA_URL
+########## STATIC FILE CONFIGURATION
+# https://docs.djangoproject.com/en/dev/ref/settings/#static-root
+STATIC_ROOT = '/home/ubuntu/phylobot-django/phylobot/static'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [join(PROJECT_ROOT, 'static')]
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
+
+MEDIA_ROOT = join(STATIC_ROOT, 'media')
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_URL = '/media/'
+########## END STATIC FILE CONFIGURATION
+
+
 
 # URL of the login page.
 from django.core.urlresolvers import reverse_lazy

@@ -14,9 +14,10 @@
 # USAGE on a fresh Ubuntu machine (first read REQUIREMENTS):
 #
 # sudo apt-get -y install git
+# sudo rm -rf phylobot-django
 # git clone https://github.com/vhsvhs/phylobot-django
-# cd chipseqbot
-# source aws_setup/config_master.sh --> launches this script
+# cd phylobot-django
+# source aws_setup/setup_phylobot_server_on_aws.sh --> launches this script
 #
 
 #
@@ -98,6 +99,7 @@ sudo ln -s /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/ad
 #
 # Setup Static files
 #
+cd ~/phylobot-django/phylobot
 python manage.py collectstatic # move css, js, etc. into the appropriate assets folder
 
 #
