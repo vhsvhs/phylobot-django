@@ -7,6 +7,43 @@
 #
 # see documentation/setup server notes.txt for more information.
 #
+# REQUIREMENTS:
+# This script retrieves secret keys from environmental variables.
+# Contact your system admin. to retrieve the appropriate keys.
+#
+# USAGE on a fresh Ubuntu machine (first read REQUIREMENTS):
+#
+# sudo apt-get -y install git
+# git clone https://github.com/vhsvhs/phylobot-django
+# cd chipseqbot
+# source aws_setup/config_master.sh --> launches this script
+#
+
+# Update apt-get
+sudo apt-get -y update
+
+# Install PIP
+sudo apt-get -y install python-pip
+
+#
+# Install PostgreSQL
+#
+sudo apt-get -y install postgresql postgresql-contrib libpq-dev
+
+sudo -u postgres psql -c "CREATE DATABASE csbotdb"
+
+sudo -u postgres psql --dbname=csbotdb -c "CREATE USER django WITH PASSWORD 'phylobotpass'"
+sudo -u postgres psql --dbname=csbotdb -c "ALTER ROLE django SET timezone TO 'UTC-8'"
+sudo -u postgres psql --dbname=csbotdb -c "ALTER USER django CREATEDB"
+
+sudo -u postgres psql --dbname=csbotdb -c "GRANT ALL PRIVILEGES ON DATABASE phylobotdb TO django"
+sudo -u postgres psql --dbname=csbotdb -c "ALTER USER CREATEDB"
+
+#
+# Install Python packages
+#
+sudo apt-get -y install python-dev
+sudo pip install -r requirements/prod.txt
 
 # Ensure we have the latest version of Django-SES (Required to send email from Django)
 sudo pip install django-ses
@@ -41,8 +78,8 @@ sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
 sudo python phylobot-django/phylobot/populate_phylobot.py
 
 #
-# Optional: If you're cloning PhyloBot from another instance,
-# run this too:
+# Optional: If you're cloning PhyloBot from another AWS instance,
+# 	then run this script to copy all static media and data:
 # sudo bash aws_setup/migrate.sh
 #
 

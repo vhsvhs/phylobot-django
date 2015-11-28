@@ -22,6 +22,8 @@ def get_env_variable(var_name):
         error_msg = "Set the {} environment variable for user {}".format(var_name, curr_username)
         raise ImproperlyConfigured(error_msg)
                                    
+
+#configure()
                                    
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SETTINGS_DIR = os.path.dirname(__file__)

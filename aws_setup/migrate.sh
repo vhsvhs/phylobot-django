@@ -1,6 +1,6 @@
 #
-# If you want to migrate from the old PhyloBot server to this (presumably new)
-# server, then run this script after running setup_phylobot_server_on_aws.sh
+# If you want to migrate from an old PhyloBot server to this (presumably new)
+# AWS instance, then run this script after running setup_phylobot_server_on_aws.sh
 #
 
 # Copy the static data, including uploaded sequences.
