@@ -128,12 +128,12 @@ def set_aws_checkpoint(jobid, checkpoint):
 def get_aws_checkpoint(jobid):
     start = time.time()
     bucket = get_s3_bucket()
+    print "131:", time.time() - start
     CHECKPOINT_KEY = jobid.__str__() + "/checkpoint"
     key = bucket.get_key(CHECKPOINT_KEY)
     stop = time.time()
     print "134:", jobid, stop-start
     if key == None:
-        print "133"
         set_aws_checkpoint(jobid, 0)
         return 0
     return key.get_contents_as_string() 
