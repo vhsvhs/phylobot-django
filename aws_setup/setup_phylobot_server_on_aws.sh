@@ -19,23 +19,24 @@
 # source aws_setup/config_master.sh --> launches this script
 #
 
+#
 # Update apt-get
+#
 sudo apt-get -y update
 
+#
 # Install PIP
+#
 sudo apt-get -y install python-pip
 
 #
 # Install PostgreSQL
 #
 sudo apt-get -y install postgresql postgresql-contrib libpq-dev
-
-sudo -u postgres psql -c "CREATE DATABASE csbotdb"
-
+sudo -u postgres psql -c "CREATE DATABASE phylobotdb"
 sudo -u postgres psql --dbname=csbotdb -c "CREATE USER django WITH PASSWORD 'phylobotpass'"
 sudo -u postgres psql --dbname=csbotdb -c "ALTER ROLE django SET timezone TO 'UTC-8'"
 sudo -u postgres psql --dbname=csbotdb -c "ALTER USER django CREATEDB"
-
 sudo -u postgres psql --dbname=csbotdb -c "GRANT ALL PRIVILEGES ON DATABASE phylobotdb TO django"
 sudo -u postgres psql --dbname=csbotdb -c "ALTER USER CREATEDB"
 
@@ -45,36 +46,76 @@ sudo -u postgres psql --dbname=csbotdb -c "ALTER USER CREATEDB"
 sudo apt-get -y install python-dev
 sudo pip install -r requirements/prod.txt
 
-# Ensure we have the latest version of Django-SES (Required to send email from Django)
-sudo pip install django-ses
+# (legacy)
+# stop Apache
+#
+sudo service apache2 stop
 
+#
+# Install Nginx
+# (In Ubuntu, nginx will auto start upon installation)
+#
+sudo apt-get -y install nginx
+sudo mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
+sudo cp aws_setup/nginx.conf /etc/nginx/nginx.conf
+
+#
+# Launch Nginx with the new configuration.
+# Because nginx is launched upon installation (in previous steps), 
+# we need to restart nginx to ensure that correct configurations
+# are loaded.
+#
+sudo /etc/init.d/nginx stop
+sudo /etc/init.d/nginx reload
+sudo /etc/init.d/nginx start
+
+# (depricated - this is now done in the requirements text)
+# Ensure we have the latest version of Django-SES (Required to send email from Django)
+#sudo pip install django-ses
+
+#
 # Get the PhyloBot Django project
+#
 cd ~/
 sudo rm -rf phylobot-django
 git clone https://github.com/vhsvhs/phylobot-django
 
+# (depricated - we're now using Nginx and Gunicorn)
 # Configure Apache to serve Django.
-sudo cp ~/phylobot-django/aws_setup/phylobot.com.conf /etc/apache2/sites-enabled/
+#sudo cp ~/phylobot-django/aws_setup/phylobot.com.conf /etc/apache2/sites-enabled/
 
+# (depricated)
 # Allow Apache (i.e. www-user) to write data into the
 # media folder of the Django project. This is required
 # in order for Apache to save uploaded files.
-sudo chown -R www-data:www-data /home/ubuntu/phylobot-django/phylobot/static/media
+#sudo chown -R www-data:www-data /home/ubuntu/phylobot-django/phylobot/static/media
 
+# (legacy)
 # Add a softlink for the /admin app static files
+#
 sudo ln -s /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin phylobot-django/phylobot/static/admin
 
-# Build the Django database
+#
+# Setup Static files
+#
+python manage.py collectstatic # move css, js, etc. into the appropriate assets folder
+
+#
+# Build the Django Database
+#
 python phylobot-django/phylobot/manage.py syncdb
 
+# (depricated)
 # Allow Apache write control of the Django database
-sudo chown -R www-data:www-data ~/phylobot-django/phylobot/db.sqlite3
-sudo chown -R www-data:www-data ~/phylobot-django/phylobot
-sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
+#sudo chown -R www-data:www-data ~/phylobot-django/phylobot/db.sqlite3
+#sudo chown -R www-data:www-data ~/phylobot-django/phylobot
+#sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
 
+#
 # Run the populate_phylobot script to add things like
 # known alignment algorithms, phylogenetic models, and job status
 # objects to the DB.
+#
 sudo python phylobot-django/phylobot/populate_phylobot.py
 
 #
@@ -83,3 +124,7 @@ sudo python phylobot-django/phylobot/populate_phylobot.py
 # sudo bash aws_setup/migrate.sh
 #
 
+#
+# Launch Gunicorn
+#
+gunicorn -w 4 phylobot.wsgi
