@@ -84,7 +84,9 @@ def portal_main_page(request):
         elif not job.settings.name:
             continue
         
+        print "87: getting checkpoint for job", job.id
         checkpoint = float( get_aws_checkpoint(job.id) )
+        print "89:..done"
         
         finished_library_id = None
         
