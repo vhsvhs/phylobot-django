@@ -17,7 +17,9 @@ def get_env_variable(var_name):
     try:
         return environ[var_name]
     except KeyError:
-        error_msg = "Set the {} environment variable".format(var_name)
+        import getpass
+        curr_username = getpass.getuser()
+        error_msg = "Set the {} environment variable for user {}".format(var_name, curr_username)
         raise ImproperlyConfigured(error_msg)
                                    
                                    
