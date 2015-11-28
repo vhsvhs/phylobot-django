@@ -85,6 +85,7 @@ def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     k.make_public()
     
 def get_asrdb(jobid, save_to_path):
+    print "88: entered get_asrdb"
     bucket = get_s3_bucket()
     DBKEY = jobid.__str__() + "/sqldb"
     print DBKEY

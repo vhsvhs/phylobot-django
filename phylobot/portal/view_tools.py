@@ -241,6 +241,7 @@ def parse_uniprot_seqname(name):
         
 def import_ancestral_library(job):
     """Get an ancestral library from S3. Store it locally."""
+    print "244: entered import_ancestral_library"
     alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
     relationship = phylobotmodels.AncestralLibrarySourceJob.objects.get_or_create(jobid=job.id, libid=alib.id)[0]
     relationship.save()
