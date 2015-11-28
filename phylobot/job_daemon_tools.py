@@ -24,7 +24,7 @@ def get_env_variable(var_name):
         error_msg = "Set the {} environment variable".format(var_name)
         raise ImproperlyConfigured(error_msg)
 
-S3_BUCKET = get_env_variable("S3_BUCKET")
+S3BUCKET = get_env_variable("S3BUCKET")
 
 def build_db(dbpath):
     """Initializes all the tables. Returns the DB connection object.
