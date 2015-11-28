@@ -7,8 +7,17 @@ import boto.sqs
 from boto.sqs.message import Message
 import sys, time
 
-from phylobot import settings
-from settings import get_env_variable
+from os import listdir, environ
+from django.core.exceptions import ImproperlyConfigured
+def get_env_variable(var_name):
+    """Get the env. variable, or return exception"""
+    try:
+        return environ[var_name]
+    except KeyError:
+        import getpass
+        curr_username = getpass.getuser()
+        error_msg = "Set the {} environment variable for user {}".format(var_name, curr_username)
+        raise ImproperlyConfigured(error_msg)
 
 ZONE = get_env_variable("AWSZONE") #"us-west-1"
 #AMI_SLAVE_MOTHER = "ami-6fb3552b" # march 13, 2015
