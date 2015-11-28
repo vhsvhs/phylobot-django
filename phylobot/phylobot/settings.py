@@ -57,11 +57,11 @@ ACCOUNT_USERNAME_MIN_LENGTH = 3
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
 """Amazon SES"""
-EMAIL_BACKEND = get_env_variable(EMAIL_BACKEND) #'django_ses.SESBackend'
-AWS_SES_REGION_NAME = get_env_variable(SES_REGION) #'us-west-2'
-EMAIL_HOST = get_env_variable(EMAIL_HOST) #'email-smtp.us-west-2.amazonaws.com'
-EMAIL_PORT = gt_env_variable(EMAIL_PORT) #465
-DEFAULT_FROM_EMAIL =  get_env_variable(DEFAULT_FROM_EMAIL) #'hello@phylobot.com'
+EMAIL_BACKEND = get_env_variable("EMAIL_BACKEND") #'django_ses.SESBackend'
+AWS_SES_REGION_NAME = get_env_variable("SES_REGION") #'us-west-2'
+EMAIL_HOST = get_env_variable("EMAIL_HOST") #'email-smtp.us-west-2.amazonaws.com'
+EMAIL_PORT = gt_env_variable("EMAIL_PORT") #465
+DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.com'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -85,7 +85,7 @@ AUTH_PROFILE_MODULE = 'phylobot.UserProfile'
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env_variable(PHYLOBOT_SECRET_KEY)
+SECRET_KEY = get_env_variable("PHYLOBOT_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
