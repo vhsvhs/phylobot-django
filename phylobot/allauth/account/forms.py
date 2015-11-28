@@ -68,9 +68,7 @@ class LoginForm(forms.Form):
         _("The login and/or password you specified are not correct.")
     }
 
-    def __init__(self, *args, **kwargs):
-        print "72:"
-        
+    def __init__(self, *args, **kwargs):        
         super(LoginForm, self).__init__(*args, **kwargs)
         if app_settings.AUTHENTICATION_METHOD == AuthenticationMethod.EMAIL:
             login_widget = forms.TextInput(attrs={'type': 'email',

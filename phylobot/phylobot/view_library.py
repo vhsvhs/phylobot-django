@@ -18,7 +18,6 @@ from phylobot.phyloxml_helper import *
 
 import sqlite3 as sqlite
 import math, random
-
 from views_tools import *
 
 def view_library(request, libid):

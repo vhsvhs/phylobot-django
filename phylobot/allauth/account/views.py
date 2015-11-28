@@ -68,8 +68,6 @@ class RedirectAuthenticatedUserMixin(object):
 
     def get_authenticated_redirect_url(self):
         redirect_field_name = self.redirect_field_name
-        
-        print "72: - get_authenticated_redirect_url"
         return get_login_redirect_url(self.request,
                                       url=self.get_success_url(),
                                       redirect_field_name=redirect_field_name)
