@@ -83,7 +83,7 @@ DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.co
 STATIC_ROOT = '/home/ubuntu/phylobot-django/phylobot/static'
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
