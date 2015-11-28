@@ -83,14 +83,14 @@ DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.co
 STATIC_ROOT = '/home/ubuntu/phylobot-django/phylobot/static'
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [join(PROJECT_ROOT, 'static')]
+STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, 'static')]
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-MEDIA_ROOT = join(STATIC_ROOT, 'media')
+MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = '/media/'
