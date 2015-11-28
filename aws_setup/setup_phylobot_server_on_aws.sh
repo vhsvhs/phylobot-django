@@ -105,20 +105,20 @@ python manage.py collectstatic # move css, js, etc. into the appropriate assets 
 #
 # Build the Django Database
 #
-python phylobot-django/phylobot/manage.py syncdb
-
-# (depricated)
-# Allow Apache write control of the Django database
-#sudo chown -R www-data:www-data ~/phylobot-django/phylobot/db.sqlite3
-#sudo chown -R www-data:www-data ~/phylobot-django/phylobot
-#sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
+python manage.py syncdb
 
 #
 # Run the populate_phylobot script to add things like
 # known alignment algorithms, phylogenetic models, and job status
 # objects to the DB.
 #
-sudo python phylobot-django/phylobot/populate_phylobot.py
+python populate_phylobot.py
+
+# (depricated)
+# Allow Apache write control of the Django database
+#sudo chown -R www-data:www-data ~/phylobot-django/phylobot/db.sqlite3
+#sudo chown -R www-data:www-data ~/phylobot-django/phylobot
+#sudo chmod a+x ~/phylobot-django/phylobot/phylobot/wsgi.py
 
 #
 # Optional: If you're cloning PhyloBot from another AWS instance,
@@ -129,4 +129,5 @@ sudo python phylobot-django/phylobot/populate_phylobot.py
 #
 # Launch Gunicorn
 #
+cd ~/phylobot-django/phylobot
 gunicorn -w 4 phylobot.wsgi
