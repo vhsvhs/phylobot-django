@@ -131,9 +131,10 @@ python populate_phylobot.py
 #
 cd ~/phylobot-django
 sudo chmod 755 phylobot/job_daemon.py
-sudo cp aws_setup/jobdaemon.init.script /etc/init.d/
-sudo chmod 755 /etc/init.d/jobdaemon.init.script
-sudo /etc/init.d/jobdaemon.init.script start
+sudo cp aws_setup/jobdaemon.init.script /etc/init/jobdaemon.conf
+sudo chmod 755 /etc/init/jobdaemon.conf
+sudo initctl reload-configuration
+sudo start jobdaemon
 
 #
 # Launch Gunicorn
