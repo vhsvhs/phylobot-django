@@ -16,7 +16,7 @@ for line in fin.xreadlines():
 fin.close()
 
 fin = open(configpath_erg, "r")
-fout = open(outpath, "w")
+fout = open(configpath_final, "w")
 for line in fin.xreadlines():
     if False == line.startswith("#ENV"):
         fout.write(line)
