@@ -185,16 +185,18 @@ def jobstatus(request, jobid):
     """What was the last button pushed for this job? i.e., start, stop, trash, etc."""
     last_user_command = get_last_user_command(job.id)
     
+    print "188: last_user_command=", last_user_command
+    
     selected_aaseqfile = None
     selected_aaseqfile_short = None
     if job.settings.original_aa_file:
-        selected_aaseqfile =  settings.STATIC_MEDIA_URL + job.settings.original_aa_file.aaseq_path.__str__()
+        selected_aaseqfile =  settings.MEDIA_URL + job.settings.original_aa_file.aaseq_path.__str__()
         selected_aaseqfile_short = selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ]
     
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
     if job.settings.constraint_tree_file:
-        selected_constrainttreefile = settings.STATIC_MEDIA_URL +  job.settings.constraint_tree_file.constrainttree_path.__str__()
+        selected_constrainttreefile = settings.MEDIA_URL +  job.settings.constraint_tree_file.constrainttree_path.__str__()
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
 
     job_status = get_job_status(job.id)

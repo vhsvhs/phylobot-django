@@ -240,7 +240,7 @@ def compose1(request):
     selected_aaseqfile_short = None
     if this_job.settings.original_aa_file:
         aa_seqfileform.fields["aaseq_path"].default = this_job.settings.original_aa_file.aaseq_path
-        selected_aaseqfile =  settings.STATIC_MEDIA_URL + this_job.settings.original_aa_file.aaseq_path.__str__()
+        selected_aaseqfile =  settings.MEDIA_URL + this_job.settings.original_aa_file.aaseq_path.__str__()
         selected_aaseqfile_short = selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ]
     
     codon_seqfileform = CodonSeqFileForm()
@@ -248,7 +248,7 @@ def compose1(request):
     selected_codonseqfile_short = None
     if this_job.settings.original_codon_file:
         codon_seqfileform.fields["codonseq_path"].default = this_job.settings.original_codon_file.codonseq_path
-        selected_codonseqfile = settings.STATIC_MEDIA_URL +  this_job.settings.original_codon_file.codonseq_path.__str__()
+        selected_codonseqfile = settings.MEDIA_URL +  this_job.settings.original_codon_file.codonseq_path.__str__()
         selected_codonseqfile_short = selected_codonseqfile.split("/")[ selected_codonseqfile.split("/").__len__()-1 ]
         
     constrainttree_fileform = ConstraintTreeFileForm()
@@ -257,7 +257,7 @@ def compose1(request):
     print "249:", this_job.settings.constraint_tree_file
     if this_job.settings.constraint_tree_file:
         constrainttree_fileform.fields["constrainttree_path"].default = this_job.settings.constraint_tree_file.constrainttree_path
-        selected_constrainttreefile = settings.STATIC_MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
+        selected_constrainttreefile = settings.MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
         print "253:", selected_constrainttreefile
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
         
