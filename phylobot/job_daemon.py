@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import job_daemon_tools
 from job_daemon_tools import *
 

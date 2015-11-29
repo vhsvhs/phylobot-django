@@ -127,7 +127,17 @@ python populate_phylobot.py
 #
 
 #
+# Launch the Job Daemon
+#
+cd ~/phylobot-django
+sudo chmod 755 phylobot/job_daemon.py
+sudo cp aws_setup/jobdaemon.init.script /etc/init.d/
+sudo chmod 755 /etc/init.d/jobdaemon.init.script
+sudo /etc/init.d/jobdaemon.init.script start
+
+#
 # Launch Gunicorn
 #
+source ~/.phylobot
 cd ~/phylobot-django/phylobot
 gunicorn -w 4 phylobot.wsgi
