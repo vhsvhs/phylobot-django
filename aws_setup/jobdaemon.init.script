@@ -5,5 +5,5 @@ start on runlevel [234]
 stop on runlevel [0156]
 
 chdir /home/ubuntu/phylobot-django/phylobot
-exec job_daemon.py
+exec python job_daemon.py
 respawn
