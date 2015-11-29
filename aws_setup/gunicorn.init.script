@@ -1,9 +1,11 @@
-description "Gunicorn"
-author  "n/a"
+description "gunicorn"
 
-start on runlevel [234]
-stop on runlevel [0156]
+start on (filesystem)
+stop on runlevel [016]
 
-chdir /home/ubuntu/phylobot-django/phylobot
-exec gunicorn -w 4 phylobot.wsgi
 respawn
+console log
+setuid nobody
+setgid nogroup
+chdir /home/ubuntu/phylobot-django/phylobot
+exec /usr/local/bin/gunicorn phylobot.wsgi
