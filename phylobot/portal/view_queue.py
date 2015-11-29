@@ -30,7 +30,6 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
         job.checkpoint = 0
     job.save()
 
-
     """ Update S3 """
     job.generate_exe(jumppoint=jumppoint, stoppoint=stoppoint)
     set_job_exe(job.id, job.exe)

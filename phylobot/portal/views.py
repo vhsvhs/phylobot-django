@@ -89,6 +89,7 @@ def portal_main_page(request):
         checkpoint = float( get_aws_checkpoint(job.id) )
         stop = time.time() - start
         #print "89:..done", stop
+        print "92: checkpoint", job.id, checkpoint
         
         finished_library_id = None
         
