@@ -140,6 +140,7 @@ sudo start jobdaemon
 
 #
 # Launch Gunicorn
+# (errors will be written to the log @ /var/log/upstart/gunicorn.log)
 #
 cd ~/phylobot-django
 sudo cp aws_setup/gunicorn.init.script /etc/init/gunicorn.conf
