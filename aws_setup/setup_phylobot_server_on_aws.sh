@@ -20,6 +20,8 @@
 # source aws_setup/setup_phylobot_server_on_aws.sh --> launches this script
 #
 
+source ~/.phylobot
+
 #
 # Update apt-get
 #
@@ -139,6 +141,12 @@ sudo start jobdaemon
 #
 # Launch Gunicorn
 #
-source ~/.phylobot
-cd ~/phylobot-django/phylobot
-gunicorn -w 4 phylobot.wsgi
+cd ~/phylobot-django
+sudo cp aws_setup/gunicorn.init.script /etc/init/gunicorn.conf
+sudo chmod 755 /etc/init/gunicorn.conf
+sudo initctl reload-configuration
+sudo start gunicorn
+
+# (depricated)
+#cd ~/phylobot-django/phylobot
+#gunicorn -w 4 phylobot.wsgi
