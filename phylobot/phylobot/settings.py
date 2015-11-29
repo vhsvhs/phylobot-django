@@ -14,6 +14,7 @@ from os import listdir, environ
 from django.core.exceptions import ImproperlyConfigured
 def get_env_variable(var_name):
     """Get the env. variable, or return exception"""
+    print "17:", environ
     try:
         return environ[var_name]
     except KeyError:
@@ -21,10 +22,7 @@ def get_env_variable(var_name):
         curr_username = getpass.getuser()
         error_msg = "Set the {} environment variable for user {}".format(var_name, curr_username)
         raise ImproperlyConfigured(error_msg)
-                                   
-
-#configure()
-                                   
+                                                                      
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SETTINGS_DIR = os.path.dirname(__file__)
 PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
