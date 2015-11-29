@@ -7,6 +7,10 @@ respawn
 console log
 setuid ubuntu
 setgid ubuntu
-chdir /home/ubuntu/phylobot-django/phylobot
 
-exec /usr/local/bin/gunicorn -w 4 phylobot.wsgi
+#ENV
+
+script
+	chdir /home/ubuntu/phylobot-django/phylobot
+	exec /usr/local/bin/gunicorn -w 4 phylobot.wsgi
+end script

@@ -4,6 +4,11 @@ author  "Victor Hanson-Smith <victorhansonsmith@gmail.com>"
 start on runlevel [234]
 stop on runlevel [0156]
 
-chdir /home/ubuntu/phylobot-django/phylobot
-exec python job_daemon.py
+#ENV
+
+script
+	chdir /home/ubuntu/phylobot-django/phylobot
+	exec python job_daemon.py
+script
+
 respawn

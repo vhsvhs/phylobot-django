@@ -133,8 +133,10 @@ python populate_phylobot.py
 #
 cd ~/phylobot-django
 sudo chmod 755 phylobot/job_daemon.py
-sudo cp aws_setup/jobdaemon.init.script /etc/init/jobdaemon.conf
+python aws_setup/build_upstart_scripts.py aws_setup/jobdaemon.init.script /etc/init/jobdaemon.conf
+#sudo cp aws_setup/jobdaemon.init.script /etc/init/jobdaemon.conf
 sudo chmod 755 /etc/init/jobdaemon.conf
+init-checkconf /etc/init/jobdaemon.conf
 sudo initctl reload-configuration
 sudo start jobdaemon
 
@@ -143,8 +145,10 @@ sudo start jobdaemon
 # (errors will be written to the log @ /var/log/upstart/gunicorn.log)
 #
 cd ~/phylobot-django
-sudo cp aws_setup/gunicorn.init.script /etc/init/gunicorn.conf
+#sudo cp aws_setup/gunicorn.init.script /etc/init/gunicorn.conf
+python aws_setup/build_upstart_scripts.py aws_setup/gunicorn.init.script /etc/init/gunicorn.conf
 sudo chmod 755 /etc/init/gunicorn.conf
+init-checkconf /etc/init/gunicorn.conf
 sudo initctl reload-configuration
 sudo start gunicorn
 
