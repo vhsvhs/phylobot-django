@@ -180,6 +180,7 @@ def jobstatus(request, jobid):
     if job.id == None:
         print >> sys.stderr, "I couldn't process the status request for an unknown job ID"
     
+    print "183: get status for", jobid
     
     """What was the last button pushed for this job? i.e., start, stop, trash, etc."""
     last_user_command = get_last_user_command(job.id)
@@ -190,7 +191,6 @@ def jobstatus(request, jobid):
         selected_aaseqfile =  settings.STATIC_MEDIA_URL + job.settings.original_aa_file.aaseq_path.__str__()
         selected_aaseqfile_short = selected_aaseqfile.split("/")[ selected_aaseqfile.split("/").__len__()-1 ]
     
-
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
     if job.settings.constraint_tree_file:
@@ -198,7 +198,9 @@ def jobstatus(request, jobid):
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
 
     job_status = get_job_status(job.id)
+    print "202: get status for", jobid
     checkpoint = float( get_aws_checkpoint(job.id) )
+    print "203: get status for", jobid, checkpoint
     
     checkpoints = []
     checkpoints.append( (1.1,     "Sequence Alignment") )
