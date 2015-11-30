@@ -25,6 +25,7 @@ def get_env_variable(var_name):
         raise ImproperlyConfigured(error_msg)
 
 S3BUCKET = get_env_variable("S3BUCKET")
+SQS_JOBQUEUE_NAME = get_env_variable("SQS_JOBQUEUE_NAME")
 
 def build_db(dbpath):
     """Initializes all the tables. Returns the DB connection object.
@@ -366,7 +367,7 @@ def cleanup_orphaned_instances(dbconn):
             """Does this instance map to a known job?"""
             sql = "select jobid from JobInstance where aws_id='" + ii.id.__str__() + "'"
             cur = dbconn.cursor()
-            print "* Active Instance:", ii.id.__str__()
+            #print "* Active Instance:", ii.id.__str__()
             cur.execute(sql)
             x = cur.fetchall()
             if x == None:

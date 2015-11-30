@@ -18,9 +18,9 @@ except sqlite3.OperationalError:
 while(True):    
     """ Main Daemon Loop """
     conn = boto.sqs.connect_to_region(ZONE)
-    queue = conn.get_queue("phylobot-jobs")
+    queue = conn.get_queue(SQS_JOBQUEUE_NAME)
     if queue == None:
-        queue = conn.create_queue("phylobot-jobs")
+        queue = conn.create_queue(SQS_JOBQUEUE_NAME)
     
     """Get any messages on the SQS queue"""
     messages = queue.get_messages()
