@@ -216,9 +216,13 @@ def start_job(jobid, dbconn):
                 
         return (True, instance.id)
     except:
-        e = sys.exc_info()[0]
-        print "Error:"
-        print e
+        #e = sys.exc_info()[0]
+        #print "Error:"
+        #print e
+
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
         
         """An error occurred, so try to kill the instance."""
         write_log(dbconn, "There was a problem starting job " + jobid.__str__() + ". I'm terminating the instance " + instance.id.__str__(), code=0)
