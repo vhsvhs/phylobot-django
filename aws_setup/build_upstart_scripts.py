@@ -4,7 +4,6 @@
 # You are not intended to directly execute this script!
 # It is currently called within the setup script setup_phylobot_server_on_aws.sh
 #
-
 import os, re, sys
 
 configpath_erg = sys.argv[1]

@@ -14,7 +14,6 @@ from os import listdir, environ
 from django.core.exceptions import ImproperlyConfigured
 def get_env_variable(var_name):
     """Get the env. variable, or return exception"""
-    print "17:", environ
     try:
         return environ[var_name]
     except KeyError:
