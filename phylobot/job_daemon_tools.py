@@ -156,7 +156,7 @@ def start_job(jobid, dbconn):
         
         """Wait for AWS to catchup"""
         time_count = 0
-        MAX_WAIT = 120
+        MAX_WAIT = 240
         print "\n. Waiting for AWS to catchup"
         while (instance.state != "running"):
             time_count += 3
@@ -168,9 +168,9 @@ def start_job(jobid, dbconn):
                 return (False, None)
         
         print "\n. Waiting for port 22 to open on the instance"
+        portopen = False
         set_job_status(jobid, "Waiting for the replicate to open a communication port.")
         time_count = 0
-        portopen = False
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         while (portopen == False):
             try:
@@ -181,7 +181,7 @@ def start_job(jobid, dbconn):
                 """It's not open yet"""
                 time_count += 3
             if time_count > MAX_WAIT:
-                print "\n. Error 168 - The instance hasn't opened its port 22 after " + MAX_WAIT + " seconds. jobid=" + jobid.__str__()
+                print "\n. Error 168 - The instance hasn't opened its port 22 after " + MAX_WAIT.__str__() + " seconds. jobid=" + jobid.__str__()
                 set_job_status(jobid, "Error activating cloud resources: the SSH port didn't open.")
                 return (False, None)
                 
@@ -204,9 +204,7 @@ def start_job(jobid, dbconn):
         os.system( ssh_command )
         
         """Launch the job, using '&' to put the execution into the background"""
-        #remote_command = "screen bash exe &"
         remote_command = 'nohup bash exe </dev/null >command.log 2>&1 &'
-        #remote_command = "nohup bash exe > foo.out 2> foo.err < /dev/null &"
         print "195:", remote_command
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         print "197:", ssh_command
@@ -216,10 +214,6 @@ def start_job(jobid, dbconn):
                 
         return (True, instance.id)
     except:
-        #e = sys.exc_info()[0]
-        #print "Error:"
-        #print e
-
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
