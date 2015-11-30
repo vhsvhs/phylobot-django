@@ -27,7 +27,7 @@ sudo apt-get -y update
 sudo apt-get -y install python-pip
 
 # Install and Setup PostgreSQL
-cd ~/phylobot-django
+cd $PHYLOBOT_REPO
 source aws_setup/setup_postgresql.sh
 
 # Install Python packages
@@ -39,7 +39,7 @@ sudo pip install -r requirements/prod.txt
 sudo service apache2 stop
 
 # Setup Nginx
-cd ~/phylobot-django
+cd $PHYLOBOT_REPO
 source aws_tools/setup_nginx.sh
 
 # (legacy)
@@ -47,7 +47,7 @@ source aws_tools/setup_nginx.sh
 sudo ln -s /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin phylobot-django/phylobot/static/admin
 
 # Setup Static files
-cd ~/phylobot-django/phylobot
+cd $PHYLOBOT_REPO/phylobot
 python manage.py collectstatic # move css, js, etc. into the appropriate assets folder
 
 # Build the Django Database
@@ -63,7 +63,7 @@ python populate_phylobot.py
 # sudo bash aws_setup/migrate.sh
 
 # Setup Celery & RabbitMQ
-cd ~/phylobot-django
+cd $PHYLOBOT_REPO
 source aws_setup/setup_rabbitmq.sh
 source aws_setup/setup_celery.sh
 

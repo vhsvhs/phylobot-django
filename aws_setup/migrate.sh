@@ -7,13 +7,13 @@
 # Copy the static data, including uploaded sequences.
 cd
 
-scp -i ~/.ssh/phylobot-ec2-key.pem -r ubuntu@www.phylobot.com:/home/ubuntu/phylobot-django/phylobot/static/* /home/ubuntu/phylobot-django/phylobot/static/
+scp -i ~/.ssh/phylobot-ec2-key.pem -r ubuntu@www.phylobot.com:$PHYLOBOT_REPO/phylobot/static/* $PHYLOBOT_REPO/phylobot/static/
 
 # Copy the main user and data DB. It's owned by www-data
-scp -i ~/.ssh/phylobot-ec2-key.pem ubuntu@www.phylobot.com:/home/ubuntu/phylobot-django/phylobot/db.sqlite3 /home/ubuntu/phylobot-django/phylobot/
+scp -i ~/.ssh/phylobot-ec2-key.pem ubuntu@www.phylobot.com:$PHYLOBOT_REPO/phylobot/db.sqlite3 $PHYLOBOT_REPO/phylobot/
 
 # Copy the Job daemon DB. It remains owned by root.
-scp -i ~/.ssh/phylobot-ec2-key.pem ubuntu@www.phylobot.com:/home/ubuntu/phylobot-django/phylobot/job_daemon.db /home/ubuntu/phylobot-django/phylobot/
+scp -i ~/.ssh/phylobot-ec2-key.pem ubuntu@www.phylobot.com:$PHYLOBOT_REPO/phylobot/job_daemon.db $PHYLOBOT_REPO/phylobot/
 
 # Copy the BOTO configuration
 sudo scp -i ~/.ssh/phylobot-ec2-key.pem -r ubuntu@www.phylobot.com:/etc/boto.cfg /etc/boto.cfg

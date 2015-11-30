@@ -1,7 +1,7 @@
 #
 # Setup RabbitMQ
 #
-cd ~/phylobot-django
+cd $PHYLOBOT_REPO
 sudo bash aws_setup/install_rabbitmq.sh
 sudo rabbitmqctl add_user myuser mypassword
 sudo rabbitmqctl set_user_tags myuser mytag

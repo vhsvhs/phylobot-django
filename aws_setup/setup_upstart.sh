@@ -2,7 +2,7 @@
 # Launch the Job Daemon, using upstart
 # (errors will be written to the log @ /var/log/upstart/jobdaemon.log)
 #
-cd ~/phylobot-django
+cd $PHYLOBOT_REPO
 sudo chmod 755 phylobot/job_daemon.py
 # Manually write all PhyloBot environment variables into the upstart config:
 sudo python aws_setup/build_upstart_scripts.py aws_setup/jobdaemon.conf /etc/init/jobdaemon.conf
@@ -15,7 +15,7 @@ sudo start jobdaemon
 # Launch Gunicorn, using upstart
 # (errors will be written to the log @ /var/log/upstart/gunicorn.log)
 #
-cd ~/phylobot-django
+cd $PHYLOBOT_REPO
 # Manually write all PhyloBot environment variables into the upstart config:
 sudo python aws_setup/build_upstart_scripts.py aws_setup/gunicorn.conf /etc/init/gunicorn.conf
 sudo chmod 755 /etc/init/gunicorn.conf
