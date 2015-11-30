@@ -194,21 +194,25 @@ def start_job(jobid, dbconn):
         
         remote_command = "aws s3 cp s3://" + S3BUCKET + "/" + jobid.__str__() + " ./ --recursive --region " + ZONE
         print "AWS command:", remote_command
-        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         print "SSH command:", ssh_command
         os.system(ssh_command)
                 
         """Run the startup script"""        
         remote_command = "bash slave_startup_script"
-        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         os.system( ssh_command )
         
         """Launch the job, using '&' to put the execution into the background"""
         remote_command = 'nohup bash exe </dev/null >command.log 2>&1 &'
         print "195:", remote_command
-        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
+        ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
         print "197:", ssh_command
         os.system( ssh_command )
+
+        #
+        # we need error checking here to ensure the ssh commands worked.
+        #
 
         set_job_status(jobid, "The replicate node is finished.")
                 
