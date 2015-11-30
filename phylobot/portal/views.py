@@ -117,11 +117,11 @@ def jobstatus(request, jobid):
     job = None
     if jobid:
         jobid = re.sub("/", "", jobid)
-        print "102: get status for", jobid
+        #print "102: get status for", jobid
         try:
             job = Job.objects.get(id=jobid)
         except Job.DoesNotExist:
-            print "411: job doesn't exist"
+            #print "411: job doesn't exist"
             pass
     if job == None:
         job = get_mr_job(request)
@@ -144,7 +144,7 @@ def jobstatus(request, jobid):
         this_job = this_job[0]
         
         action = request.POST.get('action')
-        print "371:", action
+        #print "371:", action
         if action == "edit":            
             return HttpResponseRedirect('/portal/compose/' + this_jobid)
         if action == "remove":
@@ -166,7 +166,7 @@ def jobstatus(request, jobid):
             """Default, the rest of this method will do the status refresh"""
             pass
     
-    print "168: get status for", jobid
+    #print "168: get status for", jobid
     list_of_aa = []
     for aa in job.settings.alignment_algorithms.all():
         list_of_aa.append( aa.name )
@@ -181,12 +181,12 @@ def jobstatus(request, jobid):
     if job.id == None:
         print >> sys.stderr, "I couldn't process the status request for an unknown job ID"
     
-    print "183: get status for", jobid
+    #print "183: get status for", jobid
     
     """What was the last button pushed for this job? i.e., start, stop, trash, etc."""
     last_user_command = get_last_user_command(job.id)
     
-    print "188: last_user_command=", last_user_command
+    #print "188: last_user_command=", last_user_command
     
     selected_aaseqfile = None
     selected_aaseqfile_short = None
@@ -201,9 +201,9 @@ def jobstatus(request, jobid):
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
 
     job_status = get_job_status(job.id)
-    print "202: get status for", jobid
+    #print "202: get status for", jobid
     checkpoint = float( get_aws_checkpoint(job.id) )
-    print "203: get status for", jobid, checkpoint
+    #print "203: get status for", jobid, checkpoint
     
     checkpoints = []
     checkpoints.append( (1.1,     "Sequence Alignment") )
@@ -248,10 +248,6 @@ def jobstatus(request, jobid):
     if checkpoint >= 8:
         alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]
         finished_library_id = alib.id.__str__()
-        print "409:", finished_library_id
-        #
-        #  continue here - get finished_library_id into the template
-        #
 
     job.p_done = 100.0 * float(checkpoint)/9.0
     job.save()

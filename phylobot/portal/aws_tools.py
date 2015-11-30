@@ -20,11 +20,9 @@ def get_env_variable(var_name):
         raise ImproperlyConfigured(error_msg)
 
 ZONE = get_env_variable("AWSZONE") #"us-west-1"
-#AMI_SLAVE_MOTHER = "ami-6fb3552b" # march 13, 2015
 AMI_SLAVE_MOTHER = get_env_variable("EC2_COMPUTE_INSTANCE_AMI_MOTHER") #"ami-59db3a1d" # march 23, 2015
 INSTANCE_KEY_NAME = get_env_variable("EC2_COMPUTE_INSTANCE_KEYNAME")# "phylobot-ec2-key"
 INSTANCE_SECURITY_GROUP = get_env_variable("EC2_INSTANCE_SECURITY_GROUP_NAME") #'phylobot-security'
-
 S3LOCATION = Location.USWest
 S3BUCKET = get_env_variable("S3BUCKET")
 SQS_JOBQUEUE_NAME = get_env_variable("SQS_JOBQUEUE_NAME")

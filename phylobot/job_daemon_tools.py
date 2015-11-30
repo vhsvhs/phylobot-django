@@ -6,13 +6,22 @@ import socket
 
 SQLDBPATH = "job_daemon.db"
 MAX_MSG_ATTEMPTS = 3
+MAX_WAIT = 240
 
 def print_splash():
     print "\n======================================="
     print "PhyloBot Job Daemon"
     print "written by Victor Hanson-Smith"
     print "victorhansonsmith@gmail.com" 
-    print "======================================="
+    print ""
+    print "Current AWS Settings:"
+    print ". ZONE: ", ZONE
+    print ". S3LOCATION:", S3LOCATION
+    print ". S3BUCKET:", S3BUCKET
+    print ". SQS_JOBQUEUE_NAME:", SQS_JOBQUEUE_NAME
+    print ". AMI_SLAVE_MOTHER:", AMI_SLAVE_MOTHER
+    print ". Max. wait for port 22:", MAX_WAIT, "seconds"
+    print "========================================="
 
 from os import listdir, environ
 from django.core.exceptions import ImproperlyConfigured
@@ -156,7 +165,7 @@ def start_job(jobid, dbconn):
         
         """Wait for AWS to catchup"""
         time_count = 0
-        MAX_WAIT = 240
+
         print "\n. Waiting for AWS to catchup"
         while (instance.state != "running"):
             time_count += 3
