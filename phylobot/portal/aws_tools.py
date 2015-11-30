@@ -27,6 +27,7 @@ INSTANCE_SECURITY_GROUP = get_env_variable("EC2_INSTANCE_SECURITY_GROUP_NAME") #
 
 S3LOCATION = Location.USWest
 S3BUCKET = get_env_variable("S3BUCKET")
+SQS_JOBQUEUE_NAME = get_env_variable("SQS_JOBQUEUE_NAME")
 
 def get_instance_type(jobid):
     """Determine what size of instance is appropriate, based on the nsites and seqlen
