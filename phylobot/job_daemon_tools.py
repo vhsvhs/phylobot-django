@@ -213,8 +213,6 @@ def start_job(jobid, dbconn):
         #
         # we need error checking here to ensure the ssh commands worked.
         #
-
-        set_job_status(jobid, "The replicate node is finished.")
                 
         return (True, instance.id)
     except:
