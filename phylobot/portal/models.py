@@ -4,7 +4,7 @@ import datetime
 from django.conf import settings
 import os, random, string
 from random_primary import *
-
+import aws_tools
 from django.forms.fields import *
 
 class SoftwarePaths(models.Model):
@@ -299,7 +299,7 @@ class Job(RandomPrimaryIdModel):
         if stoppoint != None:
             self.exe += " --stop " + stoppoint.__str__()
         self.exe += " --enable_aws True"
-        self.exe += " --s3_bucket phylobot-jobfiles"
+        self.exe += " --s3_bucket " + aws_tools.S3BUCKET.__str__() # phylobot-jobfiles"
         self.exe += " --s3_keybase " + self.id.__str__()
         if self.checkpoint:
             self.exe += " --jump " + self.checkpoint.__str__()
