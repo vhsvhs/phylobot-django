@@ -258,7 +258,7 @@ def stop_job(jobid, dbconn):
     else:
         """Stop each of the known AWS EC2 instances. If the execution state has been saved,
             then it can be recovered from S3, but otherwise the execution state is lost forever."""
-        logmsg = "Terminating the following instances for jobid=" + jobid.__str__() + ":" + known_instances.__str__()
+        logmsg = "Terminating the following instance(s) associated with job" + jobid.__str__() + ":" + known_instances.__str__()
         write_log(dbconn, logmsg, code=0)
         set_job_status(jobid, "Stopping cloud resources")
         conn = boto.ec2.connect_to_region(ZONE)   
