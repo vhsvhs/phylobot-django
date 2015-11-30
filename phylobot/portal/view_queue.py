@@ -33,6 +33,7 @@ def enqueue_job(request, job, jumppoint = None, stoppoint = None):
     """ Update S3 """
     job.generate_exe(jumppoint=jumppoint, stoppoint=stoppoint)
     set_job_exe(job.id, job.exe)
+    print "36:", job.exe
     
     """
         to-do: the following file uploads are taking sweet time.
