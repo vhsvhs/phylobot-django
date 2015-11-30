@@ -2,6 +2,7 @@
 # Install Nginx
 # (In Ubuntu, nginx will auto start upon installation)
 #
+cd ~/phylobot-django
 sudo apt-get -y install nginx
 sudo mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
 sudo cp aws_setup/nginx.conf /etc/nginx/nginx.conf

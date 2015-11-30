@@ -15,7 +15,7 @@
 # sudo rm -rf phylobot-django
 # git clone https://github.com/vhsvhs/phylobot-django
 # cd phylobot-django
-# source aws_setup/setup_phylobot_server_on_aws.sh --> launches this script
+# source aws_setup/setup_phylobot_server_on_aws.sh
 #
 ###########################################################
 
