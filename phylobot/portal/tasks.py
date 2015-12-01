@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from phylobot.celery import shared_task
+from phylobot.celery_base import shared_task
 
 
 @shared_task
