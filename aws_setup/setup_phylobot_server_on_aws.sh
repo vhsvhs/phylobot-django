@@ -58,9 +58,9 @@ python manage.py syncdb
 # objects to the DB.
 python populate_phylobot.py
 
-# (Optional) If you're cloning PhyloBot from another AWS instance,
-# 	then run this script to copy all static media and data:
-# sudo bash aws_setup/migrate.sh
+# Migrate all data from the previous PhyloBot
+# Disable this line if you want a totally fresh PhyloBot.
+sudo bash aws_setup/migrate.sh
 
 # Setup Celery & RabbitMQ
 cd $PHYLOBOT_REPO
