@@ -21,11 +21,13 @@ def edit_job(request, jobid):
         this_job.save()
     return HttpResponseRedirect('/portal/compose1')
 
+
 @login_required
 def compose1(request):
     """Step 1 of the job composer.
-    The protocol is that BEFORE calling this function, touch a Job object.
-    That job object will then be loaded  upon calling get_mr_job.
+    The protocol is that BEFORE calling this function, touch a Job object, which
+    has the effect of creating a new Job.
+    That job object will then be loaded upon calling get_mr_job.
     See below for an example.
     """
     context = RequestContext(request)    
@@ -94,7 +96,10 @@ def compose1(request):
             (validflag, msg) = is_valid_fasta(fullpath, is_uniprot=is_uniprot)
             
             if validflag:
-                taxa_seq = get_taxa(fullpath, this_format)
+                (taxa_seq, error_msgs) = get_taxa(fullpath, this_format)
+                if error_msgs.__len__() > 0:
+                    error_messages = error_messages + error_msgs
+                
                 cleaned_taxa_seq = {} 
                 for taxa in taxa_seq:
                     sequence = taxa_seq[taxa]
@@ -132,12 +137,16 @@ def compose1(request):
                                                     nsites = taxa_seq[taxa].__len__() )[0]
                         t.save()                    
 
-                    """Attach the taxon to the SeqFile"""
-                    seqfile.contents.add(t)
-                    seqfile.save()
-                    cleaned_taxa_seq[seqname] = sequence
-                    
-                
+                    """Have we already seen a sequence with this name?"""
+                    if seqname in cleaned_taxa_seq:
+                        error_messages.append("After cleaning your FASTA file, the sequence named " + seqname + " appears twice. Please edit your FASTA file and upload again.")
+                    else:
+                        """Attach the taxon to the SeqFile"""
+                        seqfile.contents.add(t)
+                        seqfile.save()
+                        cleaned_taxa_seq[seqname] = sequence
+                                  
+                """Write a cleaned FASTA file that will be used in the actual analysis."""
                 write_fasta(cleaned_taxa_seq, fullpath)
                 
                 if ii == 0: 
@@ -168,7 +177,7 @@ def compose1(request):
                 this_job.save()
                  
         """
-            Read the constraint tree
+            Read the constraint tree, if it was provided.
         """ 
         inputname = "constrainttree_path"
         if inputname in request.FILES:
@@ -254,11 +263,11 @@ def compose1(request):
     constrainttree_fileform = ConstraintTreeFileForm()
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
-    print "249:", this_job.settings.constraint_tree_file
+    #print "249:", this_job.settings.constraint_tree_file
     if this_job.settings.constraint_tree_file:
         constrainttree_fileform.fields["constrainttree_path"].default = this_job.settings.constraint_tree_file.constrainttree_path
         selected_constrainttreefile = settings.MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
-        print "253:", selected_constrainttreefile
+        #print "253:", selected_constrainttreefile
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
         
     js_form = JobSettingForm()
@@ -340,7 +349,7 @@ def compose2(request):
         outgroup_ids.append( taxon.id )
     
     aapath = os.path.join(settings.MEDIA_ROOT, this_job.settings.original_aa_file.__str__()) 
-    taxa_seq = get_taxa(aapath, "fasta")
+    (taxa_seq, error_msgs) = get_taxa(aapath, "fasta")
        
     taxon_tuples = []
     for taxon in this_job.settings.original_aa_file.contents.all():

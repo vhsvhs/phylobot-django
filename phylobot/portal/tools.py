@@ -20,6 +20,7 @@ def get_taxa(seqpath, format):
     """Given the path to a sequence collection, this method returns a hashtable
     where key = sequence name, value = the sequence"""
     taxa_seq = {}
+    error_msgs = []
     fin = open(seqpath, "r")
     if format == "fasta":
         currseq = ""
@@ -45,6 +46,10 @@ def get_taxa(seqpath, format):
                 l = re.sub("\.", "", l)
                 l = re.sub("\-", "", l)
                 currseq += l.strip()
+        """Is this sequence name repeated?"""
+        if currtaxa in taxa_seq:
+            error_msgs.append("The sequence named " + currtaxa + " appears twice.") 
+        
         taxa_seq[currtaxa] = currseq
     
     elif format == "phylip":
@@ -55,7 +60,7 @@ def get_taxa(seqpath, format):
                 seq = tokens[1].strip()
                 taxa_seq[this_taxa] = seq
     fin.close()
-    return taxa_seq
+    return (taxa_seq, error_msgs)
 
 def get_library_savetopath(jobid):
     dbpath = settings.MEDIA_ROOT + "/anclibs/asr_" + jobid.__str__() + ".db"

@@ -104,7 +104,11 @@ def is_valid_fasta(path, is_uniprot=False):
         msg = "An error occurred when uploading your file. Please try again."
         return (False, msg)
 
-    taxa_seq = get_taxa(path, "fasta") 
+    (taxa_seq, error_msgs) = get_taxa(path, "fasta")
+    
+    if error_msgs.__len__() > 0:
+        """Some error occurred"""
+        return (False, error_msgs[0] ) 
     
     """Too many sequences."""
     if taxa_seq.keys().__len__() > 250:
@@ -152,9 +156,9 @@ def write_fasta(taxa_seq, outpath):
     fout.close()
     
 def clean_fasta_name(seqname):
-    seqname = re.sub("_", ".", seqname)
-    seqname = re.sub("\ ", ".", seqname)
-    seqname = re.sub(" ", ".", seqname)
+    bad_chars = ["_", "\ ", " ", "|", "[", "]", "{", "}"]
+    for c in bad_chars:
+        seqname = re.sub(c, ".", seqname)
     return seqname
 
 

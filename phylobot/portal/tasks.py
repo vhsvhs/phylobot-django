@@ -15,5 +15,3 @@ def mul(x, y):
 @shared_task
 def xsum(numbers):
     return sum(numbers)
-
-add(4,4)
