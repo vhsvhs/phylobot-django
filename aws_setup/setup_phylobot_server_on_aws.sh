@@ -40,7 +40,7 @@ sudo service apache2 stop
 
 # Setup Nginx
 cd $PHYLOBOT_REPO
-source aws_tools/setup_nginx.sh
+source aws_setup/setup_nginx.sh
 
 # (legacy)
 # Add a softlink for the /admin app static files
@@ -68,4 +68,5 @@ source aws_setup/setup_rabbitmq.sh
 source aws_setup/setup_celery.sh
 
 # Setup Upstart to auto-launch PhyloBot
+cd $PHYLOBOT_REPO
 source aws_setup/setup_upstart.sh
