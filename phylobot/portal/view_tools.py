@@ -163,9 +163,6 @@ def clean_fasta_name(seqname):
             newseqname += c
         else:
             newseqname += "."
-    
-    #for c in bad_chars:
-    #    seqname = re.sub(c, ".", seqname)
     return newseqname
 
 
