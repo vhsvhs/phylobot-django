@@ -157,9 +157,16 @@ def write_fasta(taxa_seq, outpath):
     
 def clean_fasta_name(seqname):
     bad_chars = ["_", "\ ", " ", "|", "[", "]", "{", "}"]
-    for c in bad_chars:
-        seqname = re.sub(c, ".", seqname)
-    return seqname
+    newseqname = ""
+    for c in seqname:
+        if c.isalnum() or c == "_":
+            newseqname += c
+        else:
+            newseqname += "."
+    
+    #for c in bad_chars:
+    #    seqname = re.sub(c, ".", seqname)
+    return newseqname
 
 
 def parse_uniprot_seqname(name):
