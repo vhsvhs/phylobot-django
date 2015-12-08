@@ -139,7 +139,7 @@ def compose1(request):
 
                     """Have we already seen a sequence with this name?"""
                     if seqname in cleaned_taxa_seq:
-                        error_messages.append("After cleaning your FASTA file, the sequence named " + seqname + " appears twice. Please edit your FASTA file and upload again.")
+                        error_messages.append("After cleaning the sequences and names in your FASTA file, the taxon name " + seqname + " appears twice. Please edit your FASTA file and upload again.")
                     else:
                         """Attach the taxon to the SeqFile"""
                         seqfile.contents.add(t)

@@ -156,6 +156,9 @@ def write_fasta(taxa_seq, outpath):
     fout.close()
     
 def clean_fasta_name(seqname):
+    """Cleans sequence names to not use illegal characters, i.e. characters
+        that will trip-up downstream analysis in ZORRO, RAxML, PAML, etc."""
+        
     bad_chars = ["_", "\ ", " ", "|", "[", "]", "{", "}"]
     newseqname = ""
     for c in seqname:
@@ -163,6 +166,10 @@ def clean_fasta_name(seqname):
             newseqname += c
         else:
             newseqname += "."
+    
+    if newseqname.__len__() > 50:
+        newseqname = newseqname[0:50]
+    
     return newseqname
 
 
