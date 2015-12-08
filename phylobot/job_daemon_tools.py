@@ -161,7 +161,7 @@ def start_job(jobid, dbconn):
     
     try:
         write_log(dbconn, "Created the instance " + instance.id.__str__() + ", instance type: " + INSTANCE_TYPE.__str__() )
-        conn.create_tags( [instance.id], {"Name":"Instance built by PhyloBot Job Daemon from AMI " + AMI_SLAVE_MOTHER + " on " + time.ctime() + " for jobid " + jobid.__str__()} )
+        conn.create_tags( [instance.id], {"Name":"PhyloBot Job " + jobid.__str__() + " using AMI " + AMI_SLAVE_MOTHER + " on " + time.ctime()} )
         
         """Wait for AWS to catchup"""
         time_count = 0
