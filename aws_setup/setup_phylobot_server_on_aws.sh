@@ -61,7 +61,7 @@ python populate_phylobot.py
 # Migrate all data from the previous PhyloBot
 # Disable this line if you want a totally fresh PhyloBot.
 #cd $PHYLOBOT_REPO
-sudo bash aws_setup/migrate.sh
+#sudo bash aws_setup/migrate.sh
 
 # Setup Celery & RabbitMQ
 cd $PHYLOBOT_REPO
