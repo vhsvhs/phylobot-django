@@ -14,7 +14,8 @@ from django.utils.http import urlencode
 from django.utils.http import int_to_base36, base36_to_int
 from django.core.exceptions import ValidationError
 
-from django.utils.datastructures import SortedDict
+#from django.utils.datastructures import SortedDict
+from collections import OrderedDict as SortedDict
 try:
     from django.utils.encoding import force_text
 except ImportError:

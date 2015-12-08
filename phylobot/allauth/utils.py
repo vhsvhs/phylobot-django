@@ -9,7 +9,8 @@ from django.db.models import FieldDoesNotExist
 from django.db.models.fields import (DateTimeField, DateField,
                                      EmailField, TimeField)
 from django.utils import six, dateparse
-from django.utils.datastructures import SortedDict
+#from django.utils.datastructures import SortedDict
+from collections import OrderedDict as SortedDict
 from django.core.serializers.json import DjangoJSONEncoder
 try:
     from django.utils.encoding import force_text
