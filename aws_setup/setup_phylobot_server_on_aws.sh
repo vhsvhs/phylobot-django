@@ -64,9 +64,9 @@ python populate_phylobot.py
 #sudo bash aws_setup/migrate.sh
 
 # Setup Celery & RabbitMQ
-cd $PHYLOBOT_REPO
-source aws_setup/setup_rabbitmq.sh
-source aws_setup/setup_celery.sh
+#cd $PHYLOBOT_REPO
+#source aws_setup/setup_rabbitmq.sh
+#source aws_setup/setup_celery.sh
 
 # Setup Upstart to auto-launch PhyloBot
 cd $PHYLOBOT_REPO

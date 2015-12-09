@@ -83,7 +83,6 @@ def populate_examples():
         pw = make_password("password")
         add_user( id.__str__(),lastname,firstname,email, pw )
 
-    
     for u in User.objects.all():
         njobs = random.randint(0,10)
         for ii in range(0, njobs):
