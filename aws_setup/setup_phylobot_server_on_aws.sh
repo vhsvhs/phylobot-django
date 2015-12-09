@@ -51,7 +51,7 @@ cd $PHYLOBOT_REPO/phylobot
 python manage.py collectstatic # move css, js, etc. into the appropriate assets folder
 
 # Build the Django Database
-python manage.py syncdb
+python manage.py migrate
 
 # Run the populate_phylobot script to add things like
 # known alignment algorithms, phylogenetic models, and job status
