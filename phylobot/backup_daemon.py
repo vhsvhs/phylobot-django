@@ -47,16 +47,18 @@ while(True):
     
     """Compare sizes"""
     jobdaemondb_backup_currsize = os.path.getsize(DAEMONDBPATH)
-    if jobdaemondb_backup_currsize < 0.8 * jobdaemondb_backup_lastsize:
-        print "\n. Hmmm... the Job Daemon DB looks small compared to the last backup."
-        JOBDAEMONDB_BACKUP_KEY = "jobdaemon.db" + time.time()
-        print "\. I'm backing up the Job Daemon at a new key:", JOBDAEMONDB_BACKUP_KEY
+    if jobdaemondb_backup_currsize != None and jobdaemondb_backup_lastsize != None:
+        if jobdaemondb_backup_currsize < 0.8 * jobdaemondb_backup_lastsize:
+            print "\n. Hmmm... the Job Daemon DB looks small compared to the last backup."
+            JOBDAEMONDB_BACKUP_KEY = "jobdaemon.db" + time.time()
+            print "\. I'm backing up the Job Daemon at a new key:", JOBDAEMONDB_BACKUP_KEY
 
     phylobotdb_backup_currsize = os.path.getsize(settings.DATABASES['default']['NAME'])
-    if phylobotdb_backup_currsize < 0.8 * phylobotdb_backup_lastsize:
-        print "\n. Hmmm... the PhyloBot DB looks small compared to the last backup."
-        PHYLOBOTDB_BACKUP_KEY = "phylobot.db" + time.time()
-        print "\. I'm backing up the PhyloBot DB at a new key:", PHYLOBOTDB_BACKUP_KEY    
+    if phylobotdb_backup_currsize != None and phylobotdb_backup_lastsize != None:
+        if phylobotdb_backup_currsize < 0.8 * phylobotdb_backup_lastsize:
+            print "\n. Hmmm... the PhyloBot DB looks small compared to the last backup."
+            PHYLOBOTDB_BACKUP_KEY = "phylobot.db" + time.time()
+            print "\. I'm backing up the PhyloBot DB at a new key:", PHYLOBOTDB_BACKUP_KEY    
     
     """Backup the Job Daemon database (i.e. the job queue)."""    
     key = bucket.get_key(JOBDAEMONDB_BACKUP_KEY)
