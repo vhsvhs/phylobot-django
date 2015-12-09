@@ -1,7 +1,7 @@
 psycopg2
 wheel
-django>=1.8
-biopython>=1.63
+django==1.8.7
+biopython==1.63
 gunicorn==19.3.0
 django-allauth
 django-ses
