@@ -12,6 +12,19 @@ sudo initctl reload-configuration
 sudo start jobdaemon
 
 #
+# Launch the Backup Daemon, using upstart
+# (errors will be written to the log @ /var/log/upstart/phylobotbackupdaemon.log)
+#
+cd $PHYLOBOT_REPO
+sudo chmod 755 phylobot/backup_daemon.py
+# Manually write all PhyloBot environment variables into the upstart config:
+sudo python aws_setup/build_upstart_scripts.py aws_setup/backupdaemon.conf /etc/init/phylobotbackupdaemon.conf
+sudo chmod 755 /etc/init/phylobotbackupdaemon.conf
+init-checkconf /etc/init/phylobotbackupdaemon.conf
+sudo initctl reload-configuration
+sudo start phylobotbackupdaemon
+
+#
 # Launch Gunicorn, using upstart
 # (errors will be written to the log @ /var/log/upstart/gunicorn.log)
 #
