@@ -41,6 +41,8 @@ while(True):
         bucket = s3.create_bucket(S3_BACKUPBUCKET, location=S3LOCATION)
         bucket.set_acl('private')
     
+    print "44"
+    
     """Get the sizes of the last backup -- we'll use this information
         to ensure we're always updating with a newer (i.e. bigger)
         database object. If the current database is significantly smaller
@@ -54,6 +56,8 @@ while(True):
         elif key.name == PHYLOBOTDB_BACKUP_KEY:
             phylobotdb_backup_lastsize = key.size
     
+    print "59"
+    
     """Compare sizes"""
     jobdaemondb_backup_currsize = os.path.getsize(jobdaemon_dbpath)
     if jobdaemondb_backup_currsize != None and jobdaemondb_backup_lastsize != None:
@@ -62,6 +66,8 @@ while(True):
             JOBDAEMONDB_BACKUP_KEY = "jobdaemon.db" + time.time()
             print "\. I'm backing up the Job Daemon at a new key:", JOBDAEMONDB_BACKUP_KEY
 
+    print "69"
+
     phylobotdb_backup_currsize = os.path.getsize(phylobot_dbpath)
     if phylobotdb_backup_currsize != None and phylobotdb_backup_lastsize != None:
         if phylobotdb_backup_currsize < 0.8 * phylobotdb_backup_lastsize:
@@ -69,17 +75,23 @@ while(True):
             PHYLOBOTDB_BACKUP_KEY = "phylobot.db" + time.time()
             print "\. I'm backing up the PhyloBot DB at a new key:", PHYLOBOTDB_BACKUP_KEY    
     
+    print "76"
+    
     """Backup the Job Daemon database (i.e. the job queue)."""    
     key = bucket.get_key(JOBDAEMONDB_BACKUP_KEY)
     if key == None:
         key = bucket.new_key(JOBDAEMONDB_BACKUP_KEY) 
     key.set_contents_from_filename(jobdaemon_dbpath) 
     
+    print "86"
+    
     """Backup the main PhyloBot project."""
     key = bucket.get_key(PHYLOBOTDB_BACKUP_KEY)
     if key == None:
         key = bucket.new_key(PHYLOBOTDB_BACKUP_KEY) 
     key.set_contents_from_filename(phylobot_dbpath)     
+    
+    print "94"
     
     """Sleep for a while until we do the next backup"""
     time.sleep( BACKUPDAEMON_SLEEP )
