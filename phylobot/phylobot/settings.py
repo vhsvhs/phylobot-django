@@ -64,7 +64,6 @@ EMAIL_HOST = get_env_variable("EMAIL_HOST") #'email-smtp.us-west-2.amazonaws.com
 EMAIL_PORT = get_env_variable("EMAIL_PORT") #465
 DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.com'
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
@@ -92,8 +91,6 @@ MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = '/media/'
 ########## END STATIC FILE CONFIGURATION
-
-
 
 # URL of the login page.
 from django.core.urlresolvers import reverse_lazy

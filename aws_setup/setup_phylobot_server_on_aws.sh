@@ -54,6 +54,8 @@ python manage.py collectstatic # move css, js, etc. into the appropriate assets 
 python manage.py makemigrations
 python manage.py migrate
 
+python manage.py syncdb
+
 # Run the populate_phylobot script to add things like
 # known alignment algorithms, phylogenetic models, and job status
 # objects to the DB.

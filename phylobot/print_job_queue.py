@@ -5,8 +5,8 @@ from job_daemon_tools import *
     This is the main loop for the daemon
 """
 print_splash()
-dbconn = build_db(SQLDBPATH)
-write_log(dbconn, "Connected to the daemon DB at " + SQLDBPATH.__str__())
+dbconn = build_db(DAEMONDBPATH)
+write_log(dbconn, "Connected to the daemon DB at " + DAEMONDBPATH.__str__())
   
 conn = boto.sqs.connect_to_region(ZONE)
 queue = conn.get_queue("phylobot-jobs")

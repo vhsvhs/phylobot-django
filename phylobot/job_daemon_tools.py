@@ -1,10 +1,5 @@
-from portal import aws_tools
-from portal.aws_tools import *
-import sqlite3 as lite
-import os, sys, time
-import socket
+from daemon import *
 
-SQLDBPATH = "job_daemon.db"
 MAX_MSG_ATTEMPTS = 3
 MAX_WAIT = 240
 
@@ -22,19 +17,6 @@ def print_splash():
     print ". AMI_SLAVE_MOTHER:", AMI_SLAVE_MOTHER
     print ". Max. wait for port 22:", MAX_WAIT, "seconds"
     print "========================================="
-
-from os import listdir, environ
-from django.core.exceptions import ImproperlyConfigured
-def get_env_variable(var_name):
-    """Get the env. variable, or return exception"""
-    try:
-        return environ[var_name]
-    except KeyError:
-        error_msg = "Set the {} environment variable".format(var_name)
-        raise ImproperlyConfigured(error_msg)
-
-S3BUCKET = get_env_variable("S3BUCKET")
-SQS_JOBQUEUE_NAME = get_env_variable("SQS_JOBQUEUE_NAME")
 
 def build_db(dbpath):
     """Initializes all the tables. Returns the DB connection object.

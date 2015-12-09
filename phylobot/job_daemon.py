@@ -8,10 +8,10 @@ print_splash()
 
 dbconn = None
 try:
-    dbconn = build_db(SQLDBPATH)
+    dbconn = build_db(DAEMONDBPATH)
     write_log(dbconn, "PhyloBot job daemon is waiting for jobs. . .")
 except sqlite3.OperationalError:
-    print "\n. Error, I couldn't open the database at " + SQLDBPATH
+    print "\n. Error, I couldn't open the database at " + DAEMONDBPATH
     print ". Try running this script as sudo."
     exit()
 

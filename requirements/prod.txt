@@ -5,3 +5,4 @@ biopython==1.63
 gunicorn==19.3.0
 django-allauth
 django-ses
+dendropy

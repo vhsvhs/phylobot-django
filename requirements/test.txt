@@ -6,3 +6,4 @@ gunicorn==19.3.0
 django-allauth
 coverage
 django-ses
+dendropy
