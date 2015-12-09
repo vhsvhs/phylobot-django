@@ -64,8 +64,6 @@ while(True):
     key = bucket.get_key(JOBDAEMONDB_BACKUP_KEY)
     if key == None:
         key = bucket.new_key(JOBDAEMONDB_BACKUP_KEY) 
-    key = bk.lookup('my_key_name')
-    print key.size
     key.set_contents_from_filename(DAEMONDBPATH) 
     
     """Backup the main PhyloBot project."""
