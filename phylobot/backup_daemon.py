@@ -4,7 +4,10 @@ from phylobot import settings
 
 BACKUPDAEMON_SLEEP = 3600 # 1 hour, in seconds
 S3_BACKUPBUCKET = get_env_variable("S3_BACKUPBUCKET")
+
+PHYLOBOT_REPO = get_env_variable("PHYLOBOT_REPO")
 phylobot_dbpath = settings.DATABASES['default']['NAME']
+jobdaemon_dbpath = PHYLOBOT_REPO + "/phylobot/" + DAEMONDBPATH
 
 def print_splash():
     print "\n======================================="
@@ -20,11 +23,10 @@ def print_splash():
     print ". SQS_JOBQUEUE_NAME:", SQS_JOBQUEUE_NAME
     print ". AMI_SLAVE_MOTHER:", AMI_SLAVE_MOTHER
     print ". phylobot_dbpath:", phylobot_dbpath
-    print ". DAEMONDBPATH:", DAEMONDBPATH
+    print ". DAEMONDBPATH:", jobdaemon_dbpath
     print "========================================="
 
 print_splash()
-
 
 
 """ Main Daemon Loop """    
@@ -53,7 +55,7 @@ while(True):
             phylobotdb_backup_lastsize = key.size
     
     """Compare sizes"""
-    jobdaemondb_backup_currsize = os.path.getsize(DAEMONDBPATH)
+    jobdaemondb_backup_currsize = os.path.getsize(jobdaemon_dbpath)
     if jobdaemondb_backup_currsize != None and jobdaemondb_backup_lastsize != None:
         if jobdaemondb_backup_currsize < 0.8 * jobdaemondb_backup_lastsize:
             print "\n. Hmmm... the Job Daemon DB looks small compared to the last backup."
@@ -71,7 +73,7 @@ while(True):
     key = bucket.get_key(JOBDAEMONDB_BACKUP_KEY)
     if key == None:
         key = bucket.new_key(JOBDAEMONDB_BACKUP_KEY) 
-    key.set_contents_from_filename(DAEMONDBPATH) 
+    key.set_contents_from_filename(jobdaemon_dbpath) 
     
     """Backup the main PhyloBot project."""
     key = bucket.get_key(PHYLOBOTDB_BACKUP_KEY)
