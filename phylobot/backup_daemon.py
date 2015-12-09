@@ -20,6 +20,8 @@ def print_splash():
     print ". AMI_SLAVE_MOTHER:", AMI_SLAVE_MOTHER
     print "========================================="
 
+print_splash()
+
 """ Main Daemon Loop """    
 while(True):    
     JOBDAEMONDB_BACKUP_KEY = "jobdaemon.db"
