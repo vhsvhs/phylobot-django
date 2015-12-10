@@ -92,7 +92,7 @@ class RandomPrimaryIdModel(models.Model):
     KEYPREFIX         = ""
     KEYSUFFIX         = ""
     CRYPT_KEY_LEN_MIN = 5
-    CRYPT_KEY_LEN_MAX = 9
+    CRYPT_KEY_LEN_MAX = 10
     _FIRSTIDCHAR      = string.ascii_letters                  # First char: Always a letter
     _IDCHARS          = string.digits + string.ascii_letters  # Letters and digits for the rest
 
