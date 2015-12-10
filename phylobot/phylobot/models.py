@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from portal.random_primary import *
 
 class UserProfile(models.Model):
     # This line is required. Links UserProfile to a User model instance.
