@@ -34,7 +34,6 @@ class AncestralLibrary(RandomPrimaryIdModel):
     _IDCHARS = string.digits
     CRYPT_KEY_LEN_MIN = 9
     CRYPT_KEY_LEN_MAX = 15
-    KEYPREFIX = "alib"
     
     shortname = models.CharField(max_length=30)
     contact_authors_profile = models.ManyToManyField(UserProfile) # these users will be listed on the frontpage of the public library view
