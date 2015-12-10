@@ -174,8 +174,12 @@ def start_job(jobid, dbconn):
             if time_count > MAX_WAIT:
                 print "\n. Error 168 - The instance hasn't opened its port 22 after " + MAX_WAIT.__str__() + " seconds. jobid=" + jobid.__str__()
                 set_job_status(jobid, "Error activating cloud resources: the SSH port didn't open.")
+                print "\n. I'm deleting instance:", instance.id
+                conn.terminate_instances(instance_ids=[instance.id])
                 return (False, None)
-                
+        
+        """If we arrive here, then port 22 is open on the instance."""
+         
         write_log(dbconn, "OK. Instance " + instance.id + " is running at " + instance.ip_address, code=0)
         add_job(dbconn, jobid)
         add_instance(dbconn, instance.id, instance.ip_address)
