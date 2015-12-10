@@ -40,9 +40,7 @@ class AncestralLibrary(RandomPrimaryIdModel):
     contact_authors_profile = models.ManyToManyField(UserProfile) # these users will be listed on the frontpage of the public library view
     dbpath = models.FileField(upload_to='anclibs')
     last_modified = models.DateTimeField(auto_now=True)
-    
-    objects = AncestralLibaryManager()
-    
+        
     def __unicode__(self):
         return unicode(self.shortname)  
 
