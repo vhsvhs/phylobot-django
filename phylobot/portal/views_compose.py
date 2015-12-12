@@ -96,7 +96,7 @@ def compose1(request):
             impose_limit = True
             if request.user.username == "admin":
                 impose_limit = False
-            (validflag, msg) = is_valid_fasta(fullpath, is_uniprot=is_uniprot, impose_limit=True)
+            (validflag, msg) = is_valid_fasta(fullpath, is_uniprot=is_uniprot, impose_limit=impose_limit)
             
             if validflag:
                 (taxa_seq, error_msgs) = get_taxa(fullpath, this_format)
