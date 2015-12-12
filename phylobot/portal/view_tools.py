@@ -88,7 +88,7 @@ def is_valid_newick(path, source_sequence_names = None):
         retflag = True
     return (retflag, emsg)
 
-def is_valid_fasta(path, is_uniprot=False):
+def is_valid_fasta(path, is_uniprot=False, impose_limit=True):
     """This method checks if the FASTA file located at 'path' is a valid FASTA format.
         AND if the sequence contains too many, or not enough, taxa.
         If there are formatting problems, this method will attempt to fix them (i.e., /r line breaks
@@ -111,7 +111,7 @@ def is_valid_fasta(path, is_uniprot=False):
         return (False, error_msgs[0] ) 
     
     """Too many sequences."""
-    if taxa_seq.keys().__len__() > 250:
+    if impose_limit == True and taxa_seq.keys().__len__() > 250:
         return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain " + taxa_seq.keys().__len__().__str__() + " sequences. Please reduce the number of sequences in your file and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
 
     max_length = 0
@@ -124,7 +124,7 @@ def is_valid_fasta(path, is_uniprot=False):
             return (False, msg)
         if max_length < taxa_seq[taxa].__len__():
             max_length = taxa_seq[taxa].__len__()
-        if max_length > 2000:
+        if impose_limit == True and max_length > 2000:
             return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain a sequence of length " + max_length.__len__() + ".Please trim your sites and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
         
         """Are there non-alpha chars in the sequence data?"""

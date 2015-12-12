@@ -93,7 +93,10 @@ def compose1(request):
             this_seqtype = SeqType.objects.get_or_create(short=this_type)[0]
 
             """Is the sequence file a valid FASTA file?"""
-            (validflag, msg) = is_valid_fasta(fullpath, is_uniprot=is_uniprot)
+            impose_limit = True
+            if request.user.username == "admin":
+                impose_limit = False
+            (validflag, msg) = is_valid_fasta(fullpath, is_uniprot=is_uniprot, impose_limit=True)
             
             if validflag:
                 (taxa_seq, error_msgs) = get_taxa(fullpath, this_format)
