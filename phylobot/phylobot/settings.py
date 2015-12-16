@@ -66,9 +66,8 @@ EMAIL_PORT = get_env_variable("EMAIL_PORT") #465
 DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.com'
 SERVER_EMAIL = get_env_variable("DEFAULT_FROM_EMAIL")
 
-
-AWS_SECRET_ACCESS_KEY = get_env_variable("AWS_SECRET_ACCESS_KEY")
-AWS_ACCESS_KEY_ID = get_env_variable("AWS_ACCESS_KEY_ID")
+#AWS_SECRET_ACCESS_KEY = get_env_variable("AWS_SECRET_ACCESS_KEY")
+#AWS_ACCESS_KEY_ID = get_env_variable("AWS_ACCESS_KEY_ID")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
