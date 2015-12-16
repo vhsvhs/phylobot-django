@@ -107,9 +107,7 @@ class DefaultAccountAdapter(object):
 #         import boto.ses
 #         conn = boto.ses.connect_to_region('us-west-2')
 #         print "110:", conn.list_verified_email_addresses()
-        print "110:", msg.connection
-        print "111:", msg.content_subtype        
-        
+              
         msg.send()
 
     def get_login_redirect_url(self, request):
