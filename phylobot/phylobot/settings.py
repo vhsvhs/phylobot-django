@@ -59,10 +59,16 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION  = True
 
 """Amazon SES"""
 EMAIL_BACKEND = get_env_variable("EMAIL_BACKEND") #'django_ses.SESBackend'
-AWS_SES_REGION_NAME = get_env_variable("SES_REGION") #'us-west-2'
+AWS_SES_REGION_NAME = get_env_variable("AWS_SES_REGION") #'us-west-2'
+AWS_SES_REGION_ENDPOINT = get_env_variable("AWS_SES_REGION_ENDPOINT") # "email.us-west-2.amazonaws.com"
 EMAIL_HOST = get_env_variable("EMAIL_HOST") #'email-smtp.us-west-2.amazonaws.com'
 EMAIL_PORT = get_env_variable("EMAIL_PORT") #465
 DEFAULT_FROM_EMAIL =  get_env_variable("DEFAULT_FROM_EMAIL") #'hello@phylobot.com'
+SERVER_EMAIL = et_env_variable("DEFAULT_FROM_EMAIL")
+
+
+AWS_SECRET_ACCESS_KEY = get_env_variable("AWS_SECRET_ACCESS_KEY")
+AWS_ACCESS_KEY_ID = get_env_variable("AWS_ACCESS_KEY_ID")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
