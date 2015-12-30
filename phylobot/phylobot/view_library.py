@@ -39,7 +39,7 @@ def view_library(request, libid):
     """Retrieve the AncestralLibrary class object"""
     alib = AncestralLibrary.objects.get( id=int(libid) )
     
-    print "42:", alib.id
+    print "view_library.py:", alib.id
     
     """Ensure the project's SQL database exists locally."""
     if False == check_ancestral_library_filepermissions(alib=alib):
@@ -859,12 +859,52 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
-def get_ml_sequence(con, ancid, skip_indels=True):
+def get_ancestralstates_helper(con, ancid):
+    """Executes a query on the table AncestralStates.
+    Returns the cursor to the databse"""
     cur = con.cursor()
-    sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    use_legacy = False
+    tablename = "AncestralStates" + ancid.__str__()
+    sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
     cur.execute(sql)
-    x = cur.fetchall()
+    x = cur.fetchone()
+    if x[0] == 0:
+        use_legacy == True
+        tablename = "AncestralStates"
     
+    if use_legacy:
+        sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    elif use_legacy == False:
+        sql = "select site, state, pp from " + tablename.__str__()
+    cur.execute(sql)
+    return cur
+    #x = cur.fetchall()
+    #return x
+
+def get_ml_sequence(con, ancid, skip_indels=True):
+    cur = get_ancestralstates_helper(con, ancid)
+    
+#     """Legacy versions of the ASR pipeline use a single table named AncestralStates.
+#         Newer versions use multiple tables named AncestralStates<ID>, where <ID> is the id
+#         of an ancestor.
+#     """
+#     use_legacy = False
+#     tablename = "AncestralStates" + ancid.__str__()
+#     sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
+#     cur.execute(sql)
+#     x = cur.fetchone()
+#     if x[0] == 0:
+#         use_legacy == True
+#         tablename = "AncestralStates"
+#     
+#     if use_legacy:
+#         sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+#     elif use_legacy == False:
+#         sql = "select site, state, pp from " + tablename.__str__()
+#     cur.execute(sql)
+#     x = cur.fetchall()
+    
+    x = cur.fetchall()
     site_state = {}
     site_mlpp = {}
     
@@ -910,8 +950,9 @@ def ml_sequence_difference(seq1, seq2):
 def get_site_state_pp(con, ancid, skip_indels = True):
     """Returns a hashtable, key = site, value = hash; key = residue state, value = PP of the state
         skip_indels will skip those sites with indels"""
-    cur = con.cursor()
-    sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    cur = get_ancestralstates_helper(con, ancid)
+    #cur = con.cursor()
+    #sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
     cur.execute(sql)
     x = cur.fetchall()
     
@@ -932,9 +973,10 @@ def get_site_state_pp(con, ancid, skip_indels = True):
 
 def get_site_ml(con, ancid, skip_indels = True):
     """Returns the hashtable; key = site, value = tuple of (mlstate, mlpp)"""
-    cur = con.cursor()
-    sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
-    cur.execute(sql)
+    #cur = con.cursor()
+    #sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
+    #cur.execute(sql)
+    cur = get_ancestralstates_helper(con, ancid)
     x = cur.fetchall()
     site_tuple = {}
     site_mlpp = {}
@@ -1563,8 +1605,9 @@ def view_mutations_bybranch(request, alib, con):
 
     """Get the seedsequence with indels"""
     (seedtaxonid, seedtaxonname) = get_seedtaxon(request, alib, con)
-    print "1358:", seedtaxonid, seedtaxonname
+    print "1566:", seedtaxonid, seedtaxonname
     save_viewing_pref(request, alib.id, con, "lastviewed_seedtaxonid", seedtaxonid.__str__()) 
+    print "1568:", seedtaxonid, seedtaxonname
     seedsequence = get_sequence_for_taxon(con, msaname, seedtaxonid)
     nsites = seedsequence.__len__()
 
@@ -1595,6 +1638,8 @@ def view_mutations_bybranch(request, alib, con):
                 elif index == 1:
                     ancname2 = ancname
                     ancid2 = ancid
+                    
+    print "view_library.py 1599"
     
     """For some reason, the ancestors weren't selected in the HTML form 
         (or this is the first time rendering) so let's check if the user has 
@@ -1655,18 +1700,30 @@ def view_mutations_bybranch(request, alib, con):
         for the user-specified msaid"""
 
     """ Get a list of these ancestors in other alignments and models """ 
-    #print "1448:", ancid1, ancid2
+    print "view_library.py 1658:", ancid1, ancid2
     matched_ancestors = get_ancestral_matches(con, ancid1, ancid2)
-    #print "1449:", matched_ancestors
+    print "view_library.py 1660:", matched_ancestors
     matched_ancestors = [ (ancid1,ancid2) ] + matched_ancestors
+    print "view_library.py 1662:", matched_ancestors
      
     ancid_msaid = {}
     ancid_model = {}
     ancid_site_state_pp = {}
     ancid_name = {}    
     ancid_site_statepp = {}
+    
+    """
+    to-do: the following loop is slow. for large ancestral libraries, e.g. CMGC,
+    the loop does not finish fast enough, and results in a WORKER TIMEOUT error.
+    The problem appears to be that get_site_ml is slow.
+    """
+    
     for match in matched_ancestors:
+        """Every match is a pair of ancestors on either end of the phylogenetic branch of interest.
+            There should be one match for every msa/model that supports the branch.
+        """
         for id in [ match[0], match[1] ]:
+            """id is an ancestral node ID"""
             sql = "Select almethod, phylomodel, name from Ancestors where id=" + id.__str__()
             cur.execute(sql)
             x = cur.fetchone()
@@ -1676,6 +1733,8 @@ def view_mutations_bybranch(request, alib, con):
             ancid_name[id] = ancname
             #msaname = msaid_name[ ancid_msaid[id] ]
             ancid_site_statepp[id] = get_site_ml(con, id, skip_indels = False)   
+
+    print "view_library.py 1681", ancid_site_statepp.__len__()
 
     """We need model names and alignment names for printing in the mutation table header rows."""
     phylomodelid_name = {}

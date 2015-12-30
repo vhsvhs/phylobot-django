@@ -4,7 +4,7 @@ from django.contrib import admin
 from .models import EmailConfirmation, EmailAddress
 from .adapter import get_adapter
 
-
+#example
 class EmailAddressAdmin(admin.ModelAdmin):
     list_display = ('email', 'user', 'primary', 'verified')
     list_filter = ('primary', 'verified')
