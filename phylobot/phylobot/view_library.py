@@ -868,6 +868,7 @@ def get_ancestralstates_helper(con, ancid):
     sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
     cur.execute(sql)
     x = cur.fetchone()
+    print "871:", x
     if x[0] == 0:
         use_legacy == True
         tablename = "AncestralStates"
