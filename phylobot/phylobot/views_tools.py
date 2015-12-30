@@ -307,7 +307,7 @@ def get_list_of_same_ancids(con, ancid):
 
 def get_ancestral_matches(con, ancid1, ancid2):
     
-    print "269:", ancid1, ancid2
+    #print "269:", ancid1, ancid2
     
     cur = con.cursor()
     sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid1.__str__()
@@ -356,8 +356,8 @@ def get_ancestral_matches(con, ancid1, ancid2):
     cur.execute(sql)
     input_almethod = cur.fetchone()[0]
     
-    print "319:", msas
-    print "360:", models
+    #print "319:", msas
+    #print "360:", models
     if msas.__len__() == 0:
         """msas can be empty if the user considered only one alignment/model combo"""
         return []
