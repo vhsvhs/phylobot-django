@@ -362,7 +362,8 @@ def get_ancestral_matches(con, ancid1, ancid2):
         """msas can be empty if the user considered only one alignment/model combo"""
         return []
     
-    msas.pop( msas.index(input_almethod) )
+    # removed december 2015
+    #msas.pop( msas.index(input_almethod) )
     
     matches = []
     if input_almethod in msa_model_match1 and input_almethod in msa_model_match2:
