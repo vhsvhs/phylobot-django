@@ -953,7 +953,7 @@ def get_site_state_pp(con, ancid, skip_indels = True):
     cur = get_ancestralstates_helper(con, ancid)
     #cur = con.cursor()
     #sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
-    cur.execute(sql)
+    #cur.execute(sql)
     x = cur.fetchall()
     
     site_state_pp = {}
