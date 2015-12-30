@@ -366,12 +366,12 @@ def get_ancestral_matches(con, ancid1, ancid2):
     #msas.pop( msas.index(input_almethod) )
     
     matches = []
-    if input_almethod in msa_model_match1 and input_almethod in msa_model_match2:
-        for model in models:
-            if model in msa_model_match1[input_almethod] and model in msa_model_match2[input_almethod]:
-                matches.append( (msa_model_match1[input_almethod][model], msa_model_match2[input_almethod][model]) )        
-    else:
-        print >> sys.stderr, "Error 296 (view_tools.py) " +  input_almethod.__str__() + " " + msa_model_match1.keys().__str__() + " " + msa_model_match2.keys().__str__()
+    #if input_almethod in msa_model_match1 and input_almethod in msa_model_match2:
+    #    for model in models:
+    #        if model in msa_model_match1[input_almethod] and model in msa_model_match2[input_almethod]:
+    #            matches.append( (msa_model_match1[input_almethod][model], msa_model_match2[input_almethod][model]) )        
+    #else:
+    #    print >> sys.stderr, "Error 296 (view_tools.py) " +  input_almethod.__str__() + " " + msa_model_match1.keys().__str__() + " " + msa_model_match2.keys().__str__()
         
     for msa in msas:
         if msa in msa_model_match1 and msa in msa_model_match2:
