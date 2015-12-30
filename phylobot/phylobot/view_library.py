@@ -868,7 +868,6 @@ def get_ancestralstates_helper(con, ancid):
     sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
     cur.execute(sql)
     x = cur.fetchone()
-    print "871:", x
     if x[0] == 0:
         use_legacy == True
         tablename = "AncestralStates"
@@ -1606,9 +1605,9 @@ def view_mutations_bybranch(request, alib, con):
 
     """Get the seedsequence with indels"""
     (seedtaxonid, seedtaxonname) = get_seedtaxon(request, alib, con)
-    print "1566:", seedtaxonid, seedtaxonname
+    #print "1566:", seedtaxonid, seedtaxonname
     save_viewing_pref(request, alib.id, con, "lastviewed_seedtaxonid", seedtaxonid.__str__()) 
-    print "1568:", seedtaxonid, seedtaxonname
+    #print "1568:", seedtaxonid, seedtaxonname
     seedsequence = get_sequence_for_taxon(con, msaname, seedtaxonid)
     nsites = seedsequence.__len__()
 
@@ -1640,7 +1639,7 @@ def view_mutations_bybranch(request, alib, con):
                     ancname2 = ancname
                     ancid2 = ancid
                     
-    print "view_library.py 1599"
+    #print "view_library.py 1599"
     
     """For some reason, the ancestors weren't selected in the HTML form 
         (or this is the first time rendering) so let's check if the user has 
@@ -1701,11 +1700,11 @@ def view_mutations_bybranch(request, alib, con):
         for the user-specified msaid"""
 
     """ Get a list of these ancestors in other alignments and models """ 
-    print "view_library.py 1658:", ancid1, ancid2
+    #print "view_library.py 1658:", ancid1, ancid2
     matched_ancestors = get_ancestral_matches(con, ancid1, ancid2)
-    print "view_library.py 1660:", matched_ancestors
+    #print "view_library.py 1660:", matched_ancestors
     matched_ancestors = [ (ancid1,ancid2) ] + matched_ancestors
-    print "view_library.py 1662:", matched_ancestors
+    #print "view_library.py 1662:", matched_ancestors
      
     ancid_msaid = {}
     ancid_model = {}
