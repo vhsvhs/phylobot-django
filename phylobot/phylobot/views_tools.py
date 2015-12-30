@@ -313,8 +313,8 @@ def get_ancestral_matches(con, ancid1, ancid2):
     sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid1.__str__()
     cur.execute(sql)
     
-    msas = []
-    models = []
+    msas = [] # a list of msa ids
+    models = [] # a list of phylomodel ids
     
     msa_model_match1 = {} # key = msa, value = hash; key = model, value = ancestral ID of a match to ancid1
     for ii in cur.fetchall():
@@ -335,7 +335,6 @@ def get_ancestral_matches(con, ancid1, ancid2):
     
     sql = "select same_ancid from AncestorsAcrossModels where ancid=" + ancid2.__str__()
     cur.execute(sql)
-
     msa_model_match2 = {}# key = msa, value = hash; key = model, value = ancestral ID of a match to ancid2
     for ii in cur.fetchall():
         this_ancid = ii[0]
@@ -358,6 +357,7 @@ def get_ancestral_matches(con, ancid1, ancid2):
     input_almethod = cur.fetchone()[0]
     
     print "319:", msas
+    print "360:", models
     if msas.__len__() == 0:
         """msas can be empty if the user considered only one alignment/model combo"""
         return []
