@@ -1859,6 +1859,7 @@ def view_mutations_bybranch(request, alib, con):
     context["ancnames"] = []
     for ii in x:
         context["ancnames"].append( ii[0] )
+        context["ancnames"].sort()
     context["seedtaxonname"] = seedtaxonname
     context["taxonnames"] = taxonnames
     context["msanames"] = get_alignmentnames(con)
