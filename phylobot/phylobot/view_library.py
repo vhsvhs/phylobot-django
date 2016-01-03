@@ -803,7 +803,7 @@ def view_library_ancestortree(request, alib, con):
     """Get the cladogram of ancestors"""
     newick = get_anc_cladogram(con, msaid, phylomodelid)
     #newick = reroot_newick(con, newick)
-    print >> sys.stderr, "451: " + newick.__str__()
+    #print >> sys.stderr, "451: " + newick.__str__()
     
     """This following block is a mess. . . but it solves a problem with the Dendropy library.
         This block will fetch the XML string for use with the javascript-based phylogeny viewer.
@@ -811,9 +811,7 @@ def view_library_ancestortree(request, alib, con):
         string directly from the Phylo class. In the meantime, the messy way is to write
         an XML phylogeny to the /tmp folder, and then read the contents of the file to
         get the XML string."""
-    #print >> sys.stderr, "458: " + msaid.__str__() + " " + phylomodelid.__str__()
     handle = StringIO(newick)
-    #print >> sys.stderr, "458b"
     tree = Phylo.read(handle, "newick")
     
     """This is a small hack to make new versions of BioPython behave with our javascript
@@ -821,16 +819,7 @@ def view_library_ancestortree(request, alib, con):
     
     tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
     
-    #print >> sys.stderr, "464:" + dir(tree).__str__()
-    
-    #print >> sys.stderr, "459: " + tree.__str__()   
-    
-    
-    #
-    # continue here
-    #
     xmltree = tree.as_phyloxml()
-    #print >> sys.stderr, "470: XMLtree=" + xmltree.__str__()
     Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
     fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
     xmltreelines = fin.readlines()
@@ -928,7 +917,7 @@ def get_ml_sequence(con, ancid, skip_indels=True):
     mlseq = ""
     for s in sites:
         mlseq += site_state[s]
-    return mlseq
+    return mlseq.upper()
 
 def ml_sequence_difference(seq1, seq2):
     """Returns the proportion similarity between two sequences.
