@@ -971,7 +971,7 @@ def get_site_state_pp(con, ancid, skip_indels = True):
             site_state_pp[site] = {}        
         if state not in site_state_pp[site]:
             site_state_pp[site][state] = pp
-            
+        print "974:", site_state_pp[site]  
     return site_state_pp
 
 def get_site_ml(con, ancid, skip_indels = True):
