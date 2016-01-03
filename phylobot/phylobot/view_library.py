@@ -959,11 +959,14 @@ def get_site_state_pp(con, ancid, skip_indels = True):
     site_state_pp = {}
     
     for ii in x:
+        print "962:", ii
         site = ii[0]
         state = ii[1]
         if skip_indels and state == "-":
+            if site in site_state_pp:
+                site_state_pp.pop( site )
             continue
-        pp = ii[2]
+        pp = float(ii[2])
         if site not in site_state_pp:
             site_state_pp[site] = {}        
         if state not in site_state_pp[site]:
@@ -983,7 +986,7 @@ def get_site_ml(con, ancid, skip_indels = True):
     for ii in x:
         site = ii[0]
         state = ii[1]
-        pp = ii[2]
+        pp = float(ii[2])
         if site not in site_mlpp:
             site_mlpp[site] = pp
             site_tuple[site] = (state, pp)
@@ -1520,7 +1523,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
         taxonnames.append( ii[0] )
     """Get the seedsequence with indels"""
     (seedtaxonid, seedtaxonname) = get_seedtaxon(request, alib, con)
-    print "1288:", seedtaxonid, seedtaxonname
     save_viewing_pref(request, alib.id, con, "lastviewed_seedtaxonid", seedtaxonid.__str__()) 
     if seedtaxonid == None:
         sql = "select shortname from Taxa"
