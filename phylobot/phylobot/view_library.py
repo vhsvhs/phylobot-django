@@ -778,11 +778,11 @@ def view_library_trees(request, alib, con):
     return render(request, 'libview/libview_trees.html', context)
 
 def reset_all_biopython_branchlengths(root, length):
-    print >> sys.stderr, "435: setting al BLs to 1.0"
-    print >> sys.stderr, "436: ", root.branch_length
+    #print >> sys.stderr, "435: setting al BLs to 1.0"
+    #print >> sys.stderr, "436: ", root.branch_length
     root.branch_length = length
     for child in root.clades:
-        print >> sys.stderr, "437 found a child: " + child.name.__str__()
+        #print >> sys.stderr, "437 found a child: " + child.name.__str__()
         child = reset_all_biopython_branchlengths(child, length)
     return root
 
@@ -1515,7 +1515,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     sites = site_state_pp.keys()
     sites.sort()
 
-
     seedtaxonid = None
     seedtaxonname = None
     taxonnames = []
@@ -1561,8 +1560,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
             pp_states[pp].append(state)
         pps = pp_states.keys()
         pps.sort(reverse=True)
-        
-        print "1560: site", site, pp_states
         
         tuples = []
         for pp in pps:
