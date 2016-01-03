@@ -948,9 +948,8 @@ def get_site_state_pp(con, ancid, skip_indels = True):
     site_state_pp = {}
     
     for ii in x:
-        #print "962:", ii
         site = ii[0]
-        state = ii[1]
+        state = ii[1].upper()
         if skip_indels and state == "-":
             if site in site_state_pp:
                 site_state_pp.pop( site )
