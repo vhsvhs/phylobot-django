@@ -959,7 +959,7 @@ def get_site_state_pp(con, ancid, skip_indels = True):
     site_state_pp = {}
     
     for ii in x:
-        print "962:", ii
+        #print "962:", ii
         site = ii[0]
         state = ii[1]
         if skip_indels and state == "-":
@@ -971,7 +971,7 @@ def get_site_state_pp(con, ancid, skip_indels = True):
             site_state_pp[site] = {}        
         if state not in site_state_pp[site]:
             site_state_pp[site][state] = pp
-        print "974:", site_state_pp[site]  
+        #print "974:", site_state_pp[site]  
     return site_state_pp
 
 def get_site_ml(con, ancid, skip_indels = True):
@@ -1429,7 +1429,7 @@ def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=Fa
     count_sites = 0
     for site in sites:
         count_sites += 1
-        pp_states = {}
+        pp_states = {} # key = pp, value = array of states with that pp
         for state in site_state_pp[site]:
             pp = site_state_pp[site][state]
             if pp in pp_states:
@@ -1512,6 +1512,9 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     ancid = x[0]
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
+    sites = site_state_pp.keys()
+    sites.sort()
+
 
     seedtaxonid = None
     seedtaxonname = None
@@ -1548,7 +1551,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     
     #site_tuples = {}
     count_sites = 0
-    for site in site_state_pp:
+    for site in sites:
         count_sites += 1
         pp_states = {}
         for state in site_state_pp[site]:
