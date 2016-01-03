@@ -63,14 +63,14 @@ class ConstraintTreeFileForm(forms.ModelForm):
         model = ConstraintTreeFile
         fields = ('constrainttree_path',)
         
-class CustonAlignmentFileForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(forms.ModelForm, self).__init__(*args, **kwargs)
-        self.fields["customalignment_path"].label = "Select a FASTA-formatted alignment file"
-        
-    class Meta:
-        model = CustomeAlignmentFile
-        fields = ('customalignment_path',)
+#class CustomAlignmentFileForm(forms.ModelForm):
+#    def __init__(self, *args, **kwargs):
+#        super(forms.ModelForm, self).__init__(*args, **kwargs)
+#        self.fields["customalignment_path"].label = "Select a FASTA-formatted alignment file"
+#        
+#    class Meta:
+#        model = CustomeAlignmentFile
+#        fields = ('customalignment_path',)
 
 # class TaxaGroupForm(forms.ModelForm):
 #     """This form displays a TaxaGroup, which includes a list of taxon names,

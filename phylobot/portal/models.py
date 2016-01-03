@@ -132,13 +132,13 @@ class ConstraintTreeFile(models.Model):
     def __unicode__(self):
         return unicode(self.constrainttree_path) 
     
-class CustomeAlignmentFile(models.Model):
-    customalignment_path = models.FileField(upload_to='uploaded_sequences')
-    owner = models.ForeignKey(Users)
-    timestamp_uploaded = models.DateTimeField(auto_now=True)
-    
-    def __unicode__(self):
-        return unicode(self.customalignment_path)
+#class CustomeAlignmentFile(models.Model):
+#    customalignment_path = models.FileField(upload_to='uploaded_sequences')
+#    owner = models.ForeignKey(Users)
+#    timestamp_uploaded = models.DateTimeField(auto_now=True)
+#    
+#    def __unicode__(self):
+#        return unicode(self.customalignment_path)
 
 class JobSetting(models.Model):
     """Defines the settings for an ASR pipeline job."""
