@@ -1557,7 +1557,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
         pps = pp_states.keys()
         pps.sort(reverse=True)
         
-        print "1560: site", site, pps
+        print "1560: site", site, pp_states
         
         tuples = []
         for pp in pps:
