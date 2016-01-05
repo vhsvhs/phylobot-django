@@ -1405,6 +1405,7 @@ def view_library_ancestortree(request, alib, con):
     return render(request, 'libview/libview_anctrees.html', context)
 
 def view_ancestors_aligned(request, alib, con):
+    print "1408: entered view_ancestors_aligned"
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
