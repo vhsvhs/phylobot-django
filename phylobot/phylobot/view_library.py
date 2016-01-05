@@ -93,6 +93,9 @@ def view_library(request, libid):
     elif request.path_info.endswith("ancestors"):
         return view_library_ancestortree(request, alib, con)
     
+    elif request.path_info.endswith("ancestors-aligned"):
+        return view_library_ancestors_aligned(request, alib, con)
+    
     elif request.path_info.endswith("ml"):
         return view_ancestor_ml(request, alib, con)
     elif request.path_info.endswith("support"):
@@ -786,67 +789,7 @@ def reset_all_biopython_branchlengths(root, length):
         child = reset_all_biopython_branchlengths(child, length)
     return root
 
-def view_library_ancestortree(request, alib, con):
-    cur = con.cursor() 
-    
-    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
-    """Save this viewing preference -- it will load automatically next time
-        the user comes to the ancestors page."""
-    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
-    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
-           
-    context = get_base_context(request, alib, con)  
-    context["default_msaname"] = msaname
-    context["default_modelname"] = phylomodelname
-    
-    """Get the cladogram of ancestors"""
-    newick = get_anc_cladogram(con, msaid, phylomodelid)
-    #newick = reroot_newick(con, newick)
-    #print >> sys.stderr, "451: " + newick.__str__()
-    
-    """This following block is a mess. . . but it solves a problem with the Dendropy library.
-        This block will fetch the XML string for use with the javascript-based phylogeny viewer.
-        The code here is fundamentally a mess -- I can't figure out the API to get an XML
-        string directly from the Phylo class. In the meantime, the messy way is to write
-        an XML phylogeny to the /tmp folder, and then read the contents of the file to
-        get the XML string."""
-    handle = StringIO(newick)
-    tree = Phylo.read(handle, "newick")
-    
-    """This is a small hack to make new versions of BioPython behave with our javascript
-        tree visuazliation."""
-    
-    tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
-    
-    xmltree = tree.as_phyloxml()
-    Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
-    fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
-    xmltreelines = fin.readlines()
-    fin.close()    
-    urlprefix = msaname + "." + phylomodelname
-    xmltreestring = ""
-    for l in xmltreelines:
-        xmltreestring += annotate_phyloxml(l, urlprefix) + " " 
-    xmltreestring = re.sub("\n", " ", xmltreestring)
-    context["xmltreestring"] = xmltreestring  
-    
-    sql = "select count(*) from Taxa"
-    cur.execute(sql)
-    counttaxa = cur.fetchone()[0]
-    context["plotheight"] = counttaxa*16
-    
-    sql = "select name from AlignmentMethods"
-    cur.execute(sql)
-    x = cur.fetchall()
-    msanames = []
-    for ii in x:
-        msanames.append( ii[0] )
-    context["msanames"] = msanames
-    
-    context["modelnames"] = get_modelnames(con)
-    
-    return render(request, 'libview/libview_anctrees.html', context)
 
 def get_ancestralstates_helper(con, ancid):
     """Executes a query on the table AncestralStates.
@@ -918,6 +861,37 @@ def get_ml_sequence(con, ancid, skip_indels=True):
     for s in sites:
         mlseq += site_state[s]
     return mlseq.upper()
+
+def get_ml_vector(con, ancid, skip_indels=True):
+    """Return a vector of tuples: (ML amino acid, PP)"""
+    cur = get_ancestralstates_helper(con, ancid)
+        
+    x = cur.fetchall()
+    site_state = {}
+    site_mlpp = {}
+    
+    for ii in x:
+        site = ii[0]
+        state = ii[1]
+        pp = float(ii[2])
+        if state == "-" and skip_indels==True:
+            continue
+        elif state == "-" and skip_indels==False:
+            site_state[site] = "-"
+        elif site not in site_state:
+            site_state[site] = state
+            site_mlpp[site] = pp
+        elif pp > site_mlpp[site]:
+            site_state[site] = state
+            site_mlpp[site] = pp            
+
+    sites = site_state.keys()
+    sites.sort()
+    mlvector = []
+    for s in sites:
+        mlvector.append(   (site_state[s].upper(), site_mlpp[s])  )
+    return mlvector
+
 
 def ml_sequence_difference(seq1, seq2):
     """Returns the proportion similarity between two sequences.
@@ -1367,7 +1341,119 @@ def view_ancestor_ml(request, alib, con):
     context["similarity_rows"] = similarity_rows
     context["similarity_matrix"] = similarity_matrix
     return render(request, 'libview/libview_ancestor_ml.html', context)
-        
+
+def view_library_ancestortree(request, alib, con):
+    cur = con.cursor() 
+    
+    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
+
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
+           
+    context = get_base_context(request, alib, con)  
+    context["default_msaname"] = msaname
+    context["default_modelname"] = phylomodelname
+    
+    """Get the cladogram of ancestors"""
+    newick = get_anc_cladogram(con, msaid, phylomodelid)
+    #newick = reroot_newick(con, newick)
+    #print >> sys.stderr, "451: " + newick.__str__()
+    
+    """This following block is a mess. . . but it solves a problem with the Dendropy library.
+        This block will fetch the XML string for use with the javascript-based phylogeny viewer.
+        The code here is fundamentally a mess -- I can't figure out the API to get an XML
+        string directly from the Phylo class. In the meantime, the messy way is to write
+        an XML phylogeny to the /tmp folder, and then read the contents of the file to
+        get the XML string."""
+    handle = StringIO(newick)
+    tree = Phylo.read(handle, "newick")
+    
+    """This is a small hack to make new versions of BioPython behave with our javascript
+        tree visuazliation."""
+    
+    tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
+    
+    xmltree = tree.as_phyloxml()
+    Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
+    fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
+    xmltreelines = fin.readlines()
+    fin.close()    
+    urlprefix = msaname + "." + phylomodelname
+    xmltreestring = ""
+    for l in xmltreelines:
+        xmltreestring += annotate_phyloxml(l, urlprefix) + " " 
+    xmltreestring = re.sub("\n", " ", xmltreestring)
+    context["xmltreestring"] = xmltreestring  
+    
+    sql = "select count(*) from Taxa"
+    cur.execute(sql)
+    counttaxa = cur.fetchone()[0]
+    context["plotheight"] = counttaxa*16
+    
+    sql = "select name from AlignmentMethods"
+    cur.execute(sql)
+    x = cur.fetchall()
+    msanames = []
+    for ii in x:
+        msanames.append( ii[0] )
+    context["msanames"] = msanames
+    
+    context["modelnames"] = get_modelnames(con)
+    
+    return render(request, 'libview/libview_anctrees.html', context)
+
+def view_ancestors_aligned(request, alib, con):
+    cur = con.cursor()
+    tokens = request.path_info.split("/")
+    setuptoken = tokens[ tokens.__len__()-2 ]
+    ttok = setuptoken.split(".")
+    if ttok.__len__() != 2:
+        return view_library_frontpage(request, alib, con)
+    msaname = ttok[0]
+
+    sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
+    cur.execute(sql)
+    msaid = cur.fetchone()
+    if msaid == None:
+        return view_library_frontpage(request, alib, con)
+    msaid = msaid[0]
+  
+    phylomodelname = ttok[1]      
+    sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
+    cur.execute(sql)
+    phylomodelid = cur.fetchone()
+    if phylomodelid == None:
+        return view_library_frontpage(request, alib, con)
+    phylomodelid = phylomodelid[0]
+    
+    """get a list of anc. IDs for this msa/phylomodel"""
+    sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
+    cur.execute(sql)
+    x = cur.fetchall()
+    ancnames = []
+    ancname_vector = {}
+    for ii in x:
+        ancid = ii[0]
+        ancname = ii[1]
+        ancnames.append( ancname )
+        v = get_ml_vector(con, ancid, skip_indels=True)
+        ancid_vector[ancname] = v
+
+    ancnames.sort()
+    ancvectors = []
+    for aa in ancnames:
+        ancvectors.append( ancname_vector[aa] )
+    
+    context["msaname"] = msaname
+    context["modelname"] = phylomodelname
+    context["ancnames"] = ancnames
+    context["ancvectors"] = ancvectors
+    
+    template_url='libview/libview_ancestors_aligned.html'
+    return render(request, template_url, context)
+    
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
     cur = con.cursor()
     tokens = request.path_info.split("/")
