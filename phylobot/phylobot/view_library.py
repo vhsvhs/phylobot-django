@@ -1435,6 +1435,7 @@ def view_ancestors_aligned(request, alib, con):
     ancnames = []
     ancname_vector = {}
     for ii in x:
+        print "1438:", ii
         ancid = ii[0]
         ancname = ii[1]
         ancnames.append( ancname )
@@ -1450,6 +1451,8 @@ def view_ancestors_aligned(request, alib, con):
     context["modelname"] = phylomodelname
     context["ancnames"] = ancnames
     context["ancvectors"] = ancvectors
+    
+    print "1454:", ancvectors
     
     template_url='libview/libview_ancestors_aligned.html'
     return render(request, template_url, context)
