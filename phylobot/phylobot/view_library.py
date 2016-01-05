@@ -94,7 +94,7 @@ def view_library(request, libid):
         return view_library_ancestortree(request, alib, con)
     
     elif request.path_info.endswith("ancestors-aligned"):
-        return view_library_ancestors_aligned(request, alib, con)
+        return view_ancestors_aligned(request, alib, con)
     
     elif request.path_info.endswith("ml"):
         return view_ancestor_ml(request, alib, con)
