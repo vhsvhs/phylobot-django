@@ -1431,7 +1431,9 @@ def view_ancestors_aligned(request, alib, con):
         ancid = ii[0]
         ancname = ii[1]
         ancnames.append( ancname )
+        print "1434:", ancname
         v = get_ml_vector(con, ancid, skip_indels=True)
+        print "1436:", v
         ancid_vector[ancname] = v
 
     ancnames.sort()
