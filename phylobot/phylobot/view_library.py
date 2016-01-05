@@ -1447,7 +1447,6 @@ def view_ancestors_aligned(request, alib, con):
     context["modelnames"] = get_modelnames(con)
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
-    #context["ancnames"] = ancnames
     context["ancvectors"] = ancvectors
     
     print "1454:", ancvectors

@@ -57,9 +57,23 @@
 <table>
 {% for row in ancvectors %}
 <tr>
-	<td>{{row.0}}</td>
-	{% for ii in row.1 %} 
-	<td>{{ii.0}} ({{ii.1}})</td>
+	<td align="center"><a href="/{{msaname}}.{{phylomodelname}}/{{row.0}}">{{row.0}}</a></td>
+	{% for ii in row.1 %}
+	<td align="center"
+	{% if ii.1 > 0.9 %}
+	class="pp9"
+	{% elif ii.1 > 0.8 %}
+	class="pp8"
+	{% elif ii.1 > 0.7 %}
+	class="pp7"
+	{% elif ii.1 > 0.6 %}
+	class="pp6"
+	{% elif ii.1 > 0.5 %}
+	class="pp5"
+	{% else %}
+	class="pplow"
+	{% endif %}
+	>{{ii.0}} ({{ii.1}})</td>
 	{% endfor %} 
 </tr>
 {% endfor %}
