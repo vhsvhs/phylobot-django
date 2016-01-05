@@ -54,5 +54,15 @@
 
 <br>
 
+<table>
+{% for row in ancvector %}
+<tr>
+	{% for ii in row %} 
+	<td>{{ii}}</td>
+	{% endfor %} 
+</tr>
+{% endfor %}
+</table>
+
 
 {% endblock %}
