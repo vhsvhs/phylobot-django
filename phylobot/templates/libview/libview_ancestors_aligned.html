@@ -57,8 +57,9 @@
 <table>
 {% for row in ancvectors %}
 <tr>
-	{% for ii in row %} 
-	<td>{{ii}}</td>
+	<td>{{row.0}}</td>
+	{% for ii in row.1 %} 
+	<td>{{ii.0}} ({{ii.1}})</td>
 	{% endfor %} 
 </tr>
 {% endfor %}
