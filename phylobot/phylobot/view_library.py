@@ -1406,29 +1406,20 @@ def view_library_ancestortree(request, alib, con):
 
 def view_ancestors_aligned(request, alib, con):
     print "1408: entered view_ancestors_aligned"
-    cur = con.cursor()
-    tokens = request.path_info.split("/")
-    setuptoken = tokens[ tokens.__len__()-2 ]
-    ttok = setuptoken.split(".")
-    if ttok.__len__() != 2:
-        return view_library_frontpage(request, alib, con)
-    msaname = ttok[0]
-
-    sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
-    cur.execute(sql)
-    msaid = cur.fetchone()
-    if msaid == None:
-        return view_library_frontpage(request, alib, con)
-    msaid = msaid[0]
-  
-    phylomodelname = ttok[1]      
-    sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
-    cur.execute(sql)
-    phylomodelid = cur.fetchone()
-    if phylomodelid == None:
-        return view_library_frontpage(request, alib, con)
-    phylomodelid = phylomodelid[0]
     
+    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
+
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
+           
+    context = get_base_context(request, alib, con)  
+    context["default_msaname"] = msaname
+    context["default_modelname"] = phylomodelname
+    
+    cur = con.cursor()
+
     """get a list of anc. IDs for this msa/phylomodel"""
     sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
     cur.execute(sql)
