@@ -1276,6 +1276,7 @@ def view_ancestor_ml(request, alib, con):
 
     nodetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
     nodenumber = re.sub("Node", "", nodetoken)
+    print "view_library.py 1279:", nodenumber
     sql = "select id from Ancestors where almethod=" + msaid.__str__()
     sql += " and phylomodel=" + phylomodelid.__str__()
     sql += " and name='Node" + nodenumber.__str__() + "'"
