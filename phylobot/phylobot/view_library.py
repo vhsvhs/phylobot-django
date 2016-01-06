@@ -53,6 +53,8 @@ def view_library(request, libid):
     """
         URL Dispatch:
     """
+    print "view_library.py 56:", request.path_info
+    
     if request.path_info.endswith("alignments"):
         return view_alignments(request, alib, con)
     
@@ -136,6 +138,7 @@ def view_library(request, libid):
         return view_ancestor_supportbysitexls(request, alib, con)
     
     elif request.path_info.__contains__("Node"):
+        print "view_library.py 139"
         return view_ancestor_ml(request, alib, con)
 
     elif request.path_info.__contains__("sites"):
