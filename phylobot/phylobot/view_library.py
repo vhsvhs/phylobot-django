@@ -1250,7 +1250,9 @@ def view_ancestor_ml(request, alib, con):
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
+    print "view_library.py 1253:", setuptoken
     ttok = setuptoken.split(".")
+    print "view_library.py 1254:", ttok
     if ttok.__len__() != 2:
         return view_library_frontpage(request, alib, con)
     msaname = ttok[0]
@@ -1258,6 +1260,7 @@ def view_ancestor_ml(request, alib, con):
     sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
     cur.execute(sql)
     msaid = cur.fetchone()
+    print "view_library.py 1263:", msaid
     if msaid == None:
         return view_library_frontpage(request, alib, con)
     msaid = msaid[0]
@@ -1266,6 +1269,7 @@ def view_ancestor_ml(request, alib, con):
     sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
     cur.execute(sql)
     phylomodelid = cur.fetchone()
+    print "view_library.py 1272:", phylomodelid
     if phylomodelid == None:
         return view_library_frontpage(request, alib, con)
     phylomodelid = phylomodelid[0]
