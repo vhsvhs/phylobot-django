@@ -1282,10 +1282,11 @@ def view_ancestor_ml(request, alib, con):
     sql += " and name='Node" + nodenumber.__str__() + "'"
     cur.execute(sql)
     x = cur.fetchone()
+    print "view_library.py 1285:", x
     if x == None:
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
-
+    print "view_library.py 1289:", ancid
     seq = get_ml_sequence(con, ancid)
 
     #
