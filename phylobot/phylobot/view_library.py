@@ -1433,16 +1433,19 @@ def view_ancestors_aligned(request, alib, con):
         print "1436:", v
         ancname_vector[ancname] = v
 
+    countsites = ancname_vector[ancnames[0]].__len__()
+
     ancnames.sort()
     ancvectors = []
     for an in ancnames:
         ancvectors.append( (an, ancname_vector[an]) )
-        
+    
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
     context["ancvectors"] = ancvectors
+    context["countsites"] = countsites
     
     #print "1454:", ancvectors
     

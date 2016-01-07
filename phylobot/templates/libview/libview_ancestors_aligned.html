@@ -12,6 +12,8 @@
 	&#10094; &#10094; &#10094;
 </p>
 
+<hr>
+
 <form action="/{{alid}}/ancestors-aligned" method="post">
 {% csrf_token %}
 <table class='choice_table' width="100%">
@@ -59,27 +61,36 @@
 </form>
 
 <br>
+<h3>ML Ancestral Sequences, Alignment: {{default_msaname}}, Model: {{default_modelname}}</h3>
 
 <table>
+<tr>
+<th>Ancestor</th>
+{# Iterate through the sites (.1) in the first row (.0) of the ancvectors table#}
+{% for ii in ancvectors.0.1 %}
+	<th>Site {{forloop.counter1}}</th>
+{% endfor %}
+</tr>
+
 {% for row in ancvectors %}
 <tr>
 	<td align="left"><a href="ancestors/{{msaname}}.{{modelname}}/{{row.0}}">{{row.0}}</a></td>
 	{% for ii in row.1 %}
-	<td align="center"
-	{% if ii.1 > 0.9 %}
-	class="pp9"
-	{% elif ii.1 > 0.8 %}
-	class="pp8"
-	{% elif ii.1 > 0.7 %}
-	class="pp7"
-	{% elif ii.1 > 0.6 %}
-	class="pp6"
-	{% elif ii.1 > 0.5 %}
-	class="pp5"
-	{% else %}
-	class="pplow"
-	{% endif %}
-	>{{ii.0}} ({{ii.1}})</td>
+		<td align="center"
+		{% if ii.1 > 0.9 %}
+		class="pp9"
+		{% elif ii.1 > 0.8 %}
+		class="pp8"
+		{% elif ii.1 > 0.7 %}
+		class="pp7"
+		{% elif ii.1 > 0.6 %}
+		class="pp6"
+		{% elif ii.1 > 0.5 %}
+		class="pp5"
+		{% else %}
+		class="pplow"
+		{% endif %}
+		>{{ii.0}} ({{ii.1}})</td>
 	{% endfor %} 
 </tr>
 {% endfor %}
