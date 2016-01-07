@@ -805,7 +805,7 @@ def get_ancestralstates_helper(con, ancid):
     print "view_library.py 805", x
     if x[0] == 0:
         """We didn't find the new table type."""
-        use_legacy == True
+        use_legacy = True
         tablename = "AncestralStates"
     
     if use_legacy == True:
