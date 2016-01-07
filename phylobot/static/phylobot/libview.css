@@ -124,6 +124,7 @@ div{word-wrap: break-word;}
 .pp6{background: #FFD700;font-size: 9pt;}
 .pp5{background: #FFA07A;font-size: 8pt;}
 .pplow{background: #FFB6C1;font-size: 9pt;}
+.ppindel{background: #CCCCCC;font-size: 9pt;}
 .type1{background: #FFB6C1;font-size: 10pt; font-style: bold;}
 
 /* Classes for the mutation table */
