@@ -1399,7 +1399,6 @@ def view_library_ancestortree(request, alib, con):
     for ii in x:
         msanames.append( ii[0] )
     context["msanames"] = msanames
-    
     context["modelnames"] = get_modelnames(con)
     
     return render(request, 'libview/libview_anctrees.html', context)

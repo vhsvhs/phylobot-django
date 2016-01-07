@@ -13,13 +13,16 @@
 
 {% block body %}
 
-<h2>Ancestors {{node_number}}, Alignment: {{msaname}}, Model: {{modelname}}</h2>
+<!--<h2>Ancestors {{node_number}}, Alignment: {{default_msaname}}, Model: {{default_modelname}}</h2>
+-->
 
 <p>&#10095; &#10095; &#10095; 
 	<a href='ancestors'>View Ancestors on Tree</a> |
 	<a href='ancestors-aligned'>View Ancestors Aligned</a> 
 	&#10094; &#10094; &#10094;
 </p>
+
+<hr>
 
 <form action="/{{alid}}/ancestors" method="post">
 {% csrf_token %}
