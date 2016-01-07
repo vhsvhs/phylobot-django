@@ -6,6 +6,12 @@
 
 {% block body %}
 
+<p>&#10095; &#10095; &#10095; 
+	<a href='ancestors'>View Ancestors on Tree</a> |
+	<a href='ancestors-aligned'>View Ancestors Aligned</a> 
+	&#10094; &#10094; &#10094;
+</p>
+
 <form action="/{{alid}}/ancestors" method="post">
 {% csrf_token %}
 <table class='choice_table' width="100%">
