@@ -1611,6 +1611,11 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
     sites = site_state_pp.keys()
     sites.sort()
+    print "view_library.py 1614", max(sites), min(sites)
+    
+    #
+    # continue here -- max(sites) should == qqq
+    #
 
     seedtaxonid = None
     seedtaxonname = None
