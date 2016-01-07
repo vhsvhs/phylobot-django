@@ -1335,10 +1335,11 @@ def view_ancestor_ml(request, alib, con):
             this_row.append( ml_sequence_difference(ii_mlseq, ancid_mlseq[jj]) )
         similarity_matrix.append( this_row )
 
-
     stride = 0.1
     bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
+
+    print "view_library.py 1343:", (alt_seqs, bin_freq_tuples, mean_pp, sd_pp)
 
     #print "557:", ancid, msaname, phylomodelname
     context = get_base_context(request, alib, con)

@@ -110,7 +110,7 @@ AUTH_PROFILE_MODULE = 'phylobot.UserProfile'
 SECRET_KEY = get_env_variable("PHYLOBOT_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
