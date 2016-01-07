@@ -1449,6 +1449,7 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
     template_url='libview/libview_ancestors_aligned.html'
     if render_xls:
         template_url='libview/libview_ancestors_aligned.xls'
+        return render(request, template_url, context, content_type='text')
     return render(request, template_url, context)
     
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
