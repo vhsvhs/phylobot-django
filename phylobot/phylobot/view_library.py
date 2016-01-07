@@ -1403,9 +1403,7 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
-def view_ancestors_aligned(request, alib, con):
-    print "1408: entered view_ancestors_aligned"
-    
+def view_ancestors_aligned(request, alib, con):    
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
     """Save this viewing preference -- it will load automatically next time
