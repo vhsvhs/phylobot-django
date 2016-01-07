@@ -793,7 +793,6 @@ def reset_all_biopython_branchlengths(root, length):
     return root
 
 
-
 def get_ancestralstates_helper(con, ancid):
     """Executes a query on the table AncestralStates.
     Returns the cursor to the databse"""
@@ -804,13 +803,14 @@ def get_ancestralstates_helper(con, ancid):
     cur.execute(sql)
     x = cur.fetchone()
     if x[0] == 0:
+        """We didn't find the new table type."""
         use_legacy == True
         tablename = "AncestralStates"
     
-    if use_legacy:
+    if use_legacy == True:
         sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
     elif use_legacy == False:
-        sql = "select site, state, pp from " + tablename.__str__()
+        sql = "select site, state, pp from " + tablename.__str__() + ""
     print "view_library.py 814:", sql
     cur.execute(sql)
     return cur
@@ -926,9 +926,6 @@ def get_site_state_pp(con, ancid, skip_indels = True):
     """Returns a hashtable, key = site, value = hash; key = residue state, value = PP of the state
         skip_indels will skip those sites with indels"""
     cur = get_ancestralstates_helper(con, ancid)
-    #cur = con.cursor()
-    #sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
-    #cur.execute(sql)
     x = cur.fetchall()
     
     site_state_pp = {}
