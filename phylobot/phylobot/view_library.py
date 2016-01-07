@@ -1458,11 +1458,12 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
         for an in ancnames:
             row = [an]
             for ii in ancname_vector[an]:
-                row.append( ii[0] )
+                token = ii[0]
                 if ii[1] == None:
-                    row.append("(na)" )
+                    token += "(na)"
                 else:
-                    row.append("(%.3f)"%ii[1] )
+                    token +="(%.3f)"%ii[1]
+                row.append( token )
             writer.writerow( row )
         return response
         #template_url='libview/libview_ancestors_aligned.xls'
