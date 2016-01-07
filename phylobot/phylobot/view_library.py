@@ -935,7 +935,7 @@ def get_site_state_pp(con, ancid, skip_indels = True):
     for ii in x:
         site = ii[0]
         state = ii[1].upper()
-        if skip_indels and state == "-":
+        if skip_indels == True and state == "-":
             if site in site_state_pp:
                 site_state_pp.pop( site )
             continue
@@ -943,8 +943,7 @@ def get_site_state_pp(con, ancid, skip_indels = True):
         if site not in site_state_pp:
             site_state_pp[site] = {}        
         if state not in site_state_pp[site]:
-            site_state_pp[site][state] = pp
-        #print "974:", site_state_pp[site]  
+            site_state_pp[site][state] = pp 
     return site_state_pp
 
 def get_site_ml(con, ancid, skip_indels = True):
@@ -1628,13 +1627,14 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     x = cur.fetchone()
     seedseq = x[0] # seedseq is a list of amino acids, including indels
     alignedsite_seedsite = {} # the alignedsite_seedsite is a hash: key = site in seedseq with indels, value = site in seedseq without indels
-    countstates = 0
+    noindel_site = 0
     for ii in range(0, seedseq.__len__()):
+        aligned_site = ii+1
         if seedseq[ii] != "-":
-            countstates += 1
-            alignedsite_seedsite[ ii+1 ] = countstates
+            noindel_site += 1
+            alignedsite_seedsite[aligned_site] = noindel_site
         else:
-            alignedsite_seedsite[ ii+1 ] = "-"
+            alignedsite_seedsite[aligned_site] = "-"
     
     # site_tuples is a list-ified version of site_state_pp, such that
     # the Django template library can deal with it.
@@ -1643,6 +1643,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     print "1643:", seedseq.__len__()
     print "1644:", alignedsite_seedsite.__len__()
     print "1645:", site_state_pp.__len__()
+    print "1646:", max(site_state_pp), min(site_state_pp)
     
     
     #site_tuples = {}
