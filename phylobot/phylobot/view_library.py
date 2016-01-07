@@ -868,7 +868,8 @@ def get_ml_sequence(con, ancid, skip_indels=True):
     return mlseq.upper()
 
 def get_ml_vector(con, ancid, skip_indels=True):
-    """Return a vector of tuples: (ML amino acid, PP)"""
+    """Return a vector of tuples: (ML amino acid, PP)
+        This is primarily used for the aligned-ancestors view page."""
     cur = get_ancestralstates_helper(con, ancid)
         
     x = cur.fetchall()
@@ -879,10 +880,11 @@ def get_ml_vector(con, ancid, skip_indels=True):
         site = ii[0]
         state = ii[1]
         pp = float(ii[2])
-        if state == "-" and skip_indels==True:
+        if state == "-" and skip_indels == True:
             continue
-        elif state == "-" and skip_indels==False:
+        elif state == "-" and skip_indels == False:
             site_state[site] = "-"
+            site_mlpp[site] = None
         elif site not in site_state:
             site_state[site] = state
             site_mlpp[site] = pp
@@ -1436,11 +1438,9 @@ def view_ancestors_aligned(request, alib, con):
 
     ancnames.sort()
     ancvectors = []
-    for aa in ancnames:
-        ancvectors.append( (aa, ancname_vector[aa]) )
-    
-    #print "1444:", ancvectors
-    
+    for an in ancnames:
+        ancvectors.append( (an, ancname_vector[an]) )
+        
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
     context["msaname"] = msaname
