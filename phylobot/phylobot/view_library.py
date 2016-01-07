@@ -1602,6 +1602,8 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
 
+    print "view_library.py 1605: msaid:", msaid, "modelid", phylomodelid, "ancid", ancid 
+
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
     sites = site_state_pp.keys()
     sites.sort()
