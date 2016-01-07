@@ -847,14 +847,22 @@ def get_ml_sequence(con, ancid, skip_indels=True):
         site = ii[0]
         state = ii[1]
         pp = float(ii[2])
+        """Indels always take precedent over amino acid states."""
         if state == "-" and skip_indels==True:
+            if site in site_state:
+                """If this site has an indel, but also has amino acid data (a weird remnant from PAML),
+                then delete the amino acid data for this site because we want to treat it as an indel."""
+                site_state.pop( site )
             continue
         elif state == "-" and skip_indels==False:
             site_state[site] = "-"
+            site_mlpp[site] = None
         elif site not in site_state:
+            """Use this state if we have no data for this site"""
             site_state[site] = state
             site_mlpp[site] = pp
         elif pp > site_mlpp[site]:
+            """Use this state if it's the highest PP so far"""
             site_state[site] = state
             site_mlpp[site] = pp            
 
