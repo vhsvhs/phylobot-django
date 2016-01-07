@@ -1603,6 +1603,10 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     ancid = x[0]
 
     print "view_library.py 1605: msaid:", msaid, "modelid", phylomodelid, "ancid", ancid 
+    sql = "select max(site) from AncestralStates where ancid=" + ancid.__str__() + ";"
+    cur.execute(sql)
+    qqq = cur.fetchone()[0]
+    print "view_library.py 1609:", qqq
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
     sites = site_state_pp.keys()
@@ -1646,7 +1650,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     print "1644:", alignedsite_seedsite.__len__()
     print "1645:", site_state_pp.__len__()
     print "1646:", max(site_state_pp), min(site_state_pp)
-    
     
     #site_tuples = {}
     count_sites = 0
