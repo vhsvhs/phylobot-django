@@ -811,6 +811,7 @@ def get_ancestralstates_helper(con, ancid):
         sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
     elif use_legacy == False:
         sql = "select site, state, pp from " + tablename.__str__()
+    print "view_library.py 814:", sql
     cur.execute(sql)
     return cur
     #x = cur.fetchall()
@@ -1674,10 +1675,10 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
             for state in pp_states[pp]:
                 tuple = (state, pp)
                 tuples.append( tuple )
-        print "view_library.py 1661:", site
-        print "view_library.py 1662:", count_sites
-        print "view_library.py 1663:", alignedsite_seedsite[site]
-        print "view_library.py 1664:", seedseq[site-1]
+        #print "view_library.py 1661:", site
+        #print "view_library.py 1662:", count_sites
+        #print "view_library.py 1663:", alignedsite_seedsite[site]
+        #print "view_library.py 1664:", seedseq[site-1]
         site_rows.append( [site,count_sites,alignedsite_seedsite[site],seedseq[site-1],tuples] )
             
     context = get_base_context(request, alib, con)
