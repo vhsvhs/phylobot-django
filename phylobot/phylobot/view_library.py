@@ -1626,8 +1626,8 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     sql = "select alsequence from AlignedSequences where almethod="+ msaid.__str__() + " and taxonid in (select id from Taxa where shortname='" + seedtaxonname + "')"
     cur.execute(sql)
     x = cur.fetchone()
-    seedseq = x[0]
-    alignedsite_seedsite = {}
+    seedseq = x[0] # seedseq is a list of amino acids, including indels
+    alignedsite_seedsite = {} # the alignedsite_seedsite is a hash: key = site, value = amino acid at that site. Indel sites not included
     countstates = 0
     for ii in range(0, seedseq.__len__()):
         if seedseq[ii] != "-":
@@ -1658,6 +1658,10 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
             for state in pp_states[pp]:
                 tuple = (state, pp)
                 tuples.append( tuple )
+        print "view_library.py 1661:", site
+        print "view_library.py 1662:", count_sites
+        print "view_library.py 1663:", alignedsite_seedsite[site]
+        print "view_library.py 1664:", seedseq[site-1]
         site_rows.append( [site,count_sites,alignedsite_seedsite[site],seedseq[site-1],tuples] )
             
     context = get_base_context(request, alib, con)
