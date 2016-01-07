@@ -1434,8 +1434,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         v = get_ml_vector(con, ancid, skip_indels=False)
         ancname_vector[ancname] = v
 
-    countsites = ancname_vector[ancnames[0]].__len__()
-
     ancnames.sort()
     ancvectors = []
     for an in ancnames:
@@ -1446,8 +1444,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
     context["ancvectors"] = ancvectors
-    context["countsites"] = countsites
-    
 
     if render_csv:
         """If we're rending CSV, use the csv writer library rather than the Django
@@ -1455,6 +1451,12 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".csv"'
         writer = csv.writer(response)
+        
+        headerrow = ["Ancestor"]
+        for ii in xrange(1, ancname_vector[ ancnames[0] ].__len__()+1 ):
+            headerrow.append( "Site " + ii.__str__() )
+        writer.writerow( headerrow )
+        
         for an in ancnames:
             row = [an]
             for ii in ancname_vector[an]:
