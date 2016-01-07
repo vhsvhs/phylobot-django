@@ -93,6 +93,8 @@ def view_library(request, libid):
     
     elif request.path_info.endswith("ancestors-aligned"):
         return view_ancestors_aligned(request, alib, con)
+    elif request.path_info.endswith("ancestors-aligned.xls"):
+        return view_ancestors_aligned(request, alib, con, render_xls=True)    
     
     elif request.path_info.endswith("ml"):
         return view_ancestor_ml(request, alib, con)
@@ -1403,7 +1405,7 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
-def view_ancestors_aligned(request, alib, con):    
+def view_ancestors_aligned(request, alib, con, render_xls=False):    
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
     """Save this viewing preference -- it will load automatically next time
@@ -1424,13 +1426,10 @@ def view_ancestors_aligned(request, alib, con):
     ancnames = []
     ancname_vector = {}
     for ii in x:
-        print "1438:", ii
         ancid = ii[0]
         ancname = ii[1]
         ancnames.append( ancname )
-        print "1434:", ancname
         v = get_ml_vector(con, ancid, skip_indels=False)
-        print "1436:", v
         ancname_vector[ancname] = v
 
     countsites = ancname_vector[ancnames[0]].__len__()
@@ -1446,10 +1445,10 @@ def view_ancestors_aligned(request, alib, con):
     context["modelname"] = phylomodelname
     context["ancvectors"] = ancvectors
     context["countsites"] = countsites
-    
-    #print "1454:", ancvectors
-    
+        
     template_url='libview/libview_ancestors_aligned.html'
+    if render_xls:
+        template_url='libview/libview_ancestors_aligned.xls'
     return render(request, template_url, context)
     
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
