@@ -68,7 +68,7 @@
 <th>Ancestor</th>
 {# Iterate through the sites (.1) in the first row (.0) of the ancvectors table#}
 {% for ii in ancvectors.0.1 %}
-	<th class="smallertext" width="50"><a href="{{default_msaname}}/site{{forloop.counter}}">Site {{forloop.counter}}</a></th>
+	<th class="smallertext" width="50"><a href="{{default_msaname}}/site{{forloop.counter}}">{{forloop.counter}}</a></th>
 {% endfor %}
 </tr>
 
