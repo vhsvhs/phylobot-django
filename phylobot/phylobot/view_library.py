@@ -885,7 +885,8 @@ def get_ml_vector(con, ancid, skip_indels=True):
         state = ii[1]
         pp = float(ii[2])
         if state == "-" and skip_indels == True:
-            continue
+            if site in site_state:
+                site_state.pop( site )
         elif state == "-" and skip_indels == False:
             site_state[site] = "-"
             site_mlpp[site] = None
@@ -1435,16 +1436,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         ancname_vector[ancname] = v
 
     ancnames.sort()
-    ancvectors = []
-    for an in ancnames:
-        ancvectors.append( (an, ancname_vector[an]) )
-    
-    context["msanames"] = get_alignmentnames(con)
-    context["modelnames"] = get_modelnames(con)
-    context["msaname"] = msaname
-    context["modelname"] = phylomodelname
-    context["ancvectors"] = ancvectors
-
     if render_csv:
         """If we're rending CSV, use the csv writer library rather than the Django
             template library to render a response."""
@@ -1470,6 +1461,17 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
                 row.append( token )
             writer.writerow( row )
         return response
+    
+    
+    ancvectors = []
+    for an in ancnames:
+        ancvectors.append( (an, ancname_vector[an]) )
+    
+    context["msanames"] = get_alignmentnames(con)
+    context["modelnames"] = get_modelnames(con)
+    context["msaname"] = msaname
+    context["modelname"] = phylomodelname
+    context["ancvectors"] = ancvectors
 
     template_url='libview/libview_ancestors_aligned.html'
     return render(request, template_url, context)
