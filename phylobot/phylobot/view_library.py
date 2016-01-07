@@ -1459,6 +1459,8 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
             row = [an]
             for ii in ancname_vector[an]:
                 token = ii[0]
+                if ii[0] == "-":
+                    token = "\-"
                 if ii[1] == None:
                     token += "(na)"
                 else:
