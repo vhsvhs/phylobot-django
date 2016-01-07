@@ -117,15 +117,15 @@ div{word-wrap: break-word;}
 /* Classes for the Ancestral PP distribution table */
 .ppheader{background: #C0C0C0;}
 .headerrow{background: #C0C0C0; font-weight: bold; font-size: 12pt;}
-.ppfull{background: #1E90FF;font-size: 10pt;}
-.pp9{background: #00BFFF;font-size: 10pt;}
-.pp8{background: #90EE90;font-size: 10pt;}
-.pp7{background: #ADFF2F;font-size: 10pt;}
-.pp6{background: #FFD700;font-size: 9pt;}
-.pp5{background: #FFA07A;font-size: 8pt;}
-.pplow{background: #FFB6C1;font-size: 9pt;}
-.ppindel{background: #CCCCCC;font-size: 9pt;}
-.type1{background: #FFB6C1;font-size: 10pt; font-style: bold;}
+.ppfull{background: #1E90FF;	font-size: 10pt;}
+.pp9{background: #00BFFF;		font-size: 10pt;}
+.pp8{background: #90EE90;		font-size: 10pt;}
+.pp7{background: #ADFF2F;		font-size: 10pt;}
+.pp6{background: #FFD700;		font-size: 9pt;}
+.pp5{background: #FFA07A;		font-size: 8pt;}
+.pplow{background: #FFB6C1;		font-size: 9pt;}
+.ppindel{background: #CCCCCC;	font-size: 9pt;}
+.type1{background: #FFB6C1;		font-size: 10pt; font-style: bold;}
 
 /* Classes for the mutation table */
 .mutation_table{font-size: 9pt;}
