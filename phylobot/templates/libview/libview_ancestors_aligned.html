@@ -64,11 +64,11 @@
 <h3>ML Ancestral Sequences. Alignment: {{default_msaname}}, Model: {{default_modelname}}</h3>
 
 <table>
-<tr class="ppheader">
+<tr>
 <th>Ancestor</th>
 {# Iterate through the sites (.1) in the first row (.0) of the ancvectors table#}
 {% for ii in ancvectors.0.1 %}
-	<th class="tinytext"><a href="{{default_msaname}}/site{{forloop.counter}}">Site {{forloop.counter}}</a></th>
+	<th class="smallertext"><a href="{{default_msaname}}/site{{forloop.counter}}">Site {{forloop.counter}}</a></th>
 {% endfor %}
 </tr>
 
