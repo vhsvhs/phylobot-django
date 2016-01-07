@@ -38,9 +38,7 @@ def view_library(request, libid):
     
     """Retrieve the AncestralLibrary class object"""
     alib = AncestralLibrary.objects.get( id=int(libid) )
-    
-    print "view_library.py:", alib.id
-    
+        
     """Ensure the project's SQL database exists locally."""
     if False == check_ancestral_library_filepermissions(alib=alib):
         print "I cannot update the permissions on the ancestral library."
@@ -52,9 +50,7 @@ def view_library(request, libid):
     
     """
         URL Dispatch:
-    """
-    print "view_library.py 56:", request.path_info
-    
+    """    
     if request.path_info.endswith("alignments"):
         return view_alignments(request, alib, con)
     
@@ -138,7 +134,6 @@ def view_library(request, libid):
         return view_ancestor_supportbysitexls(request, alib, con)
     
     elif request.path_info.__contains__("Node"):
-        print "view_library.py 139"
         return view_ancestor_ml(request, alib, con)
 
     elif request.path_info.__contains__("sites"):
@@ -802,7 +797,6 @@ def get_ancestralstates_helper(con, ancid):
     sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
     cur.execute(sql)
     x = cur.fetchone()
-    print "view_library.py 805", x
     if x[0] == 0:
         """We didn't find the new table type."""
         use_legacy = True
@@ -812,11 +806,9 @@ def get_ancestralstates_helper(con, ancid):
         sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
     elif use_legacy == False:
         sql = "select site, state, pp from " + tablename.__str__() + ""
-    print "view_library.py 814:", sql
     cur.execute(sql)
     return cur
-    #x = cur.fetchall()
-    #return x
+
 
 def get_ml_sequence(con, ancid, skip_indels=True):
     cur = get_ancestralstates_helper(con, ancid)
@@ -1256,9 +1248,7 @@ def view_ancestor_ml(request, alib, con):
     cur = con.cursor()
     tokens = request.path_info.split("/")
     setuptoken = tokens[ tokens.__len__()-2 ]
-    print "view_library.py 1253:", setuptoken
     ttok = setuptoken.split(".")
-    print "view_library.py 1254:", ttok
     if ttok.__len__() != 2:
         return view_library_frontpage(request, alib, con)
     msaname = ttok[0]
@@ -1266,7 +1256,6 @@ def view_ancestor_ml(request, alib, con):
     sql = "select id from AlignmentMethods where name='" + msaname.__str__() + "'"
     cur.execute(sql)
     msaid = cur.fetchone()
-    print "view_library.py 1263:", msaid
     if msaid == None:
         return view_library_frontpage(request, alib, con)
     msaid = msaid[0]
@@ -1275,24 +1264,20 @@ def view_ancestor_ml(request, alib, con):
     sql = "select modelid from PhyloModels where name='" + phylomodelname.__str__() + "'"
     cur.execute(sql)
     phylomodelid = cur.fetchone()
-    print "view_library.py 1272:", phylomodelid
     if phylomodelid == None:
         return view_library_frontpage(request, alib, con)
     phylomodelid = phylomodelid[0]
 
     nodetoken = tokens[ tokens.__len__()-1 ].split(".")[0]
     nodenumber = re.sub("Node", "", nodetoken)
-    print "view_library.py 1279:", nodenumber
     sql = "select id from Ancestors where almethod=" + msaid.__str__()
     sql += " and phylomodel=" + phylomodelid.__str__()
     sql += " and name='Node" + nodenumber.__str__() + "'"
     cur.execute(sql)
     x = cur.fetchone()
-    print "view_library.py 1285:", x
     if x == None:
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
-    print "view_library.py 1289:", ancid
     seq = get_ml_sequence(con, ancid)
 
     #
@@ -1345,9 +1330,6 @@ def view_ancestor_ml(request, alib, con):
     bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     (alt_seqs, bin_freq_tuples, mean_pp, sd_pp) = get_anc_stats(con, ancid, n_randoms=5, stride=stride, bins=bins)
 
-    print "view_library.py 1343:", (alt_seqs, bin_freq_tuples, mean_pp, sd_pp)
-
-    #print "557:", ancid, msaname, phylomodelname
     context = get_base_context(request, alib, con)
     context["node_number"] = nodenumber
     context["msaname"] = msaname
@@ -1448,7 +1430,7 @@ def view_ancestors_aligned(request, alib, con):
         ancname = ii[1]
         ancnames.append( ancname )
         print "1434:", ancname
-        v = get_ml_vector(con, ancid, skip_indels=True)
+        v = get_ml_vector(con, ancid, skip_indels=False)
         print "1436:", v
         ancname_vector[ancname] = v
 
@@ -1457,7 +1439,7 @@ def view_ancestors_aligned(request, alib, con):
     for aa in ancnames:
         ancvectors.append( (aa, ancname_vector[aa]) )
     
-    print "1444:", ancvectors
+    #print "1444:", ancvectors
     
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
@@ -1465,7 +1447,7 @@ def view_ancestors_aligned(request, alib, con):
     context["modelname"] = phylomodelname
     context["ancvectors"] = ancvectors
     
-    print "1454:", ancvectors
+    #print "1454:", ancvectors
     
     template_url='libview/libview_ancestors_aligned.html'
     return render(request, template_url, context)
@@ -1600,17 +1582,14 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     if x == None:
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
-
-    print "view_library.py 1605: msaid:", msaid, "modelid", phylomodelid, "ancid", ancid 
+ 
     sql = "select max(site) from AncestralStates where ancid=" + ancid.__str__() + ";"
     cur.execute(sql)
     qqq = cur.fetchone()[0]
-    print "view_library.py 1609:", qqq
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
     sites = site_state_pp.keys()
     sites.sort()
-    print "view_library.py 1614", max(sites), min(sites)
     
     #
     # continue here -- max(sites) should == qqq
@@ -1673,10 +1652,6 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
             for state in pp_states[pp]:
                 tuple = (state, pp)
                 tuples.append( tuple )
-        #print "view_library.py 1661:", site
-        #print "view_library.py 1662:", count_sites
-        #print "view_library.py 1663:", alignedsite_seedsite[site]
-        #print "view_library.py 1664:", seedseq[site-1]
         site_rows.append( [site,count_sites,alignedsite_seedsite[site],seedseq[site-1],tuples] )
             
     context = get_base_context(request, alib, con)
@@ -1753,9 +1728,7 @@ def view_mutations_bybranch(request, alib, con):
                 elif index == 1:
                     ancname2 = ancname
                     ancid2 = ancid
-                    
-    #print "view_library.py 1599"
-    
+                        
     """For some reason, the ancestors weren't selected in the HTML form 
         (or this is the first time rendering) so let's check if the user has 
         any saved preferences about the last-viewed ancestors."""
@@ -1815,11 +1788,8 @@ def view_mutations_bybranch(request, alib, con):
         for the user-specified msaid"""
 
     """ Get a list of these ancestors in other alignments and models """ 
-    #print "view_library.py 1658:", ancid1, ancid2
     matched_ancestors = get_ancestral_matches(con, ancid1, ancid2)
-    #print "view_library.py 1660:", matched_ancestors
     matched_ancestors = [ (ancid1,ancid2) ] + matched_ancestors
-    #print "view_library.py 1662:", matched_ancestors
      
     ancid_msaid = {}
     ancid_model = {}
@@ -1848,8 +1818,6 @@ def view_mutations_bybranch(request, alib, con):
             ancid_name[id] = ancname
             #msaname = msaid_name[ ancid_msaid[id] ]
             ancid_site_statepp[id] = get_site_ml(con, id, skip_indels = False)   
-
-    print "view_library.py 1681", ancid_site_statepp.__len__()
 
     """We need model names and alignment names for printing in the mutation table header rows."""
     phylomodelid_name = {}
