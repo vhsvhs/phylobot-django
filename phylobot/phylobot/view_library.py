@@ -1,3 +1,4 @@
+import csv
 import os
 
 from dendropy import Tree
@@ -1445,11 +1446,23 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
     context["modelname"] = phylomodelname
     context["ancvectors"] = ancvectors
     context["countsites"] = countsites
-        
+    
     template_url='libview/libview_ancestors_aligned.html'
     if render_xls:
-        template_url='libview/libview_ancestors_aligned.xls'
-        return render(request, template_url, context, content_type='text')
+        """If we're rending XLS, use the csv writer library rather than the Django
+            template library to render a response."""
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".csv"'
+        writer = csv.writer(response)
+        for an in ancnames:
+            row = [an]
+            for ii in ancname_vector[an]:
+                row.append( ii[0] )
+                row.append(" (%.3f)"%ii[1] )
+            writer.writerow( row )
+        return response
+        #template_url='libview/libview_ancestors_aligned.xls'
+        #return render(request, template_url, context, content_type='text')
     return render(request, template_url, context)
     
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
