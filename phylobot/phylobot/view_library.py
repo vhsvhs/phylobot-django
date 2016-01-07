@@ -95,8 +95,8 @@ def view_library(request, libid):
     
     elif request.path_info.endswith("ancestors-aligned"):
         return view_ancestors_aligned(request, alib, con)
-    elif request.path_info.endswith("ancestors-aligned.xls"):
-        return view_ancestors_aligned(request, alib, con, render_xls=True)    
+    elif request.path_info.endswith("ancestors-aligned.csv"):
+        return view_ancestors_aligned(request, alib, con, render_csv=True)    
     
     elif request.path_info.endswith("ml"):
         return view_ancestor_ml(request, alib, con)
@@ -1407,7 +1407,7 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
-def view_ancestors_aligned(request, alib, con, render_xls=False):    
+def view_ancestors_aligned(request, alib, con, render_csv=False):    
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
     """Save this viewing preference -- it will load automatically next time
@@ -1448,9 +1448,9 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
     context["ancvectors"] = ancvectors
     context["countsites"] = countsites
     
-    template_url='libview/libview_ancestors_aligned.html'
-    if render_xls:
-        """If we're rending XLS, use the csv writer library rather than the Django
+
+    if render_csv:
+        """If we're rending CSV, use the csv writer library rather than the Django
             template library to render a response."""
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".csv"'
@@ -1460,7 +1460,7 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
             for ii in ancname_vector[an]:
                 token = ii[0]
                 if ii[0] == "-":
-                    token = "\-"
+                    token = "indel"
                 if ii[1] == None:
                     token += "(na)"
                 else:
@@ -1468,8 +1468,8 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
                 row.append( token )
             writer.writerow( row )
         return response
-        #template_url='libview/libview_ancestors_aligned.xls'
-        #return render(request, template_url, context, content_type='text')
+
+    template_url='libview/libview_ancestors_aligned.html'
     return render(request, template_url, context)
     
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
