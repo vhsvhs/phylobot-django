@@ -1627,7 +1627,7 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     cur.execute(sql)
     x = cur.fetchone()
     seedseq = x[0] # seedseq is a list of amino acids, including indels
-    alignedsite_seedsite = {} # the alignedsite_seedsite is a hash: key = site, value = amino acid at that site. Indel sites not included
+    alignedsite_seedsite = {} # the alignedsite_seedsite is a hash: key = site in seedseq with indels, value = site in seedseq without indels
     countstates = 0
     for ii in range(0, seedseq.__len__()):
         if seedseq[ii] != "-":
@@ -1639,6 +1639,11 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
     # site_tuples is a list-ified version of site_state_pp, such that
     # the Django template library can deal with it.
     site_rows = []
+    
+    print "1643:", seedseq.__len__()
+    print "1644:", alignedsite_seedsite.__len__()
+    print "1645:", site_state_pp.__len__()
+    
     
     #site_tuples = {}
     count_sites = 0
