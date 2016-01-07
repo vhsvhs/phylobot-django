@@ -1460,9 +1460,9 @@ def view_ancestors_aligned(request, alib, con, render_xls=False):
             for ii in ancname_vector[an]:
                 row.append( ii[0] )
                 if ii[1] == None:
-                    row.append(" (na)"%ii[1] )
+                    row.append("(na)" )
                 else:
-                    row.append(" (%.3f)"%ii[1] )
+                    row.append("(%.3f)"%ii[1] )
             writer.writerow( row )
         return response
         #template_url='libview/libview_ancestors_aligned.xls'
