@@ -987,8 +987,10 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
     elif use_legacy == False:
         sites = []
         tablename = "AncestralStates"
-        innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
-        sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+        sql = "select min(id) from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        cur.execute()
+        some_ancid = cur.fetchone()[0]
+        sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
         sql += " order by site ASC"
         cur.execute(sql)
         for ii in cur.fetchall():
