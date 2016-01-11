@@ -928,7 +928,13 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
     Returns ancid_mlector[ancid] = list of tuples [(state,pp),(state,pp), etc...]
     
     """
-    sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
+    
+    """Get some ancestral ID, and then see if there is a table named AncestralStates<ID>.
+    If it exists, then use the non-legacy, new, version of the code."""
+    sql = "select min(id) from Ancestors"
+    cur.execute(sql)
+    some_ancid = cur.fetchone()[0]
+    sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='AncestralStates" + some_ancid.__str__() + "'"
     cur.execute(sql)
     x = cur.fetchone()
     if x[0] == 0:
