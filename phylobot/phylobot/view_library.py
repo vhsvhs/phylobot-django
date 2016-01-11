@@ -959,9 +959,9 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         for ii in cur.fetchall():
             ancid = ii[0]
             if ancid not in ancid_mlvector:
-                ancid_mlvector[ancid] = [(None, 0.0)] * (nsites+1)
+                ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
-            site = ii[1]
+            site = ii[1]-1
             state = ii[2]
             pp = ii[3]
             if state == "-":
@@ -1003,12 +1003,12 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         
         ancid_mlvector = {}
         for ancid in ancids:        
-            ancid_mlvector[ancid] = [(None, 0.0)] * (nsites+1)
+            ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
             sql = "select site, state, pp from AncestralStates" + ancid.__str__()
             cur.execute(sql)
             for ii in cur.fetchall():
-                site = ii[0]
+                site = ii[0]-1
                 state = ii[1]
                 pp = ii[2]
                 if state == "-":
