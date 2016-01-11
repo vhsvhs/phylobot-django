@@ -1591,7 +1591,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     ancvectors = []
     for an in ancnames:
-        ancvectors.append( (an, ancname_vector[an]) )
+        ancvectors.append( (an, ancid_vector[an]) )
     
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
