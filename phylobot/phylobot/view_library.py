@@ -1549,19 +1549,11 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
     cur.execute(sql)
     x = cur.fetchall()
-    ancnames = []
-    ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True)
-    
-#     ancname_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid)
-#     for ii in x:
-#         ancid = ii[0]
-#         ancname = ii[1]
-#         ancnames.append( ancname )
-#         v = get_ml_vector(con, ancid, skip_indels=False)
-#         ancname_vector[ancname] = v
-    ancnames = ancid_vector.keys()
 
-    ancnames.sort()
+    ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True)
+    ancids = ancid_vector.keys()
+    ancids.sort()
+
     if render_csv:
         """If we're rending CSV, use the csv writer library rather than the Django
             template library to render a response."""
@@ -1570,13 +1562,17 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         writer = csv.writer(response)
         
         headerrow = ["Ancestor"]
-        for ii in xrange(1, ancid_vector[ ancnames[0] ].__len__()+1 ):
+        for ii in xrange(1, ancid_vector[ ancids[0] ].__len__()+1 ):
             headerrow.append( "Site " + ii.__str__() )
         writer.writerow( headerrow )
         
-        for an in ancnames:
-            row = [an]
-            for ii in ancid_vector[an]:
+        for ancid in ancids:
+            sql = "select name from Ancestors where id=" + ancid.__str__()
+            cur.execute(sql)
+            ancname = cur.fetchone()[0]
+        
+            row = [ancname]
+            for ii in ancid_vector[ancid]:
                 if ii[0] == "-":
                     token = "indel (na)"
                 else:
@@ -1585,10 +1581,13 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
             writer.writerow( row )
         return response
     
-    
+    """If we're not writing CSV, then we're writing HTML. . . """
     ancvectors = []
-    for an in ancnames:
-        ancvectors.append( (an, ancid_vector[an]) )
+    for ancid in ancids:
+        sql = "select name from Ancestors where id=" + ancid.__str__()
+        cur.execute(sql)
+        ancname = cur.fetchone()[0]
+        ancvectors.append( (ancname, ancid_vector[ancid]) )
     
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
