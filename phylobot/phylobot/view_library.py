@@ -1577,13 +1577,10 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         for an in ancnames:
             row = [an]
             for ii in ancid_vector[an]:
-                token = ii[0]
                 if ii[0] == "-":
-                    token = "indel"
-                if ii[1] == None:
-                    token += "(na)"
+                    token = "indel (na)"
                 else:
-                    token +="(%.3f)"%ii[1]
+                    token = ii[0] + " (%.3f)"%ii[1]
                 row.append( token )
             writer.writerow( row )
         return response
