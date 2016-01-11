@@ -913,7 +913,7 @@ def get_ml_vector(con, ancid, skip_indels=True):
         mlvector.append(   (site_state[s].upper(), site_mlpp[s])  )
     return mlvector
 
-def get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True):
+def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
     """Returns a hashtable, key = ancid, value = ml vector.
         This method is related to get_ml_vector, which returns only one vector,
         whereas this method returns a collection of vectors."""
