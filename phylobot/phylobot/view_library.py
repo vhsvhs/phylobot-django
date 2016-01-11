@@ -794,7 +794,9 @@ def reset_all_biopython_branchlengths(root, length):
 
 def get_ancestralstates_helper(con, ancid):
     """Executes a query on the table AncestralStates.
-    Returns the cursor to the databse"""
+    Returns the cursor to the databse.
+    The data behind the cursor is the results [site, state, pp] for all sites
+    from ancestor with the ID ancid."""
     cur = con.cursor()
     use_legacy = False
     tablename = "AncestralStates" + ancid.__str__()
@@ -813,30 +815,35 @@ def get_ancestralstates_helper(con, ancid):
     cur.execute(sql)
     return cur
 
+def get_ancestralstates_helper2(con, msaid, modelid):
+    """Executes a query on the table AncestralStates.
+    Returns the cursor to the databse.
+    The data behind the cursor is the results [site, state, pp] for all
+    sites from all ancestors from the MSA msaid and the phylo. model
+    modelid"""
+    cur = con.cursor()
+    use_legacy = False
+    tablename = "AncestralStates" + ancid.__str__()
+    sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x[0] == 0:
+        """We didn't find the new table type."""
+        use_legacy = True
+        tablename = "AncestralStates"
+    
+    if use_legacy == True:
+        innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        sql = "select site, state, pp from AncestralStates where ancid in (" + innersql + ")"
+    elif use_legacy == False:
+        sql = "select site, state, pp from " + tablename.__str__() + ""
+    cur.execute(sql)
+    return cur
+
 
 def get_ml_sequence(con, ancid, skip_indels=True):
     cur = get_ancestralstates_helper(con, ancid)
-    
-#     """Legacy versions of the ASR pipeline use a single table named AncestralStates.
-#         Newer versions use multiple tables named AncestralStates<ID>, where <ID> is the id
-#         of an ancestor.
-#     """
-#     use_legacy = False
-#     tablename = "AncestralStates" + ancid.__str__()
-#     sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
-#     cur.execute(sql)
-#     x = cur.fetchone()
-#     if x[0] == 0:
-#         use_legacy == True
-#         tablename = "AncestralStates"
-#     
-#     if use_legacy:
-#         sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
-#     elif use_legacy == False:
-#         sql = "select site, state, pp from " + tablename.__str__()
-#     cur.execute(sql)
-#     x = cur.fetchall()
-    
+        
     x = cur.fetchall()
     site_state = {}
     site_mlpp = {}
@@ -872,8 +879,10 @@ def get_ml_sequence(con, ancid, skip_indels=True):
     return mlseq.upper()
 
 def get_ml_vector(con, ancid, skip_indels=True):
-    """Return a vector of tuples: (ML amino acid, PP)
-        This is primarily used for the aligned-ancestors view page."""
+    """Return a vector of tuples: (ML amino acid, PP) for the ancestor with ID
+        equal to ancid. This is primarily used for the aligned-ancestors view page.
+        Compare this method to get_ml_vectors, which returns multiple vectors
+        simultaneously."""
     cur = get_ancestralstates_helper(con, ancid)
         
     x = cur.fetchall()
@@ -904,6 +913,114 @@ def get_ml_vector(con, ancid, skip_indels=True):
         mlvector.append(   (site_state[s].upper(), site_mlpp[s])  )
     return mlvector
 
+def get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True):
+    """Returns a hashtable, key = ancid, value = ml vector.
+        This method is related to get_ml_vector, which returns only one vector,
+        whereas this method returns a collection of vectors."""
+
+    cur = con.cursor()
+    
+    use_legacy = False
+    """If the ancestral DB was built using an older version of the ASR pipeline code,
+    then the DB will contain a single table with all ancestral PPs.
+    Newer versions, however, use multiple tables.
+    
+    Returns ancid_mlector[ancid] = list of tuples [(state,pp),(state,pp), etc...]
+    
+    """
+    sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='" + tablename + "'"
+    cur.execute(sql)
+    x = cur.fetchone()
+    if x[0] == 0:
+        """We didn't find the new table type."""
+        use_legacy = True
+    
+    if use_legacy == True:
+        """Get a list of sites."""
+        sites = []
+        tablename = "AncestralStates"
+        innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+        sql += " order by site ASC"
+        cur.execute(sql)
+        for ii in cur.fetchall():
+            sites.apend( ii[0] )
+        nsites = sites.__len__()
+        
+        sql = "select ancid, site, state, pp from AncestralStates where ancid in (" + innersql + ")"
+        cur.execute(sql)
+        ancid_mlvector = {}
+        for ii in cur.fetchall():
+            ancid = ii[0]
+            if ancid not in ancid_mlvector:
+                ancid_mlvector[ancid] = [(None, 0.0)] * (nsites+1)
+            
+            site = ii[1]
+            state = ii[2]
+            pp = ii[3]
+            if state == "-":
+                pp = None
+                ancid_mlvector[ancid][site] = (state, pp)
+                continue      
+        
+            #if site not in ancid_mlvector[ancid]:
+            #    ancid_mlvector[ancid][site] = (state,pp)
+            #    continue
+                            
+            if ancid_mlvector[ancid][site][1] == None:
+                """This site is an indel site, so ignore amino acid data here."""
+                continue
+            
+            if pp > ancid_mlvector[ancid][site][1]:
+                """this state is more likely than other known states at this site."""
+                ancid_mlvector[ancid][site] = (state,pp)
+        
+        return ancid_mlvector
+        
+                
+    elif use_legacy == False:
+        sites = []
+        tablename = "AncestralStates"
+        innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+        sql += " order by site ASC"
+        cur.execute(sql)
+        for ii in cur.fetchall():
+            sites.apend( ii[0] )
+        nsites = sites.__len__()
+        
+        sql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        cur.execute(sql)
+        ancids = []
+        for ii in cur.fetchall():
+            ancids.append( ii[0] )
+        
+        ancid_mlvector = {}
+        for ancid in ancids:        
+            ancid_mlvector[ancid] = [(None, 0.0)] * (nsites+1)
+            
+            sql = "select site, state, pp from AncestralStates" + ancid.__str__()
+            cur.execute(sql)
+            for ii in cur.fetchall():
+                site = ii[0]
+                state = ii[1]
+                pp = ii[2]
+                if state == "-":
+                    pp = None
+                    ancid_mlvector[ancid][site] = (state, pp)
+                    continue     
+                
+            if ancid_mlvector[ancid][site][1] == None:
+                """This site is an indel site, so ignore amino acid data here."""
+                continue
+            
+            if pp > ancid_mlvector[ancid][site][1]:
+                """this state is more likely than other known states at this site."""
+                ancid_mlvector[ancid][site] = (state,pp)
+        
+        return ancid_mlvector
+    
+    
 
 def ml_sequence_difference(seq1, seq2):
     """Returns the proportion similarity between two sequences.
@@ -1427,13 +1544,16 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     cur.execute(sql)
     x = cur.fetchall()
     ancnames = []
-    ancname_vector = {}
-    for ii in x:
-        ancid = ii[0]
-        ancname = ii[1]
-        ancnames.append( ancname )
-        v = get_ml_vector(con, ancid, skip_indels=False)
-        ancname_vector[ancname] = v
+    ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True)
+    
+#     ancname_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid)
+#     for ii in x:
+#         ancid = ii[0]
+#         ancname = ii[1]
+#         ancnames.append( ancname )
+#         v = get_ml_vector(con, ancid, skip_indels=False)
+#         ancname_vector[ancname] = v
+    ancnames = ancid_vector.keys()
 
     ancnames.sort()
     if render_csv:
@@ -1444,13 +1564,13 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         writer = csv.writer(response)
         
         headerrow = ["Ancestor"]
-        for ii in xrange(1, ancname_vector[ ancnames[0] ].__len__()+1 ):
+        for ii in xrange(1, ancid_vector[ ancnames[0] ].__len__()+1 ):
             headerrow.append( "Site " + ii.__str__() )
         writer.writerow( headerrow )
         
         for an in ancnames:
             row = [an]
-            for ii in ancname_vector[an]:
+            for ii in ancid_vector[an]:
                 token = ii[0]
                 if ii[0] == "-":
                     token = "indel"
