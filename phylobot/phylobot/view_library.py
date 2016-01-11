@@ -988,7 +988,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         sites = []
         tablename = "AncestralStates"
         sql = "select min(id) from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
-        cur.execute()
+        cur.execute(sql)
         some_ancid = cur.fetchone()[0]
         sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
         sql += " order by site ASC"
