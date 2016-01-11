@@ -950,7 +950,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         sql += " order by site ASC"
         cur.execute(sql)
         for ii in cur.fetchall():
-            sites.apend( ii[0] )
+            sites.append( ii[0] )
         nsites = sites.__len__()
         
         sql = "select ancid, site, state, pp from AncestralStates where ancid in (" + innersql + ")"
@@ -992,7 +992,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         sql += " order by site ASC"
         cur.execute(sql)
         for ii in cur.fetchall():
-            sites.apend( ii[0] )
+            sites.append( ii[0] )
         nsites = sites.__len__()
         
         sql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
