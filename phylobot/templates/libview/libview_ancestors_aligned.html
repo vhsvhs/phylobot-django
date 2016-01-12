@@ -69,10 +69,9 @@
 
 <form action="/{{alid}}/ancestors-aligned" method="get">
 <table>
-<tr><td colspan=3><h3>Navigate Sites:</h3></td></tr>
-<tr>
-<td><p><a href="/{{alid}}/ancestors-aligned?startsite={{lesssite}}">&#8592;(show lower)</a>&#09;[{{sites.0}}-{{sites.29}}]&#09;<a href="/{{alid}}/ancestors-aligned?startsite={{moresite}}">(show higher)&#8594;</a></p></td>
-<td>Or, Jump to Site:<input type="text" size="4" name="startsite"></td>
+<tr><td><h3>Navigate Sites:</h3></td>
+<td>|<p><a href="/{{alid}}/ancestors-aligned?startsite={{lesssite}}">&#8592;(show lower)</a>&#09;[{{sites.0}}-{{sites.29}}]&#09;<a href="/{{alid}}/ancestors-aligned?startsite={{moresite}}">(show higher)&#8594;</a></p></td>
+<td>| . . . or, Jump to a Site:<input type="text" size="4" name="startsite"></td>
 <td><input type="submit" class="dropdown"/></td>
 </tr>
 </table>
