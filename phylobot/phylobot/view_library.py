@@ -1025,9 +1025,10 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
             
             #print "view_library.py 1011, ancid", ancid
             
-            sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__() + " group by site"
+            sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
             if startsite != None and stopsite != None:
-                sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
+                sql += " where site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
+            sql += " group by site"
             cur.execute(sql)
             for ii in cur.fetchall():
                 site = ii[0]-sites[0]
