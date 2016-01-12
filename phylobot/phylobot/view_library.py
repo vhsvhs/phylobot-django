@@ -1008,6 +1008,8 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         for ancid in ancids:        
             ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
+            print "view_library.py 1011, ancid", ancid
+            
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__() + " group by site"
             cur.execute(sql)
             for ii in cur.fetchall():
