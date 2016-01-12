@@ -946,15 +946,19 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
     if use_legacy == True:
         """Get a list of sites."""
         sites = []
-        tablename = "AncestralStates"
-        innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
-        sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
         if startsite != None and stopsite != None:
-            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
-        sql += " order by site ASC"
-        cur.execute(sql)
-        for ii in cur.fetchall():
-            sites.append( ii[0] )
+            for ii in xrange(startsite, stopsite + 1):
+                sites.append( ii )
+        else:
+            tablename = "AncestralStates"
+            innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+            sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+            if startsite != None and stopsite != None:
+                sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
+            sql += " order by site ASC"
+            cur.execute(sql)
+            for ii in cur.fetchall():
+                sites.append( ii[0] )
         nsites = sites.__len__()
         if startsite != None:
             nsites = stopsite - startsite + 1
@@ -993,17 +997,18 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                 
     elif use_legacy == False:
         sites = []
-        tablename = "AncestralStates"
-        sql = "select min(id) from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
-        cur.execute(sql)
-        some_ancid = cur.fetchone()[0]
-        sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
         if startsite != None and stopsite != None:
-            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
-        sql += " order by site ASC"
-        cur.execute(sql)
-        for ii in cur.fetchall():
-            sites.append( ii[0] )
+            for ii in xrange(startsite, stopsite + 1):
+                sites.append( ii )
+        else:
+            sql = "select min(id) from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+            cur.execute(sql)
+            some_ancid = cur.fetchone()[0]
+            sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
+            sql += " order by site ASC"
+            cur.execute(sql)
+            for ii in cur.fetchall():
+                sites.append( ii[0] )
         nsites = sites.__len__()
         if startsite != None:
             nsites = stopsite - startsite + 1
@@ -1626,6 +1631,13 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     for ii in xrange(startsite, stopsite+1):
         context["sites"].append(ii)
     
+    lesssite = startsite - 30
+    if lesssite < 1:
+        lesssite = 1
+    moresite = startsite + 30
+    
+    context["lesssite"] = lesssite
+    context["moresite"] = moresite
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
     context["msaname"] = msaname
