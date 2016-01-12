@@ -68,8 +68,18 @@
 <hr>
 
 
-<table>
-<tr><td><h3>Navigate Sites:</h3></td>
+<table class='choice_table' style='background-color: #99FF99;' width="100%">
+<tr><td><h3>Navigate Sites:
+		<a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span align="left">
+				<h4>Navigate Sites</h4>
+	        	<p class="smalltext">Use the links to navigate among the sites in ancestral reconstructions
+	        	from the alignment {{default_msaname}} and phylogenetic model {{default_modelname}}. You can
+	        	either scroll through the sites using the lower/higher buttons, or jump directly to a site of interest.</p>
+	    	</span>
+		</a>
+</h3></td>
 <td>
 	<a href="/{{alid}}/ancestors-aligned?startsite={{lesssite}}">
 	<button>&#8592;(show lower)</button>
