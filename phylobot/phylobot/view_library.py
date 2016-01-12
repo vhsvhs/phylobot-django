@@ -1568,7 +1568,9 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     stopsite = 30
     if request.method == "POST":
         if "startsite" in request.POST:
+            print "view_library.py 1571:", request.POST
             startsite = int( request.POST["startsite"] )
+            print "view_library.py 1573:", startsite
         stopsite = startsite + 30
     
     context = get_base_context(request, alib, con)  
@@ -1635,6 +1637,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     if lesssite < 1:
         lesssite = 1
     moresite = startsite + 30
+    
+    print "view_library.py 1639:", lesssite, moresite
     
     context["lesssite"] = lesssite
     context["moresite"] = moresite
