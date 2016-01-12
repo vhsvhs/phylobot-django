@@ -1588,7 +1588,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
 
     ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
-    ancids.sort()
 
     if render_csv:
         """If we're rending CSV, use the csv writer library rather than the Django
@@ -1618,13 +1617,18 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         return response
     
     """If we're not writing CSV, then we're writing HTML. . . """
-    ancvectors = []
+    ancname_id = {}
     for ancid in ancids:
-        #print "view_library.py 1595, ancid:", ancid
-        sql = "select name from Ancestors where id=" + ancid.__str__()
+        sql = "Select name from Ancestors where id=" + ancid.__str__()
         cur.execute(sql)
         ancname = cur.fetchone()[0]
-        #ancvectors.append( (ancname, ancid_vector[ancid]) )
+        ancname_id[ancname] = ancid
+    ancnames = ancname_id.keys()
+    ancnames.sort()
+       
+    ancvectors = []
+    for ancname in ancnames:
+        ancid = ancname_id[ancname]
         this_vector = []
         for ii in ancid_vector[ancid]:
             this_vector.append( (ii[0],ii[1]) )
