@@ -1592,6 +1592,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     """If we're not writing CSV, then we're writing HTML. . . """
     ancvectors = []
     for ancid in ancids:
+        print "view_library.py 1595, ancid:", ancid
         sql = "select name from Ancestors where id=" + ancid.__str__()
         cur.execute(sql)
         ancname = cur.fetchone()[0]
