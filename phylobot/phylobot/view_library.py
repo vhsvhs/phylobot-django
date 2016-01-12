@@ -1566,6 +1566,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     startsite = 1
     stopsite = 30
+    print "view_library.py", request.POST
     #if request.method == "POST":
     if "startsite" in request.POST:
         print "view_library.py 1571:", request.POST
