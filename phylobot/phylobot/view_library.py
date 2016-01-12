@@ -1597,9 +1597,9 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         cur.execute(sql)
         ancname = cur.fetchone()[0]
         #ancvectors.append( (ancname, ancid_vector[ancid]) )
-        this_vector = ""
+        this_vector = []
         for ii in ancid_vector[ancid]:
-            this_vector += "\<td\>" + ii[0] + "(" + ii[1].__str__() + ")\</td\>"
+            this_vector.append( ii[0] + " (" + ii[1].__str__() + ")" )
         ancvectors.append( (ancname,this_vector) )
     
     context["msanames"] = get_alignmentnames(con)
