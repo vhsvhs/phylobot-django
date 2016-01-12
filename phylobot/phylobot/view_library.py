@@ -1565,6 +1565,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
     
+    """The view will show only ~30 sites, due to space limitations on the screen,
+    and to speedup the rendering of the page."""
     startsite = 1
     stopsite = 30
     if "startsite" in request.GET:
@@ -1589,6 +1591,9 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
 
+    """
+        Render a CSV rather than HTML
+    """
     if render_csv:
         """If we're rending CSV, use the csv writer library rather than the Django
             template library to render a response."""
@@ -1616,8 +1621,10 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
             writer.writerow( row )
         return response
     
-    """If we're not writing CSV, then we're writing HTML. . . """
-    ancname_id = {}
+    """
+        Render HTML
+    """
+    ancname_id = {} # key = ancestral node name, value = ancestral ID in the databse
     for ancid in ancids:
         sql = "Select name from Ancestors where id=" + ancid.__str__()
         cur.execute(sql)
@@ -1626,25 +1633,27 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     ancnames = ancname_id.keys()
     ancnames.sort()
        
-    ancvectors = []
+    ancvectors = [] # a list of tuples, each tuple is (anc.name, data vector)
     for ancname in ancnames:
         ancid = ancname_id[ancname]
         this_vector = []
         for ii in ancid_vector[ancid]:
+            """ii[0] is amino acid (or indel), and ii[1] is the PP"""
             this_vector.append( (ii[0],ii[1]) )
         ancvectors.append( (ancname,this_vector) )
-    
     
     context["sites"] = []
     for ii in xrange(startsite, stopsite+1):
         context["sites"].append(ii)
     
+    """lesssite is the site number used in the 'a href' for the <-- button,
+        and moresite is the site number used in the 'a href' for the --> button"""
     lesssite = startsite - 30
     if lesssite < 1:
         lesssite = 1
     moresite = startsite + 30
     
-    #print "view_library.py 1639:", lesssite, moresite
+    print "view_library.py 1639:", lesssite, moresite
     
     context["lesssite"] = lesssite
     context["moresite"] = moresite
