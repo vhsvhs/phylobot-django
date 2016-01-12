@@ -956,8 +956,12 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
         for ii in cur.fetchall():
             sites.append( ii[0] )
         nsites = sites.__len__()
+        if startsite != None:
+            nsites = stopsite - startsite + 1
         
         sql = "select ancid, site, state, pp from AncestralStates where ancid in (" + innersql + ")"
+        if startsite != None and stopsite != None:
+            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
         cur.execute(sql)
         ancid_mlvector = {}
         for ii in cur.fetchall():
@@ -1001,6 +1005,8 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
         for ii in cur.fetchall():
             sites.append( ii[0] )
         nsites = sites.__len__()
+        if startsite != None:
+            nsites = stopsite - startsite + 1
         
         sql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
         cur.execute(sql)
@@ -1015,6 +1021,8 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
             #print "view_library.py 1011, ancid", ancid
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__() + " group by site"
+            if startsite != None and stopsite != None:
+                sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
             cur.execute(sql)
             for ii in cur.fetchall():
                 site = ii[0]-1
