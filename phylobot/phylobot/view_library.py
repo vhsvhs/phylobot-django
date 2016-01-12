@@ -1566,12 +1566,12 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     startsite = 1
     stopsite = 30
-    if request.method == "POST":
-        if "startsite" in request.POST:
-            print "view_library.py 1571:", request.POST
-            startsite = int( request.POST["startsite"] )
-            print "view_library.py 1573:", startsite
-        stopsite = startsite + 30
+    #if request.method == "POST":
+    if "startsite" in request.POST:
+        print "view_library.py 1571:", request.POST
+        startsite = int( request.POST["startsite"] )
+        print "view_library.py 1573:", startsite
+    stopsite = startsite + 30
     
     context = get_base_context(request, alib, con)  
     context["default_msaname"] = msaname
@@ -1618,7 +1618,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     """If we're not writing CSV, then we're writing HTML. . . """
     ancvectors = []
     for ancid in ancids:
-        print "view_library.py 1595, ancid:", ancid
+        #print "view_library.py 1595, ancid:", ancid
         sql = "select name from Ancestors where id=" + ancid.__str__()
         cur.execute(sql)
         ancname = cur.fetchone()[0]
