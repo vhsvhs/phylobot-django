@@ -74,10 +74,13 @@
 	<form action="/{{alid}}/ancestors-aligned?startsite={{lesssite}}">
 	<input type="submit" value="&#8592;(show lower)">
 	</form>
-	&#09;[{{sites.0}}-{{sites.29}}]&#09;
+	
+	[{{sites.0}}-{{sites.29}}]
+	
 	<form action="/{{alid}}/ancestors-aligned?startsite={{moresite}}">
-	<input type="submit value="(show higher)&#8594;">
+	<input type="submit" value="(show higher)&#8594;">
 	</form>
+	
 <td>. . . or, Jump to a Site:<input type="text" size="4" name="startsite"></td>
 <td>
 	<form action="/{{alid}}/ancestors-aligned" method="get">
