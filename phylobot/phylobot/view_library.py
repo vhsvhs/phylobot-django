@@ -1008,7 +1008,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         for ancid in ancids:        
             ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
-            sql = "select site, state, pp from AncestralStates" + ancid.__str__()
+            sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__() + " group by site"
             cur.execute(sql)
             for ii in cur.fetchall():
                 site = ii[0]-1
@@ -1019,16 +1019,16 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
                 
                 if state == "-":
                     pp = None
-                    ancid_mlvector[ancid][site] = (state, pp)
-                    continue     
                 
-                if ancid_mlvector[ancid][site][1] == None:
-                    """This site is an indel site, so ignore amino acid data here."""
-                    continue
+                ancid_mlvector[ancid][site] = (state, pp)   
+                
+                #if ancid_mlvector[ancid][site][1] == None:
+                #    """This site is an indel site, so ignore amino acid data here."""
+                #    continue
             
-                if pp > ancid_mlvector[ancid][site][1]:
-                    """this state is more likely than other known states at this site."""
-                    ancid_mlvector[ancid][site] = (state,pp)
+                #if pp > ancid_mlvector[ancid][site][1]:
+                #    """this state is more likely than other known states at this site."""
+                #    ancid_mlvector[ancid][site] = (state,pp)
         
         return ancid_mlvector
     
