@@ -941,7 +941,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         """We didn't find the new table type."""
         use_legacy = True
         
-    print "view_library.py 944, legacy?", use_legacy
+    #print "view_library.py 944, legacy?", use_legacy
     
     if use_legacy == True:
         """Get a list of sites."""
@@ -967,7 +967,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
             state = ii[2]
             pp = ii[3]
             
-            print "view_library.py 970", ancid, site, state, pp, ancid_mlvector[ancid][site] 
+            #print "view_library.py 970", ancid, site, state, pp, ancid_mlvector[ancid][site] 
             
             if state == "-":
                 pp = None
@@ -1015,7 +1015,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
                 state = ii[1]
                 pp = ii[2]
                 
-                print "view_library.py 1018", ancid, site, state, pp, ancid_mlvector[ancid][site]
+                #print "view_library.py 1018", ancid, site, state, pp, ancid_mlvector[ancid][site]
                 
                 if state == "-":
                     pp = None
