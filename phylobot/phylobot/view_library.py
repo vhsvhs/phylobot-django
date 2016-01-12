@@ -1623,7 +1623,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     
     context["sites"] = []
-    for ii in xrange(startsite, stopsite):
+    for ii in xrange(startsite, stopsite+1):
         context["sites"].append(ii)
     
     context["msanames"] = get_alignmentnames(con)
