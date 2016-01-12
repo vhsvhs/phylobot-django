@@ -945,13 +945,13 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
     
     if use_legacy == True:
         """Get a list of sites."""
+        innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
         sites = []
         if startsite != None and stopsite != None:
             for ii in xrange(startsite, stopsite + 1):
                 sites.append( ii )
         else:
             tablename = "AncestralStates"
-            innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
             sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
             if startsite != None and stopsite != None:
                 sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
