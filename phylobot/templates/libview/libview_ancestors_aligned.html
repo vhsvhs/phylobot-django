@@ -71,17 +71,17 @@
 <table>
 <tr><td><h3>Navigate Sites:</h3></td>
 <td>
-	<form action="/{{alid}}/ancestors-aligned?startsite={{lesssite}}" method="get">
-	<input type="submit" value="&#8592;(show lower)">
-	</form>
+	<a href="/{{alid}}/ancestors-aligned?startsite={{lesssite}}">
+	<button>&#8592;(show lower)</button>
+	</a>
 </td>
 <td>
 Sites {{sites.0}}-{{sites.29}}
 </td>
 <td>
-	<form action="/{{alid}}/ancestors-aligned?startsite={{moresite}}" method="get">
-	<input type="submit" value="(show higher)&#8594;">
-	</form>
+	<a href="/{{alid}}/ancestors-aligned?startsite={{moresite}}">
+	<button>(show higher)&#8594;</button>
+	</a>
 </td>
 <td>. . . or, Jump to a Site:<input type="text" size="4" name="startsite"></td>
 <td>
