@@ -973,7 +973,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
             if ancid not in ancid_mlvector:
                 ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
-            site = ii[1]-1
+            site = ii[1]-sites[0]
             state = ii[2]
             pp = ii[3]
             
@@ -1030,7 +1030,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                 sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
             cur.execute(sql)
             for ii in cur.fetchall():
-                site = ii[0]-1
+                site = ii[0]-sites[0]
                 state = ii[1]
                 pp = ii[2]
                 
