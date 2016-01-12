@@ -940,6 +940,8 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
     if x[0] == 0:
         """We didn't find the new table type."""
         use_legacy = True
+        
+    print "view_library.py 944, legacy?", use_legacy
     
     if use_legacy == True:
         """Get a list of sites."""
@@ -964,15 +966,14 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
             site = ii[1]-1
             state = ii[2]
             pp = ii[3]
+            
+            print "view_library.py 970", ancid, site, state, pp, ancid_mlvector[ancid][site] 
+            
             if state == "-":
                 pp = None
                 ancid_mlvector[ancid][site] = (state, pp)
                 continue      
-        
-            #if site not in ancid_mlvector[ancid]:
-            #    ancid_mlvector[ancid][site] = (state,pp)
-            #    continue
-                            
+                           
             if ancid_mlvector[ancid][site][1] == None:
                 """This site is an indel site, so ignore amino acid data here."""
                 continue
@@ -1013,6 +1014,9 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
                 site = ii[0]-1
                 state = ii[1]
                 pp = ii[2]
+                
+                print "view_library.py 1018", ancid, site, state, pp, ancid_mlvector[ancid][site]
+                
                 if state == "-":
                     pp = None
                     ancid_mlvector[ancid][site] = (state, pp)
