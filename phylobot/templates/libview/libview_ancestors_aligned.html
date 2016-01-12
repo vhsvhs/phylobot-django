@@ -71,7 +71,7 @@
 <table>
 <tr><td><h3>Navigate Sites:</h3></td>
 <td>
-	<form action="/{{alid}}/ancestors-aligned?startsite={{lesssite}}">
+	<form action="/{{alid}}/ancestors-aligned?startsite={{lesssite}}" method="get">
 	<input type="submit" value="&#8592;(show lower)">
 	</form>
 </td>
@@ -79,7 +79,7 @@
 Sites {{sites.0}}-{{sites.29}}
 </td>
 <td>
-	<form action="/{{alid}}/ancestors-aligned?startsite={{moresite}}">
+	<form action="/{{alid}}/ancestors-aligned?startsite={{moresite}}" method="get">
 	<input type="submit" value="(show higher)&#8594;">
 	</form>
 </td>
