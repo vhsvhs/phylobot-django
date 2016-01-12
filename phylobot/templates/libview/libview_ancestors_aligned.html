@@ -58,19 +58,24 @@
 	</td>
 </tr>
 </table>
-</form>
+
 
 <br>
 <h3>ML Ancestral Sequences. Alignment: {{default_msaname}}, Model: {{default_modelname}}</h3>
 
+<p><a href="">(less)</a><a href="">(more)</a></p>
+
+</form>
 <p>&#8594;<a href='ancestors-aligned.csv'>Download Excel Spreadsheet (CSV)</a></p>
+
+
 
 <table>
 <tr>
 <th>Sites:</th>
 {# Iterate through the sites (.1) in the first row (.0) of the ancvectors table#}
-{% for ii in ancvectors.0.1 %}
-	<th class="smallertext" width="50"><a href="{{default_msaname}}/site{{forloop.counter}}">{{forloop.counter}}</a></th>
+{% for ss in sites %}
+	<th class="smallertext" width="50"><a href="{{default_msaname}}/site{{ss}}">{{ss}}</a></th>
 {% endfor %}
 </tr>
 

@@ -913,7 +913,7 @@ def get_ml_vector(con, ancid, skip_indels=True):
         mlvector.append(   (site_state[s].upper(), site_mlpp[s])  )
     return mlvector
 
-def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
+def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=None, stopsite=None):
     """Returns a hashtable, key = ancid, value = ml vector.
         This method is related to get_ml_vector, which returns only one vector,
         whereas this method returns a collection of vectors."""
@@ -949,6 +949,8 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         tablename = "AncestralStates"
         innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
         sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+        if startsite != None and stopsite != None:
+            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
         sql += " order by site ASC"
         cur.execute(sql)
         for ii in cur.fetchall():
@@ -992,6 +994,8 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         cur.execute(sql)
         some_ancid = cur.fetchone()[0]
         sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
+        if startsite != None and stopsite != None:
+            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
         sql += " order by site ASC"
         cur.execute(sql)
         for ii in cur.fetchall():
@@ -1546,7 +1550,14 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         the user comes to the ancestors page."""
     save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
-           
+    
+    startsite = 1
+    stopsite = 30
+    if request.method == "POST":
+        if "startsite" in request.POST:
+            startsite = int( request.POST["startsite"] )
+        stopsite = startsite + 30
+    
     context = get_base_context(request, alib, con)  
     context["default_msaname"] = msaname
     context["default_modelname"] = phylomodelname
@@ -1558,7 +1569,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     cur.execute(sql)
     x = cur.fetchall()
 
-    ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True)
+    ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
     ancids.sort()
 
@@ -1601,6 +1612,11 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         for ii in ancid_vector[ancid]:
             this_vector.append( (ii[0],ii[1]) )
         ancvectors.append( (ancname,this_vector) )
+    
+    
+    context["sites"] = []
+    for ii in xrange(startsite, stopsite):
+        context["sites"].append(ii)
     
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)
