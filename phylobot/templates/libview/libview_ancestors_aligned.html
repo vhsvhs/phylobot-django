@@ -66,22 +66,18 @@
 <p>&#8594;<a href='ancestors-aligned.csv'>Download Excel Spreadsheet (CSV)</a></p>
 
 
+<form action="/{{alid}}/ancestors-aligned" method="get">
 <table>
 <tr>
 <td><h4>Navigate Sites:</h4>
 <td>
 <p><a href="/{{alid}}/ancestors-aligned?startsite={{lesssite}}"><strong>&#8592;(show lower)</strong></a>&#09;[{{sites.0}}-{{sites.29}}]&#09;<a href="/{{alid}}/ancestors-aligned?startsite={{moresite}}"><strong>(show higher)&#8594;</strong></a></p>
 </td>
-<td>
-<form action="/{{alid}}/ancestors-aligned" method="get">
-Jump to Site:<input type="text" name="startsite"><br>
-</form>
-</td>
-	<td>
-		<input type="submit">
-	</td>
+<td>Jump to Site:<input type="text" name="startsite"></td>
+<td><input type="submit" class="dropdown"/></td>
 </tr>
 </table>
+</form>
 
 <table>
 <tr>
