@@ -1008,7 +1008,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
         for ancid in ancids:        
             ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
-            print "view_library.py 1011, ancid", ancid
+            #print "view_library.py 1011, ancid", ancid
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__() + " group by site"
             cur.execute(sql)
@@ -1596,7 +1596,11 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         sql = "select name from Ancestors where id=" + ancid.__str__()
         cur.execute(sql)
         ancname = cur.fetchone()[0]
-        ancvectors.append( (ancname, ancid_vector[ancid]) )
+        #ancvectors.append( (ancname, ancid_vector[ancid]) )
+        this_vector = ""
+        for ii in ancid_vector[ancid]:
+            this_vector += "<td>" + ii[0] + "(%.3f"%ii[1] + ")</td>"
+        ancvectors.append( (ancname,this_vector) )
     
     context["msanames"] = get_alignmentnames(con)
     context["modelnames"] = get_modelnames(con)

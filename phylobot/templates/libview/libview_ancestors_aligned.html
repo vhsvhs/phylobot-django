@@ -76,10 +76,7 @@
 
 {% for row in ancvectors %}
 <tr>
-	<td align="left"><a href="ancestors/{{msaname}}.{{modelname}}/{{row.0}}">{{row.0}}</a></td>
-	{% for ii in row.1 %}
-		<td align="center">{{ii.0}} ({{ii.1}})</td>
-	{% endfor %} 
+	<td align="left"><a href="ancestors/{{msaname}}.{{modelname}}/{{row.0}}">{{row.0}}</a></td>{{row.1}} 
 </tr>
 {% endfor %}
 </table>
