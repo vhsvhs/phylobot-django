@@ -941,7 +941,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
         """We didn't find the new table type."""
         use_legacy = True
         
-    #print "view_library.py 944, legacy?", use_legacy
+    print "view_library.py 944, legacy?", use_legacy
     
     if use_legacy == True:
         """Get a list of sites."""
@@ -1566,10 +1566,10 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     startsite = 1
     stopsite = 30
-    print "view_library.py", request.GET
+    #print "view_library.py", request.GET
     #if request.method == "POST":
     if "startsite" in request.GET:
-        print "view_library.py 1571:", request.GET
+        #print "view_library.py 1571:", request.GET
         startsite = int( request.GET["startsite"] )
         print "view_library.py 1573:", startsite
     stopsite = startsite + 30
@@ -1639,7 +1639,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         lesssite = 1
     moresite = startsite + 30
     
-    print "view_library.py 1639:", lesssite, moresite
+    #print "view_library.py 1639:", lesssite, moresite
     
     context["lesssite"] = lesssite
     context["moresite"] = moresite
