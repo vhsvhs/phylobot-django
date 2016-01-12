@@ -1022,13 +1022,13 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True):
                     ancid_mlvector[ancid][site] = (state, pp)
                     continue     
                 
-            if ancid_mlvector[ancid][site][1] == None:
-                """This site is an indel site, so ignore amino acid data here."""
-                continue
+                if ancid_mlvector[ancid][site][1] == None:
+                    """This site is an indel site, so ignore amino acid data here."""
+                    continue
             
-            if pp > ancid_mlvector[ancid][site][1]:
-                """this state is more likely than other known states at this site."""
-                ancid_mlvector[ancid][site] = (state,pp)
+                if pp > ancid_mlvector[ancid][site][1]:
+                    """this state is more likely than other known states at this site."""
+                    ancid_mlvector[ancid][site] = (state,pp)
         
         return ancid_mlvector
     
