@@ -1091,8 +1091,6 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
         sites = []
         tablename = "AncestralStates"
         sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
-        if startsite != None and stopsite != None:
-            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
         sql += " order by site ASC"
         cur.execute(sql)
         for ii in cur.fetchall():
@@ -1156,8 +1154,6 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
             row = [ ancid_name[ancid] ]
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
-            if startsite != None and stopsite != None:
-                sql += " where site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
             sql += " group by site order by site ASC"
             cur.execute(sql)
             for ii in cur.fetchall():
