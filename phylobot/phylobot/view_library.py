@@ -1771,6 +1771,8 @@ def view_ancestors_search(request, alib, con):
         action = request.POST.get("action")
         if action == 'search':
             checked_taxa = request.POST.getlist('taxa')
+    
+    print "1775:", checked_taxa
         
     taxon_labels = []
     for taxonid in checked_taxa:
