@@ -1781,6 +1781,8 @@ def view_ancestors_search(request, alib, con):
         name = cur.fetchone()[0]
         taxon_labels.append( name )
 
+    print "1784:", taxon_labels
+
     msaids = get_alignmentids(con)
     modelids = get_modelids(con)
 
@@ -1804,7 +1806,7 @@ def view_ancestors_search(request, alib, con):
                 t = Tree()
                 t.read_from_string(cladonewick, "newick")
                 
-                print "1807:", t.__str__()
+                #print "1807:", t.__str__()
                 
                 taxa = t.taxon_set.get_taxa(labels=taxon_labels)
                 print "1810:", taxa
