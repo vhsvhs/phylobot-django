@@ -18,6 +18,21 @@ function clearAll(){
 <h3>Search for Ancestors</h3>
 <p>Select ancestors from the list below, and then click search to find their most-recent shared ancestor.</p>
 
+<table>
+<tr>
+	<th>Alignment</th>
+	<th>Phylo. Model</th>
+	<th>Ancestor</th>
+</tr>
+{% for row in results %}
+	<tr>
+	<td>{{row.0}}</td>
+	<td>{{row.1}}</td>
+	<td>Node {{row.2}}</td>
+	</tr>
+{% endfor %}
+</table>
+
 <form action="/{{alid}}/ancestors-search" method="post">
 {% csrf_token %}
 

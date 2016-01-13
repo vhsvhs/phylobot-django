@@ -1811,8 +1811,13 @@ def view_ancestors_search(request, alib, con):
                 print "1796:", mrca, mrca.label
                 
                 msaname_modelname_mrca[ msaname ][ modelname ] = mrca.label
-
-    print "1815:", msaname_modelname_mrca
+    
+    result_rows = []
+    for msaname in msaname_modelname_mrca:
+        for modelname in msaname_modelname_mrca[msaname]:
+            result_rows.append(  (msaname, modelname, msaname_modelname_mrca[msaname][modelname]) )
+    context["results"] = result_rows
+    
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
     cur.execute(sql)
