@@ -15,6 +15,13 @@ function clearAll(){
 
 {% block body %}
 
+<p>&#10095; &#10095; &#10095; 
+	<a href='ancestors'>View Ancestors on Tree</a> |
+	<a href='ancestors-aligned'>View Ancestors Aligned</a> |
+	<a href='ancestors-search'>Search for Ancestors</a>
+	&#10094; &#10094; &#10094;
+</p>
+
 <h3>Search for Ancestors</h3>
 <p>Select ancestors from the list below, and then click search to find their most-recent shared ancestor.</p>
 
@@ -61,7 +68,7 @@ function clearAll(){
 		{% for row in results %}
 			<tr>
 			<td align="center">{{row.0}}</td>
-			<td align="center">{{row.1}}</td>
+			<td align="left">{{row.1}}</td>
 			<td align="center"><a href="/{{alid}}/{{row.0}}.{{row.1}}/Node{{row.2}}">Node {{row.2}}</a></td>
 			</tr>
 		{% endfor %}
