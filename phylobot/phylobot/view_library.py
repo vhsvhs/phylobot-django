@@ -1786,9 +1786,16 @@ def view_ancestors_search(request, alib, con):
     msaids = get_alignmentids(con)
     modelids = get_modelids(con)
 
+    msaname_modelname_mrca = {}
     if taxon_labels.__len__() > 1:
-        for modelid in modelids:
-            for msaid in msaids:
+        for msaid in msaids:
+            msaname = get_alignment_name_for_id(con, msaid)
+            if msaname not in msaname_modelname_mrca:
+                msaname_modelname_mrca[ msaname ] = {}
+            
+            for modelid in modelids:
+                modelname = get_model_name_for_id(con, modelid)
+                
                 sql = "select newick from AncestralCladogram where unsupportedmltreeid in (select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__() + ")"
                 cur.execute(sql)
                 xx = cur.fetchone()
@@ -1802,7 +1809,10 @@ def view_ancestors_search(request, alib, con):
                 print taxon_labels
                 mrca = t.mrca( taxon_labels=taxon_labels )
                 print "1796:", mrca, mrca.label
+                
+                msaname_modelname_mrca[ msaname ][ modelname ] = mrca.label
 
+    print "1815:", msaname_modelname_mrca
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
     cur.execute(sql)

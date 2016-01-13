@@ -46,6 +46,18 @@ def get_alignmentids(con):
         ids.append( ii[0] )
     return ids
 
+def get_alignment_name_for_id(con, id):
+    cur = con.cursor()
+    sql = "select name from AlignmentMethods where id=" + id.__str__()
+    cur.execute(sql)
+    return cur.fetchone()[0]
+
+def get_model_name_for_id(con, id):
+    cur = con.cursor()
+    sql = "select name from PhyloModels where modelid=" + id.__str__()
+    cur.execute(sql)
+    return cur.fetcheone()[0]
+
 def get_msamodel_from_url(request, con, msaonly=False):
     """Returns a tuple, with the ID of the alignment method and 
         the ID of the phylo. model, interpreted from the URL.
