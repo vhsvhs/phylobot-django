@@ -1793,6 +1793,8 @@ def view_ancestors_search(request, alib, con):
             
             t = Tree()
             t.read_from_string(cladonewick, "newick")
+            print t
+            print taxon_labels
             mrca = t.mrca( taxon_labels=taxon_labels )
             print "1796:", mrca
 
