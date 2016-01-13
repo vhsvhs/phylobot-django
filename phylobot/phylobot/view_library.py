@@ -1041,9 +1041,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
         ancid_mlvector = {}
         for ancid in ancids:        
             ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
-            
-            print "view_library.py 1011, ancid", ancid
-            
+                        
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
             if startsite != None and stopsite != None:
                 sql += " where site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
@@ -1053,12 +1051,9 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                 site = ii[0]-sites[0]
                 state = ii[1]
                 pp = ii[2]
-                
-                #print "view_library.py 1018", ancid, site, state, pp, ancid_mlvector[ancid][site]
-                
+
                 if state == "-":
                     pp = None
-                
                 ancid_mlvector[ancid][site] = (state, pp)   
                         
         return (ancid_mlvector, sites, maxsite)
@@ -1770,8 +1765,10 @@ def view_ancestors_search(request, alib, con):
     """Show the page that allows to search for ancestors based on the ingroup."""    
     context = get_base_context(request, alib, con)  
 
-    if request.POST['action'] == 'search':
-        checked_taxa = request.POST.getlist('taxa')
+    if "action" in request.POST:
+        action = request.POST.get("action")
+        if action == 'search':
+            checked_taxa = request.POST.getlist('taxa')
 
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
