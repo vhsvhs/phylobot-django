@@ -1779,6 +1779,7 @@ def view_ancestors_search(request, alib, con):
     for ii in x:
         id = ii[0]
         name = ii[1]
+        checked = False
         if id in checked_taxa:
             checked = True
         taxa_tuples.append( (name,id,checked) )
