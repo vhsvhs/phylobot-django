@@ -1048,7 +1048,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
         for ancid in ancids:        
             ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
-            print "view_library.py 1011, ancid", ancid
+            #print "view_library.py 1011, ancid", ancid
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
             if startsite != None and stopsite != None:
@@ -1603,6 +1603,14 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     (ancid_vector, sites, maxsite) = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
     
+    sql = "select id, name from Ancestors"
+    cur.execute(sql)
+    ancid_name = {}
+    for ii in cur.fetchall():
+        id = ii[0]
+        name = ii[1]
+        ancid_name[ id ] = name
+    
     """
         Render a CSV rather than HTML
     """
@@ -1619,9 +1627,12 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         writer.writerow( headerrow )
         
         for ancid in ancids:
-            sql = "select name from Ancestors where id=" + ancid.__str__()
-            cur.execute(sql)
-            ancname = cur.fetchone()[0]
+            #sql = "select name from Ancestors where id=" + ancid.__str__()
+            #cur.execute(sql)
+            #ancname = cur.fetchone()[0]
+            ancname = ancid_name[ ancid ]
+        
+            print "view_library.py 1626", ancid
         
             row = [ancname]
             for ii in ancid_vector[ancid]:
