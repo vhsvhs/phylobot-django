@@ -19,7 +19,7 @@ def get_modelnames(con):
 def get_modelids(con):
     cur = con.cursor()
     ids = []
-    sql = "select id from PhyloModels"
+    sql = "select modelid from PhyloModels"
     cur.execute(sql)
     x = cur.fetchall()
     for ii in x:
