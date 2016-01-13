@@ -53,9 +53,9 @@ function clearAll(){
 		<p class="smalltext">The most-recent shared ancestor of
 		{% for taxon in checked_taxa_names %}
 			{% if forloop.last %}
-				and {{taxon}}
+				and '{{taxon}}'
 			{% else %}
-				{{taxon}},
+				'{{taxon}}',
 			{% endif %} 
 		{% endfor %}
 		</p>

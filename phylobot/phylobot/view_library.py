@@ -1772,7 +1772,7 @@ def view_ancestors_search(request, alib, con):
         if action == 'search':
             checked_taxa = request.POST.getlist('taxa')
     
-    print "1775:", checked_taxa
+    #print "1775:", checked_taxa
         
     taxon_labels = []
     for taxonid in checked_taxa:
@@ -1782,7 +1782,7 @@ def view_ancestors_search(request, alib, con):
         name = re.sub("_", " ", name)
         taxon_labels.append( name )
 
-    print "1784:", taxon_labels
+    #print "1784:", taxon_labels
 
     msaids = get_alignmentids(con)
     modelids = get_modelids(con)
@@ -1844,7 +1844,7 @@ def view_ancestors_search(request, alib, con):
             checked = True
         taxa_tuples.append( (name,id,checked) )
     
-    print "1833:", taxon_labels
+    #print "1833:", taxon_labels
     
     context["taxa_tuples"] = taxa_tuples
     context["checked_taxa_names"] = taxon_labels
