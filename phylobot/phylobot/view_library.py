@@ -1801,7 +1801,7 @@ def view_ancestors_search(request, alib, con):
                 print t
                 print taxon_labels
                 mrca = t.mrca( taxon_labels=taxon_labels )
-                print "1796:", mrca
+                print "1796:", mrca, mrca.label
 
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
