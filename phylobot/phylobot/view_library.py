@@ -1673,6 +1673,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     if lesssite < 1:
         lesssite = 1
     moresite = startsite + 30
+    if moresite > maxsite:
+        moresite = startsite
     
     #print "view_library.py 1639:", lesssite, moresite
     
