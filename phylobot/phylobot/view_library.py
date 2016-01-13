@@ -1662,12 +1662,12 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     """lesssite is the site number used in the 'a href' for the <-- button,
         and moresite is the site number used in the 'a href' for the --> button"""
-    lesssite = startsite - 30
+    lesssite = sites[0] - 30
     if lesssite < 1:
         lesssite = 1
-    moresite = startsite + 30
+    moresite = sites[0] + 30
     if moresite > maxsite:
-        moresite = startsite
+        moresite = sites[0]
 
     context["sites"] = sites
     context["lesssite"] = lesssite
