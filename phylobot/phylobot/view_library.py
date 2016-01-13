@@ -1613,6 +1613,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         stopsite = maxsite
 
     print "view_library.py 1615:", maxsite, stopsite
+    for ii in ancid_vector:
+        print "view_library.py 1617:", ii, ancid_vector[ii]
 
     """
         Render a CSV rather than HTML
