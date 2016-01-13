@@ -1152,7 +1152,7 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
             writer.writerow( row )
         
     elif use_legacy == False:        
-        for ancid in ancid_names:                    
+        for ancid in ancid_name:                    
             row = [ ancid_name[ancid] ]
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
