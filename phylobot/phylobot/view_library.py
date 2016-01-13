@@ -1001,7 +1001,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                 """this state is more likely than other known states at this site."""
                 ancid_mlvector[ancid][site] = (state,pp)
         
-        return ancid_mlvector
+        return (ancid_mlvector, sites, maxsite)
         
                 
     elif use_legacy == False:
@@ -1067,7 +1067,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                 #    """this state is more likely than other known states at this site."""
                 #    ancid_mlvector[ancid][site] = (state,pp)
         
-        return (ancid_mlvector, sites)
+        return (ancid_mlvector, sites, maxsite)
     
     
 
@@ -1588,10 +1588,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         startsite = 1
         if "startsite" in request.GET:
             startsite = int( request.GET["startsite"] )
-            #print "view_library.py 1573:", startsite
         elif "startsite" in request.POST:
             startsite = int( request.POST["startsite"] )
-            #print "view_library.py 1575:", startsite
         stopsite = startsite + 29
     
     context = get_base_context(request, alib, con)  
@@ -1600,12 +1598,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     cur = con.cursor()
 
-    """get a list of anc. IDs for this msa/phylomodel"""
-    sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
-    cur.execute(sql)
-    x = cur.fetchall()
-
-    (ancid_vector, sites) = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
+    (ancid_vector, sites, maxsite) = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
     
     """
@@ -1641,11 +1634,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     """
         Render HTML
     """
-    maxsite = max(sites)
-    if maxsite < stopsite:
-        stopsite = maxsite
-
-    print "view_library.py 1615:", maxsite, stopsite
     ancname_id = {} # key = ancestral node name, value = ancestral ID in the databse
     for ancid in ancids:
         sql = "Select name from Ancestors where id=" + ancid.__str__()
