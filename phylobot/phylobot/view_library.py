@@ -1063,7 +1063,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                         
         return (ancid_mlvector, sites, maxsite)
     
-def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodelname=phylomodelname, skip_indels=True):    
+def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodelname=None):    
     cur = con.cursor()
     
     """We'll re-use this bit of SQL"""
@@ -1686,10 +1686,7 @@ def view_ancestors_aligned_csv(request, alib, con):
     save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
         
-    
-    cur = con.cursor()
-
-    return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname, skip_indels=True, startsite=startsite, stopsite=stopsite)
+    return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
     
 
 def view_ancestors_aligned(request, alib, con, render_csv=False):    
