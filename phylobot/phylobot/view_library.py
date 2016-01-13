@@ -1070,7 +1070,7 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
     innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
     
     ancid_name = {}
-    sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
+    sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__()
     cur.execute(sql)
     ancid_name = {}
     for ii in cur.fetchall():
