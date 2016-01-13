@@ -1,16 +1,32 @@
 {% extends "libview/libview_base.html" %}
 {% load staticfiles %}
 
+{% block javascript %}
+<script type="text/javascript">
+function clearAll(){
+	var elements = document.getElementsByName("taxa");
+	for(var i=0; i<elements.length; i++) {
+    	elements[i].checked = false;
+	}
+}
+</script>
+
+{% endblock %}
+
 {% block body %}
+
+<h3>Search for Ancestors</h3>
+<p>Select ancestors from the list below, and then click search to find their most-recent shared ancestor.</p>
 
 <form action="/{{alid}}/ancestors-search" method="post">
 {% csrf_token %}
 
 	<div align="center">
 		<input type="hidden" name="action" value="setoutgroup">
-		<input type="submit" class="button1" name="submit_newgroup" value="Save Outgroup, then Launch" />
+		<input type="submit" class="button1" name="submit_newgroup" value="Find Ancestor" />
 	</div>
 	
+	<button onclick="clearAll()" id="clearAllButton">Uncheck All</button>
 	<table>
 	{% for tuple in taxa_tuples %}
 	<tr>
