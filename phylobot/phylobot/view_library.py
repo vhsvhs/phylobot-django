@@ -1803,10 +1803,10 @@ def view_ancestors_search(request, alib, con):
                 
                 t = Tree()
                 t.read_from_string(cladonewick, "newick")
-                print t
-                print taxon_labels
+                #print t
+                #print taxon_labels
                 mrca = t.mrca( taxon_labels=taxon_labels )
-                print "1796:", mrca, mrca.label
+                #print "1796:", mrca, mrca.label
                 
                 msaname_modelname_mrca[ msaname ][ modelname ] = mrca.label
     
@@ -1816,7 +1816,7 @@ def view_ancestors_search(request, alib, con):
             result_rows.append(  (msaname, modelname, msaname_modelname_mrca[msaname][modelname]) )
     context["results"] = result_rows
     
-    checked_taxa_names = []
+    
     
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
@@ -1829,13 +1829,12 @@ def view_ancestors_search(request, alib, con):
         checked = False
         if id in checked_taxa:
             checked = True
-            checked_taxa_names.append( name )
         taxa_tuples.append( (name,id,checked) )
     
-    print "1833:", checked_taxa_names
+    print "1833:", taxon_labels
     
     context["taxa_tuples"] = taxa_tuples
-    context["checked_taxa_names"] = checked_taxa_names
+    context["checked_taxa_names"] = taxon_labels
     
     template_url='libview/libview_ancestor_search.html'
     return render(request, template_url, context)
