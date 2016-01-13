@@ -1782,21 +1782,22 @@ def view_ancestors_search(request, alib, con):
     msaids = get_alignmentids(con)
     modelids = get_modelids(con)
 
-    for modelid in modelids:
-        for msaid in msaids:
-            sql = "select newick from AncestralCladogram where unsupportedmltreeid in (select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__() + ")"
-            cur.execute(sql)
-            xx = cur.fetchone()
-            if xx == None:
-                write_error(con, "I cannot find the ancestral Newick cladogram for almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__())
-            cladonewick = xx[0].__str__()
-            
-            t = Tree()
-            t.read_from_string(cladonewick, "newick")
-            print t
-            print taxon_labels
-            mrca = t.mrca( taxon_labels=taxon_labels )
-            print "1796:", mrca
+    if taxon_labels.__len__() > 1:
+        for modelid in modelids:
+            for msaid in msaids:
+                sql = "select newick from AncestralCladogram where unsupportedmltreeid in (select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__() + ")"
+                cur.execute(sql)
+                xx = cur.fetchone()
+                if xx == None:
+                    write_error(con, "I cannot find the ancestral Newick cladogram for almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__())
+                cladonewick = xx[0].__str__()
+                
+                t = Tree()
+                t.read_from_string(cladonewick, "newick")
+                print t
+                print taxon_labels
+                mrca = t.mrca( taxon_labels=taxon_labels )
+                print "1796:", mrca
 
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
