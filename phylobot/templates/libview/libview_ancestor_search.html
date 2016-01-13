@@ -43,8 +43,14 @@ function clearAll(){
 	<div style="margin-left: 510px;">
 	{% if results|length > 0 %}
 		<h4>Matching Ancestors:</h4>
-		<p>The most-recent shared ancestor of
-		{% for taxon in checked_taxa_names %}{{taxon}}, {% endfor %}
+		<p class="smalltext">The most-recent shared ancestor of
+		{% for taxon in checked_taxa_names %}
+			{% if forloop.last %}
+				and {{taxon}}
+			{% else %}
+				{{taxon}},
+			{% endif %} 
+		{% endfor %}
 		</p>
 		<table width="50%">
 		<tr>
