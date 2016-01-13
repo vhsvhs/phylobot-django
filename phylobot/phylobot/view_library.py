@@ -1809,6 +1809,8 @@ def view_ancestors_search(request, alib, con):
                 #print "1807:", t.__str__()
                 
                 taxa = t.taxon_set.get_taxa(labels=taxon_labels)
+                for ttt in t.taxon_set:
+                    print "1813:", ttt.label
                 print "1810:", taxa
                 #for taxonname in taxon_labels:
                 #    if taxonname not in t.taxon_namespace:
