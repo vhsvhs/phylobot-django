@@ -16,6 +16,16 @@ def get_modelnames(con):
         modelnames.append( ii[0] )
     return modelnames
 
+def get_modelids(con):
+    cur = con.cursor()
+    ids = []
+    sql = "select id from PhyloModels"
+    cur.execute(sql)
+    x = cur.fetchall()
+    for ii in x:
+        ids.append( ii[0] )
+    return ids
+
 def get_alignmentnames(con):
     cur = con.cursor()
     sql = "select name from AlignmentMethods"
@@ -25,6 +35,16 @@ def get_alignmentnames(con):
     for ii in x:
         msanames.append( ii[0] )
     return msanames
+
+def get_alignmentids(con):
+    cur = con.cursor()
+    sql = "select id from AlignmentMethods"
+    cur.execute(sql)
+    x = cur.fetchall()
+    ids = []
+    for ii in x:
+        ids.append( ii[0] )
+    return ids
 
 def get_msamodel_from_url(request, con, msaonly=False):
     """Returns a tuple, with the ID of the alignment method and 

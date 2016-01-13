@@ -1770,6 +1770,30 @@ def view_ancestors_search(request, alib, con):
         action = request.POST.get("action")
         if action == 'search':
             checked_taxa = request.POST.getlist('taxa')
+            
+    taxon_labels = []
+    for taxonid in checked_taxa:
+        sql = "select fullname from Taxa where id=" + taxonid.__str__()
+        cur.execute(sql)
+        name = cur.fetchone()[0]
+        taxon_labels.append( name )
+
+    msaids = get_alignmentids(con)
+    modelids = get_modelids(con)
+
+    for modelid in modelids:
+        for msaid in msaids:
+            sql = "select newick from AncestralCladogram where unsupportedmltreeid in (select id from UnsupportedMlPhylogenies where almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__() + ")"
+            cur.execute(sql)
+            xx = cur.fetchone()
+            if xx == None:
+                write_error(con, "I cannot find the ancestral Newick cladogram for almethod=" + msaid.__str__() + " and phylomodelid=" + modelid.__str__())
+            cladonewick = xx[0].__str__()
+            
+            t = Tree()
+            t.read_from_string(cladonewick, "newick")
+            mrca = t.mrca( taxon_labels=taxon_labels )
+            print "1796:", mrca
 
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
