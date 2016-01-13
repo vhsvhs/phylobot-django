@@ -1048,7 +1048,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
         for ancid in ancids:        
             ancid_mlvector[ancid] = [(None, 0.0)] * (nsites)
             
-            #print "view_library.py 1011, ancid", ancid
+            print "view_library.py 1011, ancid", ancid
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
             if startsite != None and stopsite != None:
@@ -1066,15 +1066,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                     pp = None
                 
                 ancid_mlvector[ancid][site] = (state, pp)   
-                
-                #if ancid_mlvector[ancid][site][1] == None:
-                #    """This site is an indel site, so ignore amino acid data here."""
-                #    continue
-            
-                #if pp > ancid_mlvector[ancid][site][1]:
-                #    """this state is more likely than other known states at this site."""
-                #    ancid_mlvector[ancid][site] = (state,pp)
-        
+                        
         return (ancid_mlvector, sites, maxsite)
     
     
