@@ -1077,7 +1077,6 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
         id = ii[0]
         name = ii[1]
         ancid_name[ id ] = name
-        print "view_library.py 1610", id
     
     """If we're rending CSV, use the csv writer library rather than the Django
         template library to render a response."""
@@ -1108,7 +1107,7 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
 
     headerrow = ["Ancestor"]
     for site in sites:
-        headerrow.append( "Site " + ii.__str__() )
+        headerrow.append( "Site " + site.__str__() )
     writer.writerow( headerrow )
 
     if use_legacy:
