@@ -1592,6 +1592,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     """The view will show only ~30 sites, due to space limitations on the screen,
     and to speedup the rendering of the page."""
+    startsite = None
+    stopsite = None
     if render_csv == False:
         startsite = 1
         if "startsite" in request.GET:
