@@ -957,6 +957,10 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
             maxsite = cur.fetchone()[0]
             if maxsite < stopsite:
                 stopsite = maxsite
+            if maxsite < startsite:
+                startsite = maxsite-30
+            if startsite < 1:
+                startsite = 1
             for ii in xrange(startsite, stopsite + 1):
                 sites.append( ii )
         else:
@@ -1015,6 +1019,10 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
             maxsite = cur.fetchone()[0]
             if maxsite < stopsite:
                 stopsite = maxsite
+            if maxsite < startsite:
+                startsite = maxsite-30
+            if startsite < 1:
+                startsite = 1
             for ii in xrange(startsite, stopsite + 1):
                 sites.append( ii )
         else:
