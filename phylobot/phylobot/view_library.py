@@ -98,6 +98,9 @@ def view_library(request, libid):
     elif request.path_info.endswith("ancestors-aligned.csv"):
         return view_ancestors_aligned(request, alib, con, render_csv=True)    
     
+    elif request.path_info.endswith("ancestors-search"):
+        return view_ancestors_search(request, alib, con)  
+    
     elif request.path_info.endswith("ml"):
         return view_ancestor_ml(request, alib, con)
     elif request.path_info.endswith("support"):
@@ -1653,7 +1656,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         lesssite = 1
     moresite = startsite + 30
     
-    print "view_library.py 1639:", lesssite, moresite
+    #print "view_library.py 1639:", lesssite, moresite
     
     context["lesssite"] = lesssite
     context["moresite"] = moresite
@@ -1665,7 +1668,32 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
 
     template_url='libview/libview_ancestors_aligned.html'
     return render(request, template_url, context)
+
+def view_ancestors_search(request, alib, con):
+    """Show the page that allows to search for ancestors based on the ingroup."""    
+    context = get_base_context(request, alib, con)  
+
+    if request.POST['action'] == 'search':
+        checked_taxa = request.POST.getlist('taxa')
+
+    cur = con.cursor()
+    sql = "select id, fullname from Taxa"
+    cur.execute(sql)
+    x = cur.fetchall()
+    taxa_tuples = []
+    for ii in x:
+        id = ii[0]
+        name = ii[1]
+        if id in checked_taxa:
+            checked = True
+        taxa_tuples.append( (name,id,checked) )
+    context["taxa_tuples"] = taxa_tuples
     
+    template_url='libview/libview_ancestors_search.html'
+    return render(request, template_url, context)
+    
+    
+
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
     cur = con.cursor()
     tokens = request.path_info.split("/")
