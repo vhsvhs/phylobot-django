@@ -1584,15 +1584,16 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     """The view will show only ~30 sites, due to space limitations on the screen,
     and to speedup the rendering of the page."""
-    startsite = 1
-    stopsite = 30
-    if "startsite" in request.GET:
-        startsite = int( request.GET["startsite"] )
-        #print "view_library.py 1573:", startsite
-    elif "startsite" in request.POST:
-        startsite = int( request.POST["startsite"] )
-        #print "view_library.py 1575:", startsite
-    stopsite = startsite + 30
+    if render_csv == False:
+        startsite = 1
+        stopsite = 30
+        if "startsite" in request.GET:
+            startsite = int( request.GET["startsite"] )
+            #print "view_library.py 1573:", startsite
+        elif "startsite" in request.POST:
+            startsite = int( request.POST["startsite"] )
+            #print "view_library.py 1575:", startsite
+        stopsite = startsite + 29
     
     context = get_base_context(request, alib, con)  
     context["default_msaname"] = msaname
@@ -1613,8 +1614,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         stopsite = maxsite
 
     print "view_library.py 1615:", maxsite, stopsite
-    for ii in ancid_vector:
-        print "view_library.py 1617:", ii, ancid_vector[ii]
 
     """
         Render a CSV rather than HTML
@@ -1670,6 +1669,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     context["sites"] = []
     for ii in xrange(startsite, stopsite+1):
         context["sites"].append(ii)
+    
+    print "view_library.py 1673", context["sites"]
     
     """lesssite is the site number used in the 'a href' for the <-- button,
         and moresite is the site number used in the 'a href' for the --> button"""
