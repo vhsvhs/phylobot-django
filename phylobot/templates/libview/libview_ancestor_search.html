@@ -60,9 +60,9 @@ function clearAll(){
 		</tr>
 		{% for row in results %}
 			<tr>
-			<td>{{row.0}}</td>
-			<td>{{row.1}}</td>
-			<td><a href="/{{alid}}/{{row.0}}.{{row.1}}/Node{{row.2}}">Node {{row.2}}</a></td>
+			<td align="center">{{row.0}}</td>
+			<td align="center">{{row.1}}</td>
+			<td align="center"><a href="/{{alid}}/{{row.0}}.{{row.1}}/Node{{row.2}}">Node {{row.2}}</a></td>
 			</tr>
 		{% endfor %}
 		</table>
