@@ -916,22 +916,9 @@ def get_ml_vector(con, ancid, skip_indels=True):
         mlvector.append(   (site_state[s].upper(), site_mlpp[s])  )
     return mlvector
 
-def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=None, stopsite=None):
-    """Returns a hashtable, key = ancid, value = ml vector.
-        This method is related to get_ml_vector, which returns only one vector,
-        whereas this method returns a collection of vectors."""
-
+def is_legacy_db(con):
     cur = con.cursor()
-    
     use_legacy = False
-    """If the ancestral DB was built using an older version of the ASR pipeline code,
-    then the DB will contain a single table with all ancestral PPs.
-    Newer versions, however, use multiple tables.
-    
-    Returns ancid_mlector[ancid] = list of tuples [(state,pp),(state,pp), etc...]
-    
-    """
-    
     """Get some ancestral ID, and then see if there is a table named AncestralStates<ID>.
     If it exists, then use the non-legacy, new, version of the code."""
     sql = "select min(id) from Ancestors"
@@ -943,11 +930,18 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
     if x[0] == 0:
         """We didn't find the new table type."""
         use_legacy = True
-        
-    #print "view_library.py 944, legacy?", use_legacy
+    return use_legacy
+
+def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=None, stopsite=None):
+    """Returns a hashtable, key = ancid, value = ml vector.
+        This method is related to get_ml_vector, which returns only one vector,
+        whereas this method returns a collection of vectors."""
+    cur = con.cursor()
+    use_legacy = is_legacy_db(con)
     
     if use_legacy == True:
-        """Get a list of sites."""
+
+        """We'll re-use this bit of SQL."""
         innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
         
         sites = []
@@ -1069,7 +1063,117 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                         
         return (ancid_mlvector, sites, maxsite)
     
+def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodelname=phylomodelname, skip_indels=True):    
+    cur = con.cursor()
     
+    """We'll re-use this bit of SQL"""
+    innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+    
+    ancid_name = {}
+    sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + phylomodelid.__str__()
+    cur.execute(sql)
+    ancid_name = {}
+    for ii in cur.fetchall():
+        id = ii[0]
+        name = ii[1]
+        ancid_name[ id ] = name
+        print "view_library.py 1610", id
+    
+    """If we're rending CSV, use the csv writer library rather than the Django
+        template library to render a response."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".csv"'
+    writer = csv.writer(response)
+            
+    use_legacy = is_legacy_db(con)
+    
+    if use_legacy:
+        sites = []
+        tablename = "AncestralStates"
+        sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+        if startsite != None and stopsite != None:
+            sql += " and site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
+        sql += " order by site ASC"
+        cur.execute(sql)
+        for ii in cur.fetchall():
+            sites.append( ii[0] )
+    elif use_legacy == False:
+        sites = []
+        sql = "select min(id) from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        cur.execute(sql)
+        some_ancid = cur.fetchone()[0]
+        sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
+        sql += " order by site ASC"
+        cur.execute(sql)
+        for ii in cur.fetchall():
+            sites.append( ii[0] )
+
+    headerrow = ["Ancestor"]
+    for site in sites:
+        headerrow.append( "Site " + ii.__str__() )
+    writer.writerow( headerrow )
+
+    if use_legacy:
+        sql = "select ancid, site, state, pp from AncestralStates where ancid in (" + innersql + ")"
+        cur.execute(sql)
+
+        ancid_mlvector = {}
+        for ii in cur.fetchall():
+            ancid = ii[0]       
+            if ancid not in ancid_mlvector:
+                ancid_mlvector[ancid] = {}     
+            site = ii[1]
+            state = ii[2]
+            pp = ii[3]
+
+            if state == "-":
+                pp = None
+                ancid_mlvector[ancid][site] = (state, pp)                   
+            elif ancid_mlvector[ancid][site][1] == None:
+                """This site is an indel site, so ignore amino acid data here."""
+                continue
+            elif pp > ancid_mlvector[ancid][site][1]:
+                """this state is more likely than other known states at this site."""
+                ancid_mlvector[ancid][site] = (state,pp)
+    
+        for ancid in anid_mlvector:
+            ancname = ancid_name[ ancid ]
+            row = [ancname]
+            for site in sites:
+                token = ""
+                if site in ancid_vector[ancid]:
+                    mlstate = ancid_vector[ancid][site][0]
+                    pp = ancid_vector[ancid][site][1]
+                    if mlstate == "-":
+                        token = "indel (na)"
+                    else:
+                        token = mlstate + " (%.3f)"%pp
+                row.append( token )
+            writer.writerow( row )
+        
+    elif use_legacy == False:        
+        for ancid in ancid_names:                    
+            row = [ ancid_name[ancid] ]
+            
+            sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
+            if startsite != None and stopsite != None:
+                sql += " where site>=" + startsite.__str__() + " and site<=" + stopsite.__str__()
+            sql += " group by site order by site ASC"
+            cur.execute(sql)
+            for ii in cur.fetchall():
+                site = ii[0]
+                mlstate = ii[1]
+                pp = ii[2]
+                
+                token = ""
+                if mlstate == "-":
+                    token = "indel (na)"
+                else:
+                    token = mlstate + " (%.3f)"%pp
+                row.append( token )
+            writer.writerow( row )
+    
+    return response
 
 def ml_sequence_difference(seq1, seq2):
     """Returns the proportion similarity between two sequences.
@@ -1574,7 +1678,24 @@ def view_library_ancestortree(request, alib, con):
     
     return render(request, 'libview/libview_anctrees.html', context)
 
+def view_ancestors_aligned_csv(request, alib, con):
+    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
+
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
+        
+    
+    cur = con.cursor()
+
+    return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname, skip_indels=True, startsite=startsite, stopsite=stopsite)
+    
+
 def view_ancestors_aligned(request, alib, con, render_csv=False):    
+    if render_csv:
+        return view_ancestors_aligned_csv(request, alib, con)
+    
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
     """Save this viewing preference -- it will load automatically next time
@@ -1584,15 +1705,12 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     
     """The view will show only ~30 sites, due to space limitations on the screen,
     and to speedup the rendering of the page."""
-    startsite = None
-    stopsite = None
-    if render_csv == False:
-        startsite = 1
-        if "startsite" in request.GET:
-            startsite = int( request.GET["startsite"] )
-        elif "startsite" in request.POST:
-            startsite = int( request.POST["startsite"] )
-        stopsite = startsite + 29
+    startsite = 1
+    if "startsite" in request.GET:
+        startsite = int( request.GET["startsite"] )
+    elif "startsite" in request.POST:
+        startsite = int( request.POST["startsite"] )
+    stopsite = startsite + 29
     
     context = get_base_context(request, alib, con)  
     context["default_msaname"] = msaname
@@ -1610,40 +1728,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         id = ii[0]
         name = ii[1]
         ancid_name[ id ] = name
-    
-    """
-        Render a CSV rather than HTML
-    """
-    if render_csv:
-        """If we're rending CSV, use the csv writer library rather than the Django
-            template library to render a response."""
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".csv"'
-        writer = csv.writer(response)
+        print "view_library.py 1610", id
         
-        headerrow = ["Ancestor"]
-        for site in sites:
-            headerrow.append( "Site " + ii.__str__() )
-        writer.writerow( headerrow )
-        
-        for ancid in ancids:
-            #sql = "select name from Ancestors where id=" + ancid.__str__()
-            #cur.execute(sql)
-            #ancname = cur.fetchone()[0]
-            ancname = ancid_name[ ancid ]
-        
-            print "view_library.py 1626", ancid
-        
-            row = [ancname]
-            for ii in ancid_vector[ancid]:
-                if ii[0] == "-":
-                    token = "indel (na)"
-                else:
-                    token = ii[0] + " (%.3f)"%ii[1]
-                row.append( token )
-            writer.writerow( row )
-        return response
-    
     """
         Render HTML
     """
