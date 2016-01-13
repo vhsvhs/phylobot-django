@@ -18,38 +18,48 @@ function clearAll(){
 <h3>Search for Ancestors</h3>
 <p>Select ancestors from the list below, and then click search to find their most-recent shared ancestor.</p>
 
-<table>
-<tr>
-	<th>Alignment</th>
-	<th>Phylo. Model</th>
-	<th>Ancestor</th>
-</tr>
-{% for row in results %}
-	<tr>
-	<td>{{row.0}}</td>
-	<td>{{row.1}}</td>
-	<td>Node {{row.2}}</td>
-	</tr>
-{% endfor %}
-</table>
+<div style="width: 100%; overflow: hidden;">
 
-<form action="/{{alid}}/ancestors-search" method="post">
-{% csrf_token %}
-
-	<div align="center">
-		<input type="hidden" name="action" value="search">
-		<input type="submit" class="button1" name="submit_newgroup" value="Find Ancestor" />
+	<div style="width: 400px; float: left;"> 
+	<form action="/{{alid}}/ancestors-search" method="post">
+	{% csrf_token %}
+	
+		<div align="center">
+			<input type="hidden" name="action" value="search">
+			<input type="submit" class="button1" name="submit_newgroup" value="Find Ancestor" />
+		</div>
+	
+		<table>
+		<tr>
+		<td><button onclick="clearAll()" id="clearAllButton">Uncheck All</button></td>
+		</tr>
+		{% for tuple in taxa_tuples %}
+		<tr><td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2%}checked{%endif%}/> {{tuple.0|slice:":50"}}</label></td></tr>
+		{% endfor %}
+		</table>
+	</form>
 	</div>
 	
-	<button onclick="clearAll()" id="clearAllButton">Uncheck All</button>
-	<table>
-	{% for tuple in taxa_tuples %}
-	<tr>
-	<td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2%}checked{%endif%}/> {{tuple.0|slice:":50"}}</label></td>
-	</tr>
+	<div style="margin-left: 400px;">
+	{% if results|length > 0 %}
+		<h4>Matching Ancestors:</h4>
+		<table width="50%">
+		<tr>
+			<th class="mu_header_small">Alignment</th>
+			<th class="mu_header_small">Markov Model</th>
+			<th class="mu_header_small">Ancestor</th>
+		</tr>
+		{% for row in results %}
+			<tr>
+			<td>{{row.0}}</td>
+			<td>{{row.1}}</td>
+			<td><a href="/{{alidxxx}}/{{row.0}}.{{row.1}}/{{row.2}}">Node {{row.2}}</a></td>
+			</tr>
+		{% endfor %}
+		</table>
 	{% endfor %}
-	</table>
+	</div>
 
-</form>
+</div>
 
 {% endblock %}
