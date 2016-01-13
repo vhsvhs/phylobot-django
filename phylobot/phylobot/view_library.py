@@ -1771,8 +1771,6 @@ def view_ancestors_search(request, alib, con):
         action = request.POST.get("action")
         if action == 'search':
             checked_taxa = request.POST.getlist('taxa')
-    
-    checked_taxa_names = []
         
     taxon_labels = []
     for taxonid in checked_taxa:
@@ -1816,6 +1814,8 @@ def view_ancestors_search(request, alib, con):
             result_rows.append(  (msaname, modelname, msaname_modelname_mrca[msaname][modelname]) )
     context["results"] = result_rows
     
+    checked_taxa_names = []
+    
     cur = con.cursor()
     sql = "select id, fullname from Taxa"
     cur.execute(sql)
@@ -1829,6 +1829,9 @@ def view_ancestors_search(request, alib, con):
             checked = True
             checked_taxa_names.append( name )
         taxa_tuples.append( (name,id,checked) )
+    
+    print "1833:", checked_taxa_names
+    
     context["taxa_tuples"] = taxa_tuples
     context["checked_taxa_names"] = checked_taxa_names
     
