@@ -1779,7 +1779,7 @@ def view_ancestors_search(request, alib, con):
         sql = "select fullname from Taxa where id=" + taxonid.__str__()
         cur.execute(sql)
         name = cur.fetchone()[0]
-        name = re.sub("_", " ")
+        name = re.sub("_", " ", name)
         taxon_labels.append( name )
 
     print "1784:", taxon_labels
