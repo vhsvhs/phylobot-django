@@ -1771,13 +1771,17 @@ def view_ancestors_search(request, alib, con):
         action = request.POST.get("action")
         if action == 'search':
             checked_taxa = request.POST.getlist('taxa')
-            
+    
+    print "1775:", checked_taxa
+    
     taxon_labels = []
     for taxonid in checked_taxa:
         sql = "select fullname from Taxa where id=" + taxonid.__str__()
         cur.execute(sql)
         name = cur.fetchone()[0]
         taxon_labels.append( name )
+
+    print "1782:", taxon_labels
 
     msaids = get_alignmentids(con)
     modelids = get_modelids(con)
