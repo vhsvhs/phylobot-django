@@ -1785,7 +1785,7 @@ def view_ancestors_search(request, alib, con):
         taxa_tuples.append( (name,id,checked) )
     context["taxa_tuples"] = taxa_tuples
     
-    template_url='libview/libview_ancestors_search.html'
+    template_url='libview/libview_ancestor_search.html'
     return render(request, template_url, context)
     
     
