@@ -1067,7 +1067,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                 #    """this state is more likely than other known states at this site."""
                 #    ancid_mlvector[ancid][site] = (state,pp)
         
-        return ancid_mlvector
+        return (ancid_mlvector, sites)
     
     
 
@@ -1586,7 +1586,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     and to speedup the rendering of the page."""
     if render_csv == False:
         startsite = 1
-        stopsite = 30
         if "startsite" in request.GET:
             startsite = int( request.GET["startsite"] )
             #print "view_library.py 1573:", startsite
@@ -1606,15 +1605,9 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     cur.execute(sql)
     x = cur.fetchall()
 
-    ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
+    (ancid_vector, sites) = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
     
-    maxsite = ancid_vector[ ancids[0] ].__len__()
-    if maxsite < stopsite:
-        stopsite = maxsite
-
-    print "view_library.py 1615:", maxsite, stopsite
-
     """
         Render a CSV rather than HTML
     """
@@ -1626,7 +1619,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
         writer = csv.writer(response)
         
         headerrow = ["Ancestor"]
-        for ii in xrange(1, ancid_vector[ ancids[0] ].__len__()+1 ):
+        for site in sites:
             headerrow.append( "Site " + ii.__str__() )
         writer.writerow( headerrow )
         
@@ -1648,6 +1641,11 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     """
         Render HTML
     """
+    maxsite = max(sites)
+    if maxsite < stopsite:
+        stopsite = maxsite
+
+    print "view_library.py 1615:", maxsite, stopsite
     ancname_id = {} # key = ancestral node name, value = ancestral ID in the databse
     for ancid in ancids:
         sql = "Select name from Ancestors where id=" + ancid.__str__()
@@ -1666,12 +1664,6 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
             this_vector.append( (ii[0],ii[1]) )
         ancvectors.append( (ancname,this_vector) )
     
-    context["sites"] = []
-    for ii in xrange(startsite, stopsite+1):
-        context["sites"].append(ii)
-    
-    print "view_library.py 1673", context["sites"]
-    
     """lesssite is the site number used in the 'a href' for the <-- button,
         and moresite is the site number used in the 'a href' for the --> button"""
     lesssite = startsite - 30
@@ -1680,9 +1672,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     moresite = startsite + 30
     if moresite > maxsite:
         moresite = startsite
-    
-    #print "view_library.py 1639:", lesssite, moresite
-    
+
+    context["sites"] = sites
     context["lesssite"] = lesssite
     context["moresite"] = moresite
     context["msanames"] = get_alignmentnames(con)
@@ -1690,6 +1681,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     context["msaname"] = msaname
     context["modelname"] = phylomodelname
     context["ancvectors"] = ancvectors
+
+    print "view_library.py 1673", context["sites"]
 
     template_url='libview/libview_ancestors_aligned.html'
     return render(request, template_url, context)
