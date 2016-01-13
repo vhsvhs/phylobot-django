@@ -1764,6 +1764,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
 def view_ancestors_search(request, alib, con):
     """Show the page that allows to search for ancestors based on the ingroup."""    
     context = get_base_context(request, alib, con)  
+    cur = con.cursor()
 
     checked_taxa = []
     if "action" in request.POST:
