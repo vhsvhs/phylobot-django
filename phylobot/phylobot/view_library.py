@@ -1806,9 +1806,9 @@ def view_ancestors_search(request, alib, con):
                 
                 print "1807:", t.__str__()
                 
-                for taxonname in taxon_labels:
-                    if taxonname not in t.taxon_namespace:
-                        print "1809:", taxonname, "not in the tree"
+                #for taxonname in taxon_labels:
+                #    if taxonname not in t.taxon_namespace:
+                #        print "1809:", taxonname, "not in the tree"
                 #print t
                 #print taxon_labels
                 mrca = t.mrca( taxon_labels=taxon_labels )
