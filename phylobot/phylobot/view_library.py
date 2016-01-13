@@ -1607,6 +1607,10 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
 
     ancid_vector = get_ml_vectors(con, msaid=msaid, modelid=phylomodelid, skip_indels=True, startsite=startsite, stopsite=stopsite)
     ancids = ancid_vector.keys()
+    
+    maxsite = ancid_vector[ ancids[0] ].__len__()
+    if maxsite < stopsite:
+        stopsite = maxsite
 
     """
         Render a CSV rather than HTML
