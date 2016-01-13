@@ -1771,6 +1771,8 @@ def view_ancestors_search(request, alib, con):
         action = request.POST.get("action")
         if action == 'search':
             checked_taxa = request.POST.getlist('taxa')
+    
+    checked_taxa_names = []
         
     taxon_labels = []
     for taxonid in checked_taxa:
@@ -1825,14 +1827,15 @@ def view_ancestors_search(request, alib, con):
         checked = False
         if id in checked_taxa:
             checked = True
+            checked_taxa_names.append( name )
         taxa_tuples.append( (name,id,checked) )
     context["taxa_tuples"] = taxa_tuples
+    context["checked_taxa_names"] = checked_taxa_names
     
     template_url='libview/libview_ancestor_search.html'
     return render(request, template_url, context)
     
     
-
 def view_ancestor_support(request, alib, con, showbarplot=False, showlineplot=False):
     cur = con.cursor()
     tokens = request.path_info.split("/")

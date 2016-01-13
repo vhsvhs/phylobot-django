@@ -20,7 +20,7 @@ function clearAll(){
 
 <div style="width: 100%; overflow: hidden;">
 
-	<div style="width: 400px; float: left;"> 
+	<div style="width: 500px; float: left;"> 
 	<form action="/{{alid}}/ancestors-search" method="post">
 	{% csrf_token %}
 	
@@ -34,15 +34,18 @@ function clearAll(){
 		<td><button onclick="clearAll()" id="clearAllButton">Uncheck All</button></td>
 		</tr>
 		{% for tuple in taxa_tuples %}
-		<tr><td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2%}checked{%endif%}/> {{tuple.0|slice:":50"}}</label></td></tr>
+		<tr><td><label for="taxon_{{tuple.1}}"><input id="taxon_{{tuple.1}}" name="taxa" type="checkbox" value="{{tuple.1}}" {%if tuple.2 %}checked{%endif%}/> {{tuple.0|slice:":50"}}</label></td></tr>
 		{% endfor %}
 		</table>
 	</form>
 	</div>
 	
-	<div style="margin-left: 400px;">
+	<div style="margin-left: 510px;">
 	{% if results|length > 0 %}
 		<h4>Matching Ancestors:</h4>
+		<p>The most-recent shared ancestor of
+		{% for taxon in checked_taxa_names %}{{taxon}}, {% endfor %}
+		</p>
 		<table width="50%">
 		<tr>
 			<th class="mu_header_small">Alignment</th>
