@@ -1612,6 +1612,8 @@ def view_ancestors_aligned(request, alib, con, render_csv=False):
     if maxsite < stopsite:
         stopsite = maxsite
 
+    print "view_library.py 1615:", maxsite, stopsite
+
     """
         Render a CSV rather than HTML
     """
