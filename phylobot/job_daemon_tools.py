@@ -24,7 +24,7 @@ def build_db(dbpath):
     try:
         con = lite.connect(dbpath)
         cur = con.cursor()
-    except sqlite3.OperationalError:
+    except lite.OperationalError:
         print "\n. Error, I couldn't open a connection with boto to AWS."
         print ". Try running this script as sudo."
         exit()

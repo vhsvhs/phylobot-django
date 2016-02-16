@@ -52,14 +52,7 @@ Instructions:
 4a. You will be prompted to create a superuser for the Django portal. Select
 	an admin name and password at the prompt.
 	
-5. Launch the Job Daemon.
-	$> screen
-	$> # Use cd to navigate to the PhyloBot repository
-	$> python job_daemon.py
-	
-	Then exit screen (control-A-D).
-
-5a. If no errors were reported, then PhyloBot is now running at the PUBLICIP.
+5. If no errors were reported, then PhyloBot is now running at the PUBLICIP.
 
 6. Optional: If you're cloning PhyloBot from another instance, then run the 
 	migration script to copy all the static data, databases, and BOTO configurations.
