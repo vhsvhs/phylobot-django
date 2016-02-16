@@ -6,6 +6,7 @@ from job_daemon_tools import *
 print_splash()
 """dbconn is a connection to the daemon's DB (not the Django db)"""
 
+
 dbconn = None
 try:
     dbconn = build_db(DAEMONDBPATH)
