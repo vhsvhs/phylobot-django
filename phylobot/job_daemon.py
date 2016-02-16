@@ -10,7 +10,7 @@ dbconn = None
 try:
     dbconn = build_db(DAEMONDBPATH)
     write_log(dbconn, "PhyloBot job daemon is waiting for jobs. . .")
-except sqlite3.OperationalError:
+except lite.OperationalError:
     print "\n. Error, I couldn't open the database at " + DAEMONDBPATH
     print ". Try running this script as sudo."
     exit()
