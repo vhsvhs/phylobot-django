@@ -27,20 +27,20 @@ Instructions:
 	$> sudo git pull
 	$> cd ~/
 
-3. Copy a .boto file to the server from your local machine. The .boto file
+3. From your local PC, copy a .boto file to the server from your local machine. The .boto file
 	contains the aws_access_key_id and the aws_secret_access_key. This information
 	will be used by the BOTO API to access AWS on your behalf.
 	Do the following on your local machine (i.e., not on the remote PhyloBot):
 	$> cd ~/
 	$> scp -i ~/.ssh/KEYPATH ~/.boto ubuntu@PUBLICIP:~/
 
-3b. Copy a .phylobot file to the server from your local machine. The .phylobot file
+3b. From your local PC, copy a .phylobot file to the server from your local machine. The .phylobot file
 	contains hardcoded constants for AWS, including names of buckets, zones, and 
 	AMI IDs.
 	$> cd ~/
 	$> scp -i ~/.ssh/KEYPATH ~/.phylobot ubuntu@PUBLICIP:~/
 
-3c. Copy the PhyloBot key onto the new server. (Do this from your local machine).
+3c. From your local PC, copy the PhyloBot key onto the new server. (Do this from your local machine).
 	$> scp -i ~/.ssh/KEYPATH ~/.ssh/phylobot-ec2-key.pem ubuntu@PUBLICIP:~/.ssh/
 
 3d. Return to the PhyloBot server and load the .phylobot file
@@ -58,7 +58,29 @@ Instructions:
 	migration script to copy all the static data, databases, and BOTO configurations.
 	$> sudo bash aws_setup/migrate.sh
 	
-7. Restart Apache.
+7. Restart Apache (depricated; Aren't we now using Nginx and Gunicorn?)
 	$> sudo service apache2 restart
 	
 8. Done!
+
+
+
+#
+# F.A.Q
+#
+#########################################################
+Error:
+django.db.utils.OperationalError: unable to open database file
+
+Solution:
+Check the file permissions on 'db.sqlite3', AND ITS FOLDER!
+Ensure that ubuntu owns the file and the directory.
+
+############################################################
+Error:
+OperationalError at /admin/login/ attempt to write a readonly database python django
+
+Solution:
+Check the file permissions on 'db.sqlite3', AND ITS FOLDER!
+Ensure that ubuntu owns the file and the directory.
+###############################################################

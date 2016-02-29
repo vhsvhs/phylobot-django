@@ -255,7 +255,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
     context = get_base_context(request, alib, con)
     context["taxon_seq"] = taxon_seq
     if format == "fasta":
-        return render(request, 'libview/libview_fasta.fasta', context, content_type='text')
+        return render(request, 'libview/libview_fasta.fasta', c ontext, content_type='text')
     else:
         context["nsites"] = nsites
         context["ntaxa"] = taxon_seq.keys().__len__()
