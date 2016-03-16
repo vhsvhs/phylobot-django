@@ -68,7 +68,7 @@ Instructions:
 #
 # F.A.Q
 #
-#########################################################
+####################################################################
 Error:
 django.db.utils.OperationalError: unable to open database file
 
@@ -76,11 +76,11 @@ Solution:
 Check the file permissions on 'db.sqlite3', AND ITS FOLDER!
 Ensure that ubuntu owns the file and the directory.
 
-############################################################
+######################################################################
 Error:
 OperationalError at /admin/login/ attempt to write a readonly database python django
 
 Solution:
 Check the file permissions on 'db.sqlite3', AND ITS FOLDER!
 Ensure that ubuntu owns the file and the directory.
-###############################################################
+#########################################################################

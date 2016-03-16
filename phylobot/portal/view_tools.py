@@ -88,7 +88,7 @@ def is_valid_newick(path, source_sequence_names = None):
         retflag = True
     return (retflag, emsg)
 
-def is_valid_fasta(path, is_uniprot=False, impose_limit=True):
+def is_valid_fasta(path, is_uniprot=False, impose_limit=True, check_is_aligned=False):
     """This method checks if the FASTA file located at 'path' is a valid FASTA format.
         AND if the sequence contains too many, or not enough, taxa.
         If there are formatting problems, this method will attempt to fix them (i.e., /r line breaks
@@ -101,7 +101,7 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True):
 
     msg = None    
     if os.path.exists(path) == False or path == None:
-        msg = "An error occurred when uploading your file. Please try again."
+        msg = "Your file " + path.__str__() + " does not exist on the server's disk. Something went wrong during the upload."
         return (False, msg)
 
     (taxa_seq, error_msgs) = get_taxa(path, "fasta")
@@ -139,6 +139,17 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True):
                 msg = "Your sequence name '" + taxa + "' doesn't appear to be the NCBI/UniProtKB format. Are you sure you're using the UniProt format? If not, please uncheck the box."
                 return (False, msg)
 
+    """Check if the alignment is actually an alignment."""
+    if check_is_aligned == True:
+        ll = None
+        for taxa in taxa_seq:
+            if ll == None:
+                ll = taxa_seq[taxa].__len__()
+            if taxa_seq[taxa].__len__() != ll:
+                msg = "Your aligned sequences have different lengths. I don't think this file is a sequence alignment."
+                return(False, msg)
+            print taxa_seq[taxa].__len__()
+
     """Check for correct line breaks -- problems can occur in the FASTA file
         if it was created in Word, or rich text."""
     if taxa_seq.__len__() < 3:
@@ -171,6 +182,13 @@ def clean_fasta_name(seqname):
         newseqname = newseqname[0:50]
     
     return newseqname
+
+def is_valid_usersupplied_phylip(path, user_sequences):
+    # 1. is the file a valid PHYLIP file?
+    
+    # 2. does the file contain one sequence for every taxon in the user-supplied alignment?
+    
+    return (True, None)
 
 
 def parse_uniprot_seqname(name):

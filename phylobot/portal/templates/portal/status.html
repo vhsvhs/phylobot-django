@@ -72,14 +72,25 @@ function verify_trash(e)
 		</ul>
 		    
 		    
-		<h3>Alignment Algorithms:</h3>
+		<h3>Selected Alignment Algorithms:</h3>
 		<ul>
 		{% for aa in list_of_aa %}
 			<li>{{ aa }}</li> 
 		{% endfor %}
 		</ul>    
 		
-		<h3>RAxML Models:</h3>
+		{% if list_of_usermsas %}
+			<h3>Custom Alignments:</h3>
+			<ul>
+			{% for aa in list_of_usermsas %}
+				<li>{{ aa.0 }} <a href="{% static aa.1 %}">{{aa.1}}</a></li> 
+			{% endfor %}
+			</ul> 
+		{% else %}
+			<h3>Custom Alignmnets: none</h3>
+		{% endif %}
+		
+		<h3>RunRAxML Models:</h3>
 		<ul>
 		{% for rm in list_of_rm %}
 			<li>{{ rm }}</li> 

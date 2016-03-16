@@ -39,6 +39,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # allauth specific context processors
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
+    "django.core.context_processors.media",
 )
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -94,7 +95,7 @@ STATICFILES_FINDERS = (
 MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
-MEDIA_URL = '/media/'
+MEDIA_URL = STATIC_URL + 'media/'
 ########## END STATIC FILE CONFIGURATION
 
 # URL of the login page.

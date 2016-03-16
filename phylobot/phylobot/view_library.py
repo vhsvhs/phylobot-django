@@ -210,7 +210,11 @@ def view_library_frontpage(request, alib, con):
         context["description"] = ""
     else:
         context["description"] = x[0]
-    
+                        
+    dbpath = alib.dbpath.__str__()
+    dbpath = settings.MEDIA_URL + "/" + dbpath
+    context["asrsqlpath"] = dbpath
+        
     return render(request, 'libview/libview_frontpage.html', context)
 
 def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_method=None):
@@ -255,7 +259,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
     context = get_base_context(request, alib, con)
     context["taxon_seq"] = taxon_seq
     if format == "fasta":
-        return render(request, 'libview/libview_fasta.fasta', c ontext, content_type='text')
+        return render(request, 'libview/libview_fasta.fasta', context, content_type='text')
     else:
         context["nsites"] = nsites
         context["ntaxa"] = taxon_seq.keys().__len__()

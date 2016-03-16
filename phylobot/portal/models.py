@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+from django.utils import timezone
 from django.conf import settings
-import os, random, string
+import os, random, re, string
 from random_primary import *
 import aws_tools
 from django.forms.fields import *
@@ -131,14 +132,32 @@ class ConstraintTreeFile(models.Model):
     
     def __unicode__(self):
         return unicode(self.constrainttree_path) 
-    
-#class CustomeAlignmentFile(models.Model):
-#    customalignment_path = models.FileField(upload_to='uploaded_sequences')
-#    owner = models.ForeignKey(Users)
-#    timestamp_uploaded = models.DateTimeField(auto_now=True)
-#    
-#    def __unicode__(self):
-#        return unicode(self.customalignment_path)
+
+def create_random_string(length=30):
+    if length <= 0:
+        length = 30
+
+    symbols = string.ascii_lowercase + string.ascii_uppercase + string.digits
+    return ''.join([random.choice(symbols) for x in range(length)])
+
+def upload_to(instance, filename):
+    now = timezone.now()
+    #now = datetime.datetime()
+    filename_base, filename_ext = os.path.splitext(filename)
+    return 'uploaded_sequences/{}_{}{}'.format(
+        now.strftime("%Y/%m/%d/%Y%m%d%H%M%S"),
+        create_random_string(),
+        filename_ext.lower()
+    )
+
+
+class UserMsa(models.Model):
+    alignment_name = models.CharField(max_length=30)
+    attachment = models.FileField(upload_to=upload_to)
+
+    def __unicode__(self):
+        return unicode(self.alignment_name) 
+
 
 class JobSetting(models.Model):
     """Defines the settings for an ASR pipeline job."""
@@ -151,6 +170,7 @@ class JobSetting(models.Model):
     constraint_tree_file = models.ForeignKey( ConstraintTreeFile, null=True )
     alignment_algorithms = models.ManyToManyField(AlignmentAlgorithm,null=True)
     alignment_algorithms.help_text = ''
+    user_msas = models.ManyToManyField(UserMsa,null=True) #continue here - just make this an AASeqFile
     raxml_run = models.TextField(null=True)
     raxml_models = models.ManyToManyField(RaxmlModel,null=True)
     raxml_models.help_text = ''
@@ -260,7 +280,12 @@ class Job(RandomPrimaryIdModel):
         cout += "RUN = sh\n"
         cout += "ALIGNMENT_ALGORITHMS ="
         for aa in self.settings.alignment_algorithms.all():
-            cout += " " + aa.name.__str__()
+            cout += " " + re.sub(" ", "_", aa.name.__str__())
+        cout += "\n"
+        # The user-defined alignment algorithms also need a special of their own. . . 
+        for aa in self.settings.user_msas.all():
+            name = aa.alignment_name
+            cout += "USER_ALIGNMENT = " + re.sub(" ", "_", aa.alignment_name) + "  " + os.path.basename(aa.attachment.path) + "\n"
         cout += "\n"
         cout += "MODELS_RAXML ="
         for mr in self.settings.raxml_models.all():
@@ -290,6 +315,7 @@ class Job(RandomPrimaryIdModel):
         
         configpath = self.path + "/" + self.id.__str__() + ".config"
         fout = open(configpath, "w")
+        print "321:\n", cout
         fout.write(cout)
         fout.close()
         return configpath

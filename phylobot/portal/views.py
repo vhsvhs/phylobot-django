@@ -166,7 +166,6 @@ def jobstatus(request, jobid):
             """Default, the rest of this method will do the status refresh"""
             pass
     
-    #print "168: get status for", jobid
     list_of_aa = []
     for aa in job.settings.alignment_algorithms.all():
         list_of_aa.append( aa.name )
@@ -204,6 +203,14 @@ def jobstatus(request, jobid):
     #print "202: get status for", jobid
     checkpoint = float( get_aws_checkpoint(job.id) )
     #print "203: get status for", jobid, checkpoint
+    
+    list_of_usermsas = None
+    if job.settings.user_msas:
+        list_of_usermsas = []
+        for aa in job.settings.user_msas.all():
+            this_aa_name = aa
+            this_aa_file = aa.attachment.path
+            list_of_usermsas.append( (this_aa_name, this_aa_file) )
     
     checkpoints = []
     checkpoints.append( (1.1,     "Sequence Alignment") )
@@ -265,6 +272,7 @@ def jobstatus(request, jobid):
                     'selected_aa_seqfile_url':selected_aaseqfile,
                     'constrainttree_seqfile_url':    selected_constrainttreefile,
                     'constrainttree_seqfile_short':  selected_constrainttreefile_short,
+                    'list_of_usermsas': list_of_usermsas,
                     }
     
     return render(request, 'portal/status.html', context_dict)

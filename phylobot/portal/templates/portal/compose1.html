@@ -3,11 +3,70 @@
   Upload Sequences
 {% endcomment %}
 
+{% block javascript %}
+
+<script type="text/javascript">
+	var countUserMsas = 0;
+
+	function addMsaLi() {	
+		countUserMsas += 1;
+		
+		var new_idbase = "user_msa";		
+		var new_id = new_idbase.concat(  countUserMsas.toString()  );
+		
+		var parentp = document.getElementById("usermsas_p");
+
+		var new_childp = document.createElement("p");
+		var new_childpid = "childp".concat( new_id );
+		new_childp.setAttribute("id", new_childpid);
+		
+		var label = document.createElement("label");
+		label.setAttribute("for", new_id);
+		
+		var textbox = document.createElement("input");
+		textbox.setAttribute("id", new_id.concat("_name") ); 
+		textbox.setAttribute("name", new_id.concat("_name") );
+		textbox.setAttribute("type", "Text");
+		textbox.setAttribute("value", "my alignment".concat(countUserMsas) );
+		textbox.setAttribute("size", "13");
+		
+		var fileinput = document.createElement("input");
+		fileinput.setAttribute("id", new_id.concat("_file")  );
+		fileinput.setAttribute("name", new_id.concat("_file"));
+		fileinput.setAttribute("type", "file");
+		fileinput.setAttribute("size", "8");
+		
+		var removelink = document.createElement("a");
+		removelink.setAttribute("id", "removeusermsalink");
+		removelink.setAttribute("title", "Remove this user-defined sequence alignment");
+		removelink.setAttribute("href", "PleaseEnableJavascript.html");
+		var onclickstring = "removeMsaLi(\"";
+		onclickstring = onclickstring.concat(new_childpid);
+		onclickstring = onclickstring.concat("\"); return false;");
+		removelink.setAttribute("onclick", onclickstring );
+		removelink.innerHTML = "(remove)";
+		removelink.setAttribute("class", "smalltext");
+		
+		new_childp.appendChild(label);
+		new_childp.appendChild(textbox);
+		new_childp.appendChild(fileinput);
+		new_childp.appendChild(removelink);
+		parentp.appendChild(new_childp);
+	}
+	
+	function removeMsaLi(new_childp) {
+		//alert("opened removeMsaLi");
+		var this_ele = document.getElementById(new_childpid);
+		this_ele.parentNode.removeChild(this_ele);		
+	}
+</script>
+
+{% endblock %}
+
 {% block compose_content %}
 {% load staticfiles %}
 
-<form id="user_form" method="post" action="/portal/compose1"
-    enctype="multipart/form-data">
+<form id="user_form" method="post" action="/portal/compose1" enctype="multipart/form-data">
 {% csrf_token %}
 
 <h2>Step 1: Setup the Basics</h2>
@@ -96,7 +155,6 @@
 </div>
 
 <div style="margin-left:50%; width:50%">
-
 	<div class="rounded_div_medium" style="background-color:#dedede;">
 		<h3>Sequence Alignment Algorithms
 	     <a href="#" class="tooltip">
@@ -107,7 +165,25 @@
 	    	</span>
 		</a>
 		</h3>
+		
 		{{ js_form.alignment_algorithms }}
+		
+		<!--
+		The User-spec alignments
+		-->
+		
+		<h3>Custom Sequence Alignments (optional)
+	     <a href="#" class="tooltip">
+			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
+			<span>
+	        	<p class="smalltext">Upload pre-computed sequence alignments. These alignments can be
+	        	used alongside alignments computed by the algorithms in PhyloBot.</p>
+	    	</span>
+		</a>
+		</h3>
+        <p id="usermsas_p"></p>		
+		<p><a id="addusermsalink" title="Add a user-defined sequence alignment" href="PleaseEnableJavascript.html" onclick="addMsaLi(); return false;">Add a user-defined sequence alignment</a>
+		</p>
 		
 		<p>
 		<h3>Phylogenetic Models

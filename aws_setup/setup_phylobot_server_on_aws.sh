@@ -53,7 +53,6 @@ python manage.py collectstatic # move css, js, etc. into the appropriate assets 
 # Build the Django Database
 python manage.py makemigrations
 python manage.py migrate
-
 python manage.py syncdb
 
 # Run the populate_phylobot script to add things like

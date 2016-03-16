@@ -54,7 +54,7 @@ def get_taxa(seqpath, format):
     
     elif format == "phylip":
         for l in fin.xreadlines():
-            if l.__len__() > 15:
+            if l.__len__() > 8:
                 tokens = l.split()
                 this_taxa = tokens[0]
                 seq = tokens[1].strip()

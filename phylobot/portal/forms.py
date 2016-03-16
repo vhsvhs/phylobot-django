@@ -62,7 +62,16 @@ class ConstraintTreeFileForm(forms.ModelForm):
     class Meta:
         model = ConstraintTreeFile
         fields = ('constrainttree_path',)
-        
+    
+# class UserMsasFileForm(forms.ModelForm):        
+#     def __init__(self, *args, **kwargs):
+#         super(forms.ModelForm, self).__init__(*args, **kwargs)
+#         self.fields["aaseq_path"].label = "Select a FASTA file"
+#     class Meta:
+#         model = UserMsas
+#         fields = ('aaseq_path',)
+    
+    
 #class CustomAlignmentFileForm(forms.ModelForm):
 #    def __init__(self, *args, **kwargs):
 #        super(forms.ModelForm, self).__init__(*args, **kwargs)
