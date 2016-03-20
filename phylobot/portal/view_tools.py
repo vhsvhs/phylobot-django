@@ -104,7 +104,12 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True, check_is_aligned=F
         msg = "Your file " + path.__str__() + " does not exist on the server's disk. Something went wrong during the upload."
         return (False, msg)
 
-    (taxa_seq, error_msgs) = get_taxa(path, "fasta")
+    indelflag = True
+    if check_is_aligned:
+        indelflag = False
+        # If we're checking for a valid ALIGNED fasta, then we need to NOT
+        # strip the indels out of the sequences when we call get_taxa
+    (taxa_seq, error_msgs) = get_taxa(path, "fasta", strip_indels=indelflag)
     
     if error_msgs.__len__() > 0:
         """Some error occurred"""
@@ -129,7 +134,8 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True, check_is_aligned=F
         
         """Are there non-alpha chars in the sequence data?"""
         for c in taxa_seq[taxa]:
-            if False == c.isalpha():
+            if False == c.isalpha() and c != "-":
+                # i.e., it's not a letter, and it's not an indel. . .
                 msg = "I found the character " + c.__str__() + " in the sequence for taxon " + taxa.__str__() + ". This character is not allowed. Please fix your FASTA file and resubmit your job."
                 return (False, msg)
             
@@ -148,7 +154,7 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True, check_is_aligned=F
             if taxa_seq[taxa].__len__() != ll:
                 msg = "Your aligned sequences have different lengths. I don't think this file is a sequence alignment."
                 return(False, msg)
-            print taxa_seq[taxa].__len__()
+            
 
     """Check for correct line breaks -- problems can occur in the FASTA file
         if it was created in Word, or rich text."""

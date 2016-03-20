@@ -36,6 +36,8 @@ def compose1(request):
     context = RequestContext(request)    
     this_job = get_mr_job(request)
     
+    print "39:", this_job
+    
     """error_messages is a list of strings, each being an error message. The user cannot proceed to step #2
         unless error_messages is empty.
         If the list is not empty, then the error messages will be displayed on the compose page."""
@@ -218,54 +220,58 @@ def compose1(request):
         if 'project_description' in request.POST:
             this_job.settings.project_description = request.POST.get('project_description')
 
-
         """
             USER-SPEC. ALIGNMENTS
         """
-        
-        #
-        # for debugging:
-        #
         print "219: files:", request.FILES
-        # 219: files: <MultiValueDict: {u'user_msa2': [<InMemoryUploadedFile: QdoR.noalign.fasta.txt (text/plain)>], u'user_msa1': [<InMemoryUploadedFile: Angora Parking.kml (application/vnd.google-earth.kml+xml)>], u'aaseq_path': [<InMemoryUploadedFile: ime2.fasta (application/octet-stream)>]}>
         print "220:", request.POST
-        # 220: <QueryDict: {u'project_description': [u''], u'name': [u'adffasdfasdf'], u'alignment_algorithms': [u'1', u'2', u'user_msa2'], u'submit': [u''], u'raxml_models': [u'1', u'2', u'3', u'4', u'5', u'6'], u'constrainttree_path': [u''], u'csrfmiddlewaretoken': [u'sbkysqgiLRgkVNaAnvaa8WJapp4eLlUb']}>
-        #
-        # end debugging
-        #
         
         user_msa_baseid = "user_msa"
         for file in request.FILES:
             if file.startswith(user_msa_baseid ):
+                this_id = request.POST.get( re.sub("_file", "", file) )
+                
                 this_alignment_name = request.POST.get( re.sub("_file", "_name", file) )
-                this_file = UserMsa(alignment_name = this_alignment_name,
+                
+                #count_matches = UserMsa.objects.filter(owner=request.user, alignment_name = this_alignment_name).count()
+                count_matches = 0
+                if count_matches == 0:
+                    """We've never seen this user MSA before, so let's create it and process the file."""
+                    this_file = UserMsa(owner=request.user,
+                                    alignment_name = this_alignment_name,
                                     attachment = request.FILES[file])
-                this_file.save()
-                print "246: file was saved to:", this_file.attachment.path
-                if ( False == os.path.exists(this_file.attachment.path) ):
-                    msg = "Error, the file " + this_file.attachmnt.name + " was not saved to disk."
-                    error_messages.append( msg )
-                else:
-                    fullpath = this_file.attachment.path
-                    (validflag, msg) = is_valid_fasta(fullpath, impose_limit=False, check_is_aligned=True)
-                    if validflag == False:
-                        this_job.settings.save()
-                        this_job.save()
-                        error_messages.append( "Your alignment file " +  this_alignment_name + " does not appear to be a FASTA-formatted file.")
+                    print "234: this_file:", this_file
+                    this_file.save()
+                    print "246: file was saved to:", this_file.attachment.path
+                    if ( False == os.path.exists(this_file.attachment.path) ):
+                        """The file doesn't exist -- i.e., it didn't save to disk for some reason."""
+                        msg = "Error, the file " + this_file.attachmnt.name + " was not saved to disk."
                         error_messages.append( msg )
-                    elif validflag == True:
-                        (usermsa_taxon_seq, error_msgs) = get_taxa(fullpath, "fasta")
-                        cleaned_fasta_seq = {}
-                        for t1 in taxa_seq: # the taxon in the input sequences:
-                            if t1 not in usermsa_taxon_seq:
-                                error_messages.append("I cannot find the taxon " + t1 + " in your user-supplied alignment " + user_msa_name)
-                            else:
-                                cleaned_seqname = clean_fasta_name(t1)
-                                cleaned_taxa_seq[ cleaned_seqname ] = usermsa_taxon_seq[t1]
-                        
-                        write_fasta(cleaned_taxa_seq, fullpath)
-                        print "268: wrote cleaned user-spec alignment fasta to ", fullpath
-      
+                    else:
+                        """The file saved correctly, so let's process it."""
+                        fullpath = this_file.attachment.path
+                        (validflag, msg) = is_valid_fasta(fullpath, impose_limit=False, check_is_aligned=True)
+                        if validflag == False:
+                            this_job.settings.save()
+                            this_job.save()
+                            error_messages.append( "Your alignment file " +  this_alignment_name + " does not appear to be a FASTA-formatted file.")
+                            error_messages.append( msg )
+                        elif validflag == True:
+                            (usermsa_taxon_seq, error_msgs) = get_taxa(fullpath, "fasta", strip_indels=False)
+                            cleaned_fasta_seq = {}
+                            for t1 in taxa_seq: # the taxon in the input sequences:
+                                if t1 not in usermsa_taxon_seq:
+                                    error_messages.append("I cannot find the taxon " + t1 + " in your user-supplied alignment " + user_msa_name)
+                                else:
+                                    cleaned_seqname = clean_fasta_name(t1)
+                                    cleaned_taxa_seq[ cleaned_seqname ] = usermsa_taxon_seq[t1]
+                            
+                            write_fasta(cleaned_taxa_seq, fullpath)
+                            print "268: wrote cleaned user-spec alignment fasta to ", fullpath
+                else:
+                    """This user MSA already exists in the DB, so just get it."""
+                    this_file = UserMsa.objects.get(owner=request.user,
+                                    alignment_name = this_alignment_name)
                 this_job.settings.user_msas.add( this_file )
                 this_job.settings.save()
         """ 
@@ -295,10 +301,6 @@ def compose1(request):
             this_model = RaxmlModel.objects.get(id = rid)
             this_job.settings.raxml_models.add( this_model )
         
-        # these three things disabled, presently.
-        #this_job.settings.start_motif = request.POST.get('start_motif')
-        #this_job.settings.end_motif = request.POST.get('end_motif')
-        #this_job.settings.n_bayes_samples = request.POST.get('n_bayes_samples')
         this_job.settings.save()        
         this_job.save()
             
@@ -336,17 +338,15 @@ def compose1(request):
     constrainttree_fileform = ConstraintTreeFileForm()
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
-    #print "249:", this_job.settings.constraint_tree_file
+
     if this_job.settings.constraint_tree_file:
         constrainttree_fileform.fields["constrainttree_path"].default = this_job.settings.constraint_tree_file.constrainttree_path
         selected_constrainttreefile = settings.MEDIA_URL +  this_job.settings.constraint_tree_file.constrainttree_path.__str__()
-        #print "253:", selected_constrainttreefile
         selected_constrainttreefile_short = selected_constrainttreefile.split("/")[ selected_constrainttreefile.split("/").__len__()-1 ]
 
-    usermsas_fileform = AASeqFileForm()
     selected_constrainttreefile = None
     selected_constrainttreefile_short = None
- 
+        
     js_form = JobSettingForm()
     js_form.fields["name"].initial = this_job.settings.name
     js_form.fields["project_description"].initial = this_job.settings.project_description
@@ -365,7 +365,6 @@ def compose1(request):
     context_dict = {'aa_seqfileform':       aa_seqfileform,
                     'aa_seqfile_url':       selected_aaseqfile,
                     'aa_seqfile_short':     selected_aaseqfile_short,
-                    'user_msas_fileform':   usermsas_fileform,
                     'codon_seqfileform':    codon_seqfileform,
                     'codon_seqfile_url':    selected_codonseqfile,
                     'codon_seqfile_short':  selected_codonseqfile_short,
@@ -373,6 +372,8 @@ def compose1(request):
                     'constrainttree_seqfile_url':    selected_constrainttreefile,
                     'constrainttree_seqfile_short':  selected_constrainttreefile_short,
                     'error_messages':       error_messages,
+                    #'user_msas':        user_msas,
+                    #'countUserMsas':    user_msas.__len__(),
                     'js_form':js_form,
                     'forward_unlock':forward_unlock,
                     'current_step':1}

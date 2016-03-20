@@ -128,6 +128,12 @@ def trash_job(request, job):
                 t.delete()
             os.system("rm " + job.settings.original_codon_file.codonseq_path.__str__())
             job.settings.original_codon_file.delete()
+        if job.settings.user_msas:
+            for um in job.settings.user_msas.all():
+                command = "rm " + um.attachment.path
+                print "134:", command
+                os.system(command)
+                um.delete()
         job.settings.delete()
         
         if job.path:

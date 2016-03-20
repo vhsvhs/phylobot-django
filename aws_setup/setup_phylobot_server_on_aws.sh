@@ -73,3 +73,4 @@ python populate_phylobot.py
 # Setup Upstart to auto-launch PhyloBot
 cd $PHYLOBOT_REPO
 source aws_setup/setup_upstart.sh
+

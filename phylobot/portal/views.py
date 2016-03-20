@@ -208,8 +208,8 @@ def jobstatus(request, jobid):
     if job.settings.user_msas:
         list_of_usermsas = []
         for aa in job.settings.user_msas.all():
-            this_aa_name = aa
-            this_aa_file = aa.attachment.path
+            this_aa_name = aa.alignment_name
+            this_aa_file = os.path.join(settings.MEDIA_ROOT, aa.attachment.url)
             list_of_usermsas.append( (this_aa_name, this_aa_file) )
     
     checkpoints = []
@@ -251,6 +251,9 @@ def jobstatus(request, jobid):
 #         
 #         alib.dbpath = "anclibs/asr_" + job.id.__str__() + ".db"
 #         alib.save()
+    
+    #print "255:", list_of_usermsas
+
     
     if checkpoint >= 8:
         alib = phylobotmodels.AncestralLibrary.objects.get_or_create(shortname=job.settings.name)[0]

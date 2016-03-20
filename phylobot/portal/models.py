@@ -154,6 +154,7 @@ def upload_to(instance, filename):
 class UserMsa(models.Model):
     alignment_name = models.CharField(max_length=30)
     attachment = models.FileField(upload_to=upload_to)
+    owner = models.ForeignKey(User)
 
     def __unicode__(self):
         return unicode(self.alignment_name) 
@@ -323,7 +324,8 @@ class Job(RandomPrimaryIdModel):
     def generate_exe(self, jumppoint = None, stoppoint = None):
         """Generates a shell-executable command that will invoke the job.
         NOTE: this method assumes that validate() was called, and returned True."""
-        configpath = self.generate_configfile()
+        # note generate_configfile move to enqueue job
+        #configpath = self.generate_configfile()
         self.exe = ""
                 
         self.exe += SoftwarePaths.objects.get(softwarename="asrpipeline").__str__()

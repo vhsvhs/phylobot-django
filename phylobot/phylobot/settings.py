@@ -135,6 +135,7 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'django_ses',
+    #'south',
 )
 SITE_ID = 1
 

@@ -16,7 +16,7 @@ def scan_seq(seqpath):
     
     return (format, type)
 
-def get_taxa(seqpath, format):
+def get_taxa(seqpath, format, strip_indels = True):
     """Given the path to a sequence collection, this method returns a hashtable
     where key = sequence name, value = the sequence"""
     taxa_seq = {}
@@ -44,7 +44,8 @@ def get_taxa(seqpath, format):
                 l = re.sub("\?", "", l)
                 l = re.sub("\_", "", l)
                 l = re.sub("\.", "", l)
-                l = re.sub("\-", "", l)
+                if strip_indels:
+                    l = re.sub("\-", "", l)
                 currseq += l.strip()
         """Is this sequence name repeated?"""
         if currtaxa in taxa_seq:

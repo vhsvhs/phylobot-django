@@ -39,7 +39,8 @@ def view_library(request, libid):
         return HttpResponseRedirect('/')
     
     """Retrieve the AncestralLibrary class object"""
-    alib = AncestralLibrary.objects.get( id=int(libid) )
+    print "42:", int(libid), libid, libid.__str__()
+    alib = AncestralLibrary.objects.get( id=libid )
         
     """Ensure the project's SQL database exists locally."""
     if False == check_ancestral_library_filepermissions(alib=alib):
@@ -49,7 +50,8 @@ def view_library(request, libid):
     con = get_library_sql_connection(libid)
     if con == None:
         logger.error("I cannot open a SQL connection to the database for ancestral library ID " + libid.__str__() )
-    
+        print "I cannot open a SQL connection to the database for ancestral library ID " + libid.__str__()
+
     """
         URL Dispatch:
     """    
@@ -161,16 +163,17 @@ def view_library(request, libid):
 def get_library_sql_connection(alid):
     """Returns a SQL connection to the database for the AncestralLibrary with id = alid
         If something wrong happens, then this method returns None"""
-    if False == AncestralLibrary.objects.filter( id=int(alid) ).exists():
+    if False == AncestralLibrary.objects.filter( id=alid ).exists():
         logger.error("I cannot find an AncestralLibrary object with the id=" + alid.__str__())
         return None
     
     """Open the SQLite3 database:"""
-    alib = AncestralLibrary.objects.get( id=int(alid) )
+    alib = AncestralLibrary.objects.get( id=alid )
     dbpath = alib.dbpath.__str__()
     dbpath = settings.MEDIA_ROOT + "/" + dbpath
     if False == os.path.exists(dbpath):
         logger.error("I cannot find the AncestralLibrary SQL database at " + dbpath)
+        print "I cannot find the AncestralLibrary SQL database at " + dbpath
         return None
     con = sqlite.connect( dbpath )  
     return con

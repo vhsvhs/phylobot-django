@@ -75,6 +75,8 @@ def push_jobfile_to_s3(jobid, filepath, new_filepath = None):
     bucket = get_s3_bucket()
     filename_short = filepath.split("/")[  filepath.split("/").__len__()-1 ]
     keyname = jobid.__str__() + "/" + filename_short
+    print "aws_tools.py 76:", filename_short
+    print "aws_tools.py 79:", keyname
     k = bucket.new_key(keyname)
     
     if new_filepath == None:

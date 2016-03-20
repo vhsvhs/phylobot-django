@@ -8,7 +8,8 @@
 <script type="text/javascript">
 	var countUserMsas = 0;
 
-	function addMsaLi() {	
+	function addMsaLi() {
+			
 		countUserMsas += 1;
 		
 		var new_idbase = "user_msa";		
@@ -24,7 +25,7 @@
 		label.setAttribute("for", new_id);
 		
 		var textbox = document.createElement("input");
-		textbox.setAttribute("id", new_id.concat("_name") ); 
+		textbox.setAttribute("id", 	.concat("_name") ); 
 		textbox.setAttribute("name", new_id.concat("_name") );
 		textbox.setAttribute("type", "Text");
 		textbox.setAttribute("value", "my alignment".concat(countUserMsas) );
@@ -54,7 +55,7 @@
 		parentp.appendChild(new_childp);
 	}
 	
-	function removeMsaLi(new_childp) {
+	function removeMsaLi(new_childpid) {
 		//alert("opened removeMsaLi");
 		var this_ele = document.getElementById(new_childpid);
 		this_ele.parentNode.removeChild(this_ele);		
@@ -171,18 +172,37 @@
 		<!--
 		The User-spec alignments
 		-->
-		
+				
 		<h3>Custom Sequence Alignments (optional)
 	     <a href="#" class="tooltip">
 			<img src="{% static "phylobot/question_icon.png" %}" height="15px">
 			<span>
-	        	<p class="smalltext">Upload pre-computed sequence alignments. These alignments can be
-	        	used alongside alignments computed by the algorithms in PhyloBot.</p>
+	        	<p class="smalltext">Upload FASTA-formatted sequence alignments. These alignments will be
+	        	analyzed alongside alignments computed by the algorithms in PhyloBot.</p>
 	    	</span>
 		</a>
 		</h3>
-        <p id="usermsas_p"></p>		
-		<p><a id="addusermsalink" title="Add a user-defined sequence alignment" href="PleaseEnableJavascript.html" onclick="addMsaLi(); return false;">Add a user-defined sequence alignment</a>
+        <p id="usermsas_p">
+        	<!--
+        	<table>
+	            {% for usermsa in user_msas %}			
+					<tr></td>
+					<p id="childp{{forloop.counter}}">
+					<label for="childp{{forloop.counter}}"></label>
+					<input type="text" id="user_msa{{forloop.counter}}_name" name="user_msa{{forloop.counter}}_name" value="{{usermsa.0}}" size="13"/>
+					<input type="file" id="user_msa{{forloop.counter}}_file" name="user{{forloop.counter}}_file" size="1"/>
+					</td>
+					<td width="50%">
+					<a class="smalltext" href="PleaseEnableJavascript.html;" onclickstring="removeMsaLi('childp{{forloop.counter}}'); return false;">(remove)</a>
+					<a href="{{usermsa.1}}" class="smalltext">(download)</a>
+					</p>
+		        	</td></tr>
+	        	{% endfor %}
+        	</table>			
+        	-->
+        </p>
+        
+		<p><a id="addusermsalink" title="+ Add a user-defined sequence alignment" href="PleaseEnableJavascript.html" onclick="addMsaLi(); return false;">Add a user-defined sequence alignment</a>
 		</p>
 		
 		<p>
