@@ -271,7 +271,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
 def cleanup_newick(newick):
     newick = re.sub("[&R]", "", newick)
     newick = re.sub("':", ":", newick)
-    newick = re.sub(")'", ")", newick)
+    newick = re.sub("\)'", ")", newick)
     return newick
 
 def view_tree(request, alib, con, format="newick"):
