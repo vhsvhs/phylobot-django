@@ -268,6 +268,12 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
         context["ntaxa"] = taxon_seq.keys().__len__()
         return render(request, 'libview/libview_phylip.phylip', context, content_type='text') 
 
+def cleanup_newick(newick):
+    newick = re.sub("[&R]", "", newick)
+    newick = re.sub("':", ":", newick)
+    newick = re.sub(")'", ")", newick)
+    return newick
+
 def view_tree(request, alib, con, format="newick"):
     """Most of this method is concerned with determining what tree was requested,
         and, more importantly, if that tree exists in our database."""
@@ -312,9 +318,7 @@ def view_tree(request, alib, con, format="newick"):
         #print "243:", newick 
         
         # Added March 2016: some code to cleanup Newick strings:
-        newick = re.sub("[&R]", "", newick)
-        newick = re.sub("':", ":", newick)
-        newick = re.sub(")'", ")", newick)
+        newick = cleanup_newick(newick)
         
         context["newickstring"] = newick
               
@@ -361,6 +365,8 @@ def view_tree(request, alib, con, format="newick"):
         if newick == None:
             return view_library_frontpage(request, alib, con)
         newick = newick[0]
+        
+        newick = cleanup_newick(newick)
         
         context["newickstring"] = newick 
         
