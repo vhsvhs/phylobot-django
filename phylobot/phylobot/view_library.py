@@ -1186,7 +1186,7 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
     return response
 
 
-def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomodelname=None):    
+def write_ml_vectors_fasta(request, con, msaid=None, msaname=None, modelid=None, phylomodelname=None):    
     cur = con.cursor()
     
     """We'll re-use this bit of SQL"""
@@ -1200,13 +1200,9 @@ def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomod
         id = ii[0]
         name = ii[1]
         ancid_name[ id ] = name
-    
-    """If we're rending CSV, use the csv writer library rather than the Django
-        template library to render a response."""
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".fasta"'
-    writer = csv.writer(response)
-            
+        
+    taxon_seq = {}
+        
     use_legacy = is_legacy_db(con)
     
     if use_legacy:
@@ -1227,11 +1223,6 @@ def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomod
         cur.execute(sql)
         for ii in cur.fetchall():
             sites.append( ii[0] )
-
-    headerrow = ["Ancestor"]
-    for site in sites:
-        headerrow.append( "Site " + site.__str__() )
-    writer.writerow( headerrow )
 
     if use_legacy:
         sql = "select ancid, site, state, pp from AncestralStates where ancid in (" + innersql + ")"
@@ -1258,7 +1249,7 @@ def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomod
     
         for ancid in anid_mlvector:
             ancname = ancid_name[ ancid ]
-            row = [ancname]
+            row = ""
             for site in sites:
                 token = ""
                 if site in ancid_vector[ancid]:
@@ -1268,12 +1259,13 @@ def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomod
                         token = "-"
                     else:
                         token = mlstate
-                row.append( token )
-            writer.writerow( row )
+                row += token
+            taxon_seq[ancname] = row
         
     elif use_legacy == False:        
         for ancid in ancid_name:                    
-            row = [ ancid_name[ancid] ]
+            ancname = ancid_name[ancid]
+            row = ""
             
             sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
             sql += " group by site order by site ASC"
@@ -1288,12 +1280,15 @@ def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomod
                     token = "-"
                 else:
                     token = mlstate
-                row.append( token )
+                row += token
             writer.writerow( row )
+            taxon_seq[ancname] = row
     
-    return response
-
-
+    context = get_base_context(request, alib, con)
+    context["taxon_seq"] = taxon_seq
+    return render(request, 'libview/libview_fasta.fasta', context, content_type='text')
+    
+    
 def ml_sequence_difference(seq1, seq2):
     """Returns the proportion similarity between two sequences.
         If the sequences have different length, then it returns
@@ -1815,7 +1810,7 @@ def view_ancestors_aligned_fasta(request, alib, con):
     save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
         
-    return write_ml_vectors_fasta(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
+    return write_ml_vectors_fasta(request, con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
    
 def view_ancestors_aligned(request, alib, con, render_csv=False, render_fasta=False):    
     if render_csv:
