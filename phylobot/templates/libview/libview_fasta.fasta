@@ -1,4 +1,3 @@
 {% for key, value in taxon_seq.items %}
 >{{key}}
-{{value}}
-{% endfor %}
+{{value}}{% endfor %}

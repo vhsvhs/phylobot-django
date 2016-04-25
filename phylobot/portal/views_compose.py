@@ -223,8 +223,8 @@ def compose1(request):
         """
             USER-SPEC. ALIGNMENTS
         """
-        print "219: files:", request.FILES
-        print "220:", request.POST
+        #print "219: files:", request.FILES
+        #print "220:", request.POST
         
         user_msa_baseid = "user_msa"
         for file in request.FILES:

@@ -252,7 +252,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
     x = cur.fetchall()
     for ii in x:
         taxonid = ii[0]
-        sequence = ii[1]
+        sequence = ii[1].strip()
         nsites = sequence.__len__()
         sql = "select fullname from Taxa where id=" + taxonid.__str__()
         cur.execute(sql)
@@ -879,7 +879,7 @@ def get_ml_sequence(con, ancid, skip_indels=True):
         elif pp > site_mlpp[site]:
             """Use this state if it's the highest PP so far"""
             site_state[site] = state
-            site_mlpp[site] = pp            
+            site_mlpp[site] = pp
 
     sites = site_state.keys()
     sites.sort()
