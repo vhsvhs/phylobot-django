@@ -1078,6 +1078,7 @@ def get_ml_vectors(con, msaid=None, modelid=None, skip_indels=True, startsite=No
                         
         return (ancid_mlvector, sites, maxsite)
     
+    
 def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodelname=None):    
     cur = con.cursor()
     
@@ -1284,7 +1285,8 @@ def write_ml_vectors_fasta(request, con, msaid=None, msaname=None, modelid=None,
             writer.writerow( row )
             taxon_seq[ancname] = row
     
-    context = get_base_context(request, alib, con)
+    #context = get_base_context(request, alib, con)
+    context = {}
     context["taxon_seq"] = taxon_seq
     return render(request, 'libview/libview_fasta.fasta', context, content_type='text')
     
@@ -1801,6 +1803,7 @@ def view_ancestors_aligned_csv(request, alib, con):
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
         
     return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
+   
     
 def view_ancestors_aligned_fasta(request, alib, con):
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
@@ -1811,6 +1814,7 @@ def view_ancestors_aligned_fasta(request, alib, con):
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
         
     return write_ml_vectors_fasta(request, con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
+   
    
 def view_ancestors_aligned(request, alib, con, render_csv=False, render_fasta=False):    
     if render_csv:
