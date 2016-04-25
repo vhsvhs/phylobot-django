@@ -99,6 +99,8 @@ def view_library(request, libid):
         return view_ancestors_aligned(request, alib, con)
     elif request.path_info.endswith("ancestors-aligned.csv"):
         return view_ancestors_aligned(request, alib, con, render_csv=True)    
+    elif request.path_info.endswith("ancestors-aligned.fasta"):
+        return view_ancestors_aligned(request, alib, con, render_fasta=True)  
     
     elif request.path_info.endswith("ancestors-search"):
         return view_ancestors_search(request, alib, con)  
@@ -1696,9 +1698,20 @@ def view_ancestors_aligned_csv(request, alib, con):
         
     return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
     
+def view_ancestors_aligned_fasta(request, alib, con):
+    (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
-def view_ancestors_aligned(request, alib, con, render_csv=False):    
+    """Save this viewing preference -- it will load automatically next time
+        the user comes to the ancestors page."""
+    save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
+    save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
+        
+    return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
+   
+def view_ancestors_aligned(request, alib, con, render_csv=False, render_fasta=False):    
     if render_csv:
+        return view_ancestors_aligned_csv(request, alib, con)
+    if render_fasta:
         return view_ancestors_aligned_csv(request, alib, con)
     
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
