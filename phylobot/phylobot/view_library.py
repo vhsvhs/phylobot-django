@@ -311,6 +311,11 @@ def view_tree(request, alib, con, format="newick"):
         newick = newick[0]
         #print "243:", newick 
         
+        # Added March 2016: some code to cleanup Newick strings:
+        newick = re.sub("[&R]", "", newick)
+        newick = re.sub("':", ":", newick)
+        newick = re.sub(")'", ")", newick)
+        
         context["newickstring"] = newick
               
     else:
