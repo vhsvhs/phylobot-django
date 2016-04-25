@@ -1712,7 +1712,7 @@ def view_ancestors_aligned(request, alib, con, render_csv=False, render_fasta=Fa
     if render_csv:
         return view_ancestors_aligned_csv(request, alib, con)
     if render_fasta:
-        return view_ancestors_aligned_csv(request, alib, con)
+        return view_ancestors_aligned_fasta(request, alib, con)
     
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
 
