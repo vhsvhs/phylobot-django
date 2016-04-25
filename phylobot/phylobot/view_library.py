@@ -62,7 +62,7 @@ def view_library(request, libid):
         """original fasta"""
         return view_sequences(request, alib, con, format="fasta", alignment_method=None)
     
-    elif request.path_info.endswith(".fasta"):
+    elif request.path_info.endswith(".fasta") and False == request.path_info.endswith("ancestors-aligned.fasta"):
         """aligned fasta"""
         tokens = request.path_info.split("/")[-1]
         tokens = tokens.split(".")
