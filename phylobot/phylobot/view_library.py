@@ -269,7 +269,7 @@ def view_sequences(request, alib, con, format="fasta", datatype="aa", alignment_
         return render(request, 'libview/libview_phylip.phylip', context, content_type='text') 
 
 def cleanup_newick(newick):
-    newick = re.sub("[&R]", "", newick)
+    newick = re.sub("\[&R\]", "", newick)
     newick = re.sub("':", ":", newick)
     newick = re.sub("\)'", ")", newick)
     return newick
