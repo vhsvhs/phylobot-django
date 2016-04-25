@@ -1185,6 +1185,115 @@ def write_ml_vectors_csv(con, msaid=None, msaname=None, modelid=None, phylomodel
     
     return response
 
+
+def write_ml_vectors_fasta(con, msaid=None, msaname=None, modelid=None, phylomodelname=None):    
+    cur = con.cursor()
+    
+    """We'll re-use this bit of SQL"""
+    innersql = "select id from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+    
+    ancid_name = {}
+    sql = "select id, name from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__()
+    cur.execute(sql)
+    ancid_name = {}
+    for ii in cur.fetchall():
+        id = ii[0]
+        name = ii[1]
+        ancid_name[ id ] = name
+    
+    """If we're rending CSV, use the csv writer library rather than the Django
+        template library to render a response."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="ancestors_aligned.' + msaname + '.' + phylomodelname + '".fasta"'
+    writer = csv.writer(response)
+            
+    use_legacy = is_legacy_db(con)
+    
+    if use_legacy:
+        sites = []
+        tablename = "AncestralStates"
+        sql = "select distinct(site) from AncestralStates where ancid in (" + innersql + ")"
+        sql += " order by site ASC"
+        cur.execute(sql)
+        for ii in cur.fetchall():
+            sites.append( ii[0] )
+    elif use_legacy == False:
+        sites = []
+        sql = "select min(id) from Ancestors where almethod=" + msaid.__str__() + " and phylomodel=" + modelid.__str__() 
+        cur.execute(sql)
+        some_ancid = cur.fetchone()[0]
+        sql = "select distinct(site) from AncestralStates" + some_ancid.__str__()
+        sql += " order by site ASC"
+        cur.execute(sql)
+        for ii in cur.fetchall():
+            sites.append( ii[0] )
+
+    headerrow = ["Ancestor"]
+    for site in sites:
+        headerrow.append( "Site " + site.__str__() )
+    writer.writerow( headerrow )
+
+    if use_legacy:
+        sql = "select ancid, site, state, pp from AncestralStates where ancid in (" + innersql + ")"
+        cur.execute(sql)
+
+        ancid_mlvector = {}
+        for ii in cur.fetchall():
+            ancid = ii[0]       
+            if ancid not in ancid_mlvector:
+                ancid_mlvector[ancid] = {}     
+            site = ii[1]
+            state = ii[2]
+            pp = ii[3]
+
+            if state == "-":
+                pp = None
+                ancid_mlvector[ancid][site] = (state, pp)                   
+            elif ancid_mlvector[ancid][site][1] == None:
+                """This site is an indel site, so ignore amino acid data here."""
+                continue
+            elif pp > ancid_mlvector[ancid][site][1]:
+                """this state is more likely than other known states at this site."""
+                ancid_mlvector[ancid][site] = (state,pp)
+    
+        for ancid in anid_mlvector:
+            ancname = ancid_name[ ancid ]
+            row = [ancname]
+            for site in sites:
+                token = ""
+                if site in ancid_vector[ancid]:
+                    mlstate = ancid_vector[ancid][site][0]
+                    pp = ancid_vector[ancid][site][1]
+                    if mlstate == "-":
+                        token = "-"
+                    else:
+                        token = mlstate
+                row.append( token )
+            writer.writerow( row )
+        
+    elif use_legacy == False:        
+        for ancid in ancid_name:                    
+            row = [ ancid_name[ancid] ]
+            
+            sql = "select site, state, max(pp) from AncestralStates" + ancid.__str__()
+            sql += " group by site order by site ASC"
+            cur.execute(sql)
+            for ii in cur.fetchall():
+                site = ii[0]
+                mlstate = ii[1]
+                pp = ii[2]
+                
+                token = ""
+                if mlstate == "-":
+                    token = "-"
+                else:
+                    token = mlstate
+                row.append( token )
+            writer.writerow( row )
+    
+    return response
+
+
 def ml_sequence_difference(seq1, seq2):
     """Returns the proportion similarity between two sequences.
         If the sequences have different length, then it returns
@@ -1706,7 +1815,7 @@ def view_ancestors_aligned_fasta(request, alib, con):
     save_viewing_pref(request, alib.id, con, "lastviewed_msaid", msaid.__str__())        
     save_viewing_pref(request, alib.id, con, "lastviewed_modelid", phylomodelid.__str__()) 
         
-    return write_ml_vectors_csv(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
+    return write_ml_vectors_fasta(con, msaid=msaid, msaname=msaname, modelid=phylomodelid, phylomodelname=phylomodelname)
    
 def view_ancestors_aligned(request, alib, con, render_csv=False, render_fasta=False):    
     if render_csv:
