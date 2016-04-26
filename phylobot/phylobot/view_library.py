@@ -1282,7 +1282,6 @@ def write_ml_vectors_fasta(request, con, msaid=None, msaname=None, modelid=None,
                 else:
                     token = mlstate
                 row += token
-            writer.writerow( row )
             taxon_seq[ancname] = row
     
     #context = get_base_context(request, alib, con)
