@@ -193,6 +193,15 @@ def start_job(jobid, dbconn):
         print "SSH command:", ssh_command
         os.system(ssh_command)
                 
+        #THIS IS THE slave_startup_script:
+#         cd ~/
+#         sudo rm -rf repository/asr-pipeline
+#         cd repository
+#         sudo git clone https://github.com/vhsvhs/asr-pipeline
+#         sudo rm -rf lazarus
+#         sudo git clone https://code.google.com/p/project-lazarus/ lazarus
+#         cd ~/        
+        
         """Run the startup script"""        
         remote_command = "bash slave_startup_script"
         ssh_command = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/phylobot-ec2-key.pem ubuntu@" + instance.ip_address + "  '" + remote_command + "'"
