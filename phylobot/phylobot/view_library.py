@@ -88,7 +88,7 @@ def view_library(request, libid):
         return view_sequences(request, alib, con, format="phylip", alignment_method=alignment_method)
 
     elif request.path_info.endswith("clado.newick"):
-        return view_library_ancestortree(request, alib, con, show_tree_only = True)
+        return view_library_ancestortree(request, alib, con, show_tree_only=True)
        
     elif request.path_info.endswith(".newick"):
         return view_tree(request, alib, con, format="newick")
@@ -1764,15 +1764,15 @@ def view_library_ancestortree(request, alib, con, show_tree_only=False):
     handle = StringIO(newick)
     tree = Phylo.read(handle, "newick")
     
-    if show_tree_only:
-        """Don't show the whole interface, just the ancestral Newick tree"""
-        context["newickstring"] = tree 
-        return render(request, 'libview/libview_newick.newick', context)
-    
     """This is a small hack to make new versions of BioPython behave with our javascript
         tree visuazliation."""
     
     tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
+    
+    if show_tree_only:
+        """Don't show the whole interface, just the ancestral Newick tree"""
+        context["newickstring"] = tree 
+        return render(request, 'libview/libview_newick.newick', context)
     
     xmltree = tree.as_phyloxml()
     Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
