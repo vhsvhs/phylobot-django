@@ -87,7 +87,7 @@ def view_library(request, libid):
             alignment_method = tokens[-2]
         return view_sequences(request, alib, con, format="phylip", alignment_method=alignment_method)
 
-    elif request.path_info.endswith(".clado.newick"):
+    elif request.path_info.endswith("clado.newick"):
         return view_library_ancestortree(request, alib, con, show_tree_only = True)
        
     elif request.path_info.endswith(".newick"):
