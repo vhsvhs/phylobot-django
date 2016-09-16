@@ -1755,6 +1755,11 @@ def view_library_ancestortree(request, alib, con, show_tree_only=False):
     #newick = reroot_newick(con, newick)
     #print >> sys.stderr, "451: " + newick.__str__()
     
+    if show_tree_only:
+        """Don't show the whole interface, just the ancestral Newick tree"""
+        context["newickstring"] = newick 
+        return render(request, 'libview/libview_newick.newick', context)
+    
     """This following block is a mess. . . but it solves a problem with the Dendropy library.
         This block will fetch the XML string for use with the javascript-based phylogeny viewer.
         The code here is fundamentally a mess -- I can't figure out the API to get an XML
@@ -1768,12 +1773,7 @@ def view_library_ancestortree(request, alib, con, show_tree_only=False):
         tree visuazliation."""
     
     tree.root = reset_all_biopython_branchlengths(tree.root, 1.0)
-    
-    if show_tree_only:
-        """Don't show the whole interface, just the ancestral Newick tree"""
-        context["newickstring"] = tree 
-        return render(request, 'libview/libview_newick.newick', context)
-    
+        
     xmltree = tree.as_phyloxml()
     Phylo.write(xmltree, "/tmp/" + alib.id.__str__() + ".clado.xml", 'phyloxml')
     fin = open("/tmp/" + alib.id.__str__() + ".clado.xml", "r")
