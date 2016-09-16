@@ -26,6 +26,7 @@ def view_library(request, libid):
     """If a completed ancestral library exists whose name or ID is libid, then
         this method will lead to a view into that library."""
     
+    """ Strip the library ID from the URL"""
     libid = libid.split("/")[0]
     
     """Does this library exist in our known libraries?"""
@@ -39,7 +40,7 @@ def view_library(request, libid):
         return HttpResponseRedirect('/')
     
     """Retrieve the AncestralLibrary class object"""
-    print "42:", int(libid), libid, libid.__str__()
+    #print "42:", int(libid), libid, libid.__str__()
     alib = AncestralLibrary.objects.get( id=libid )
         
     """Ensure the project's SQL database exists locally."""
@@ -85,6 +86,9 @@ def view_library(request, libid):
         if tokens.__len__() >= 2:
             alignment_method = tokens[-2]
         return view_sequences(request, alib, con, format="phylip", alignment_method=alignment_method)
+
+    elif request.path_info.endswith(".clado.newick"):
+        return view_library_ancestortree(request, alib, con, show_tree_only = True)
        
     elif request.path_info.endswith(".newick"):
         return view_tree(request, alib, con, format="newick")
@@ -1732,7 +1736,7 @@ def view_ancestor_ml(request, alib, con):
     context["similarity_matrix"] = similarity_matrix
     return render(request, 'libview/libview_ancestor_ml.html', context)
 
-def view_library_ancestortree(request, alib, con):
+def view_library_ancestortree(request, alib, con, show_tree_only=False):
     cur = con.cursor() 
     
     (msaid, msaname, phylomodelid, phylomodelname) = get_msamodel(request, alib, con)
@@ -1759,6 +1763,11 @@ def view_library_ancestortree(request, alib, con):
         get the XML string."""
     handle = StringIO(newick)
     tree = Phylo.read(handle, "newick")
+    
+    if show_tree_only:
+        """Don't show the whole interface, just the ancestral Newick tree"""
+        context["newickstring"] = tree 
+        return render(request, 'libview/libview_newick.newick', context)
     
     """This is a small hack to make new versions of BioPython behave with our javascript
         tree visuazliation."""
