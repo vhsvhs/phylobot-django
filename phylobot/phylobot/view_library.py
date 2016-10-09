@@ -1335,9 +1335,6 @@ def get_site_state_pp(con, ancid, skip_indels = True):
 
 def get_site_ml(con, ancid, skip_indels = True):
     """Returns the hashtable; key = site, value = tuple of (mlstate, mlpp)"""
-    #cur = con.cursor()
-    #sql = "select site, state, pp from AncestralStates where ancid=" + ancid.__str__()
-    #cur.execute(sql)
     cur = get_ancestralstates_helper(con, ancid)
     x = cur.fetchall()
     site_tuple = {}
@@ -2132,9 +2129,21 @@ def view_ancestor_supportbysite(request, alib, con, xls=False):
         return view_library_frontpage(request, alib, con)
     ancid = x[0]
  
-    sql = "select max(site) from AncestralStates where ancid=" + ancid.__str__() + ";"
-    cur.execute(sql)
-    qqq = cur.fetchone()[0]
+    # Does this version of the data use the old DB schema, where ancestral states
+    # are stored in a table name AncestralStates,
+    # or does it use the new version of the schema in which ancestral states
+    # are stored in multiple tables named AncestralStates<N> where N is the ID
+    # of the ancestor as defind in the table Ancestors.
+#     sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='AncestralStates';"
+#     cur.execute(sql)
+#     ccc = cur.fetchone()[0]
+#     if ccc == 0:
+#         sql = "select max(site) from AncestralStates" + ancid.__str__() + ";"
+#     else:
+#         sql = "select max(site) from AncestralStates where ancid=" + ancid.__str__() + ";"
+#  
+#     cur.execute(sql)
+#     qqq = cur.fetchone()[0]
 
     site_state_pp = get_site_state_pp(con, ancid, skip_indels = True)
     sites = site_state_pp.keys()
