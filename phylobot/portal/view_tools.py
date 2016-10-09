@@ -116,8 +116,8 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True, check_is_aligned=F
         return (False, error_msgs[0] ) 
     
     """Too many sequences."""
-    if impose_limit == True and taxa_seq.keys().__len__() > 250:
-        return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain " + taxa_seq.keys().__len__().__str__() + " sequences. Please reduce the number of sequences in your file and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
+    if impose_limit == True and taxa_seq.keys().__len__() > 320:
+        return (False, "PhyloBot analysis is currently limited to 320 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain " + taxa_seq.keys().__len__().__str__() + " sequences. Please reduce the number of sequences in your file and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
 
     max_length = 0
     for taxa in taxa_seq:
