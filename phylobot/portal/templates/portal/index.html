@@ -59,8 +59,8 @@ function verify_trash(e)
 		<table width="100%">
 	  	{% for j, alibid in jobs %}
 		  	<tr>
-		  	{# Truncate the job name to the first 40 characters, otherwise the display looks wierd. #}
-		  	<td width="20%"><h3>{{j.settings.name|truncatechars:40 }}</h3>
+		  	{# Truncate the job name to the first 35 characters, otherwise the display looks wierd. #}
+		  	<td width="20%"><h3>{{j.settings.name|truncatechars:35 }}</h3>
 		  	{% if show_owner%}{{j.owner.username|truncatechars:30}}{% endif %}</td>
 			<td width="400px" style="padding-right:40px">
 				<font style="color:
