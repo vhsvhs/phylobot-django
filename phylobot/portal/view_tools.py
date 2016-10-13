@@ -132,6 +132,9 @@ def is_valid_fasta(path, is_uniprot=False, impose_limit=True, check_is_aligned=F
         if impose_limit == True and max_length > 2000:
             return (False, "PhyloBot analysis is currently limited to 250 sequences, with a maximum of 2000 sites per sequence. Your file appears to contain a sequence of length " + max_length.__len__() + ".Please trim your sites and resubmit your job. If you would like to remove the limit, please contact us using the 'Contact' link at the bottom of the page.")
         
+        #if taxa[0].isdigit():
+        #    return( False, "Please don't name sequences starting with a digit, for example " + taxa)
+        
         """Are there non-alpha chars in the sequence data?"""
         for c in taxa_seq[taxa]:
             if False == c.isalpha() and c != "-":
@@ -176,11 +179,13 @@ def clean_fasta_name(seqname):
     """Cleans sequence names to not use illegal characters, i.e. characters
         that will trip-up downstream analysis in ZORRO, RAxML, PAML, etc."""
         
-    bad_chars = ["_", "\ ", " ", "|", "[", "]", "{", "}"]
+    bad_chars = ["_", "\ ", " ", "|", "[", "]", "{", "}", ","]
     newseqname = ""
     for c in seqname:
-        if c.isalnum() or c == "_":
+        if c.isalnum():
             newseqname += c
+        elif c in bad_chars:
+            newseqname += "."
         else:
             newseqname += "."
     
