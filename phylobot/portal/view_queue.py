@@ -92,6 +92,16 @@ def stop_job(request, job):
     sqs_stop(job.id)
     return
 
+def reset_job(request, job):
+    set_last_user_command(job.id, "stop")
+    status = get_job_status(job.id)
+    if status == "Finished":
+        # You can't stop an already stopped job
+        return
+    set_job_status(job.id, "Stopping, waiting for cloud resources to evaporate")
+    sqs_stop(job.id)
+    return
+
 def finish_job(request, job):
     """This is a post-success finish state, different from a hard 'stop'.
         Here we request to release the EC2 resources, and leave the job in a "finished" state."""
