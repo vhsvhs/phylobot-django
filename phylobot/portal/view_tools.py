@@ -184,10 +184,10 @@ def clean_fasta_name(seqname):
     for c in seqname:
         if c.isalnum():
             newseqname += c
-        elif c in bad_chars:
-            newseqname += "."
-        else:
-            newseqname += "."
+        #elif c in bad_chars:
+        #    newseqname += "."
+        #else:
+        #    newseqname += "."
     
     if newseqname.__len__() > 50:
         newseqname = newseqname[0:50]
