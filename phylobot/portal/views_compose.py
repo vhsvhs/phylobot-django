@@ -216,10 +216,12 @@ def compose1(request):
         """
         if 'name' in request.POST:
             this_job.settings.name = request.POST.get('name')
+            this_job.settings.name = re.sub("'", "\'", this_job.settings.name)
+            
 
         if 'project_description' in request.POST:
             this_job.settings.project_description = request.POST.get('project_description')
-
+            this_job.settings.project_description = re.sub("'", "\'", this_job.settings.project_description)
         """
             USER-SPEC. ALIGNMENTS
         """

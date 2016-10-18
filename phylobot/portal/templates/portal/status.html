@@ -48,10 +48,10 @@ function verify_trash(e)
 		<div id="jobsettings">
 		
 		<ul>
-		<li>Job Name: {{ job.settings.name }}</li>
+		<li>Job Name: {{ job.settings.name|truncatechars:35 }}</li>
 		<li>Input File: 
 		{% if selected_aa_seqfile_url %}
-	    	<a href="{% static selected_aa_seqfile_url %}">{{selected_aaseqfile_short|truncatechars:35}}</a>
+	    	<a href="{% static selected_aa_seqfile	_url %}">{{selected_aaseqfile_short|truncatechars:35}}</a>
 		{% else %} None Specified
 	    {% endif %}
 		</li>
