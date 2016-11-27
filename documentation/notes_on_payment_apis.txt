@@ -1,0 +1,13 @@
+Notes on Payment APIs for Django
+
+Victor Hanson-Smith
+November 27, 2016
+
+1. Django Paywall
+
+Django Paywall (DP) provides a way to control access to resources defined in the url_settings of the Django project. My understanding is that DP is not well suited to the needs of PhyloBot because DP does not provide a mechanism to bill  users after their job completes, with a charge based on the job size.
+
+2. Stripe and Django
+
+http://bryanhelmig.com/20-minutes-with-stripe-and-django/
+
