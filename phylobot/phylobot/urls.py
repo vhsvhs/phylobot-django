@@ -20,8 +20,12 @@ urlpatterns = patterns('',
  	(r'^about/$', views.about),
  	(r'^examples/$', views.examples),
  	(r'^overview/$', views.overview),
- 	(r'^portal/', include('portal.urls')),
- 	(r'^status*', include('portal.urls')),	
+ 	#(r'^portal/', include('portal.urls')),
+ 	#(r'^status*', include('portal.urls')),	
+ 	
+ 	(r'^portal/', views.portal_offline),
+ 	(r'^status*', views.portal_offline),
+ 	
  	(r'^faq_fasta*', faq_fasta),
  	(r'^faq_newick*', faq_newick),
 	
@@ -37,6 +41,9 @@ urlpatterns = patterns('',
  	(r'^(.*)$', view_library),
 
 )
+
+
+
 
 urlpatterns += (url(r'^admin/django-ses/', include('django_ses.urls')),)
 
