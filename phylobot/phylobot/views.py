@@ -14,6 +14,9 @@ def main_page(request):
 def contact(request):
     return render_to_response('contact.html')
 
+def portal_offline(request):
+    return render_to_response('temporary_closed.html')
+
 def beta_notice(request):
     return render_to_response('beta_notice.html')
 

@@ -11,3 +11,22 @@ Django Paywall (DP) provides a way to control access to resources defined in the
 
 http://bryanhelmig.com/20-minutes-with-stripe-and-django/
 
+2a. Requirements:
+- DB tables to store the sale
+- A form that will validate credit card details
+- A template to display the form, with errors
+- The Stripe Python library
+
+2b. Coding:
+- Add STRIPE_API_KEY to settings.py
+
+2c. Using Stripe.js to be PCI compliant
+https://stripe.com/docs/custom-form
+
+--> I need to store CC numbers long-term. Is stripe.js the right solution?
+
+Solution?: use stripe.js to create a Customer object, and store the customer token for later.
+
+
+3. Key Terms:
+* The Payment Card Industry Data Security Standard (PCI DSS)

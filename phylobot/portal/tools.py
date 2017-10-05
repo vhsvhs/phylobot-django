@@ -18,7 +18,10 @@ def scan_seq(seqpath):
 
 def get_taxa(seqpath, format, strip_indels = True):
     """Given the path to a sequence collection, this method returns a hashtable
-    where key = sequence name, value = the sequence"""
+    where key = sequence name, value = the sequence
+    
+    This method performs some QC on the sequences, and removes bad or illegal
+    characters from taxon names."""
     taxa_seq = {}
     error_msgs = []
     fin = open(seqpath, "r")
@@ -39,6 +42,10 @@ def get_taxa(seqpath, format, strip_indels = True):
                     taxa_seq[currtaxa] = currseq
                     currseq = ""
                 currtaxa = this_taxa
+                if currtaxa[0].isdigit():
+                    # PAML complains if taxon start with numbers,
+                    # so append "t" to the front of the taxon name
+                    currtaxa = "t" + currtaxa
             else:
                 l = re.sub(" ", "", l)
                 l = re.sub("\?", "", l)

@@ -60,7 +60,7 @@ python manage.py syncdb
 # objects to the DB.
 python populate_phylobot.py
 
-# Migrate all data from the previous PhyloBot
+# Migrate all data from the previous PhyloBot (at the default location www.phylobot.com)
 # Disable this line if you want a totally fresh PhyloBot.
 #cd $PHYLOBOT_REPO
 #sudo bash aws_setup/migrate.sh

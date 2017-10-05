@@ -174,7 +174,10 @@ def write_fasta(taxa_seq, outpath):
         fout.write(">" + taxa + "\n")
         fout.write( taxa_seq[taxa] + "\n")
     fout.close()
-    
+
+
+
+
 def clean_fasta_name(seqname):
     """Cleans sequence names to not use illegal characters, i.e. characters
         that will trip-up downstream analysis in ZORRO, RAxML, PAML, etc."""
